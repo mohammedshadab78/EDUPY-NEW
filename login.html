@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPy – Log In to Your Journey</title>
+  <link rel="icon" href="logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --purple: #6C63FF;
+      --purple-dk: #4B44CC;
+      --purple-lt: #a09bff;
+      --coral: #FF6B6B;
+      --coral-dk: #CC4444;
+      --bg: #F4F7FD;
+      --card: #FFFFFF;
+      --text: #1E1B4B;
+      --muted: #5B5B7A;
+      --border: rgba(108,99,255,0.15);
+      --shadow: 0 12px 32px rgba(0,0,0,0.05), 0 2px 0 rgba(108,99,255,0.08);
+      --r-xl: 24px;
+      --r-lg: 16px;
+      --ease: cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #F0F4FF 0%, #FFF0F5 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    /* ─── CARD LAYOUT ─── */
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      border-radius: var(--r-xl);
+      padding: 2.5rem 2.2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      animation: popIn 0.5s var(--ease) forwards;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.95) translateY(15px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Top decorative gradient bar */
+    .login-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--purple), var(--coral));
+    }
+
+    /* ─── BRAND HEADER ─── */
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .brand-icon {
+      background: linear-gradient(135deg, var(--purple), var(--coral));
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: #fff;
+      box-shadow: 0 3px 0 var(--purple-dk);
+    }
+
+    .header-text {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header-text h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+
+    .header-text p {
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    /* ─── FORM CONTROLS ─── */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.8rem 1.1rem;
+      border-radius: var(--r-lg);
+      border: 2px solid rgba(108, 99, 255, 0.15);
+      background: #F8FAFC;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--purple);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn-submit {
+      width: 100%;
+      padding: 0.9rem;
+      border-radius: var(--r-lg);
+      border: none;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      background: var(--purple);
+      color: #fff;
+      box-shadow: 0 4px 0 var(--purple-dk), 0 8px 16px rgba(108, 99, 255, 0.2);
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.12s, background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 var(--purple-dk), 0 12px 20px rgba(108, 99, 255, 0.28);
+    }
+
+    .btn-submit:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--purple-dk);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 1.8rem 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid rgba(108, 99, 255, 0.15);
+    }
+
+    .divider:not(:empty)::before {
+      margin-right: 1rem;
+    }
+
+    .divider:not(:empty)::after {
+      margin-left: 1rem;
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: var(--r-lg);
+      border: 2px solid rgba(108, 99, 255, 0.2);
+      background: #ffffff;
+      color: var(--text);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      transition: all 0.2s;
+    }
+
+    .btn-google:hover {
+      background: #F8FAFC;
+      border-color: var(--purple);
+      transform: translateY(-1px);
+    }
+
+    .btn-google svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ─── FOOTER LINK ─── */
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.8rem;
+      font-size: 0.86rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .auth-footer a {
+      color: var(--purple);
+      font-weight: 700;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .auth-footer a:hover {
+      color: var(--purple-dk);
+      text-decoration: underline;
+    }
+
+    /* ─── ERROR & TOASTS ─── */
+    .error-box {
+      background: rgba(255, 107, 107, 0.08);
+      border: 1.5px solid rgba(255, 107, 107, 0.3);
+      border-radius: var(--r-lg);
+      padding: 0.8rem 1rem;
+      color: #CC4444;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      display: none;
+      align-items: flex-start;
+      gap: 0.5rem;
+      line-height: 1.4;
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    /* Dynamic Toast styling */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e1b4b;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 40px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      z-index: 1000;
+      transition: transform 0.35s var(--ease), opacity 0.3s;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Brand logo redirecting to home -->
+  <a href="index.html" class="brand">
+    <div class="brand-icon">Py</div>
+    <span>EduPy</span>
+  </a>
+
+  <div class="login-container">
+    <div class="header-text">
+      <h1>Welcome Back!</h1>
+      <p>Log in to continue learning Python</p>
+    </div>
+
+    <!-- Error container -->
+    <div class="error-box" id="errorBox">
+      <span style="font-size: 1.1rem; flex-shrink: 0;">⚠️</span>
+      <span id="errorMsg">Incorrect email or password.</span>
+    </div>
+
+    <!-- Form -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input class="input-field" type="email" id="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="input-field" type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+
+      <button class="btn-submit" type="submit" id="submitBtn">
+        <span>🔑 Sign In</span>
+      </button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <!-- Google Login -->
+    <button class="btn-google" id="googleBtn">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      <span>Sign In with Google</span>
+    </button>
+
+    <div class="auth-footer">
+      New here? <a href="register.html">Create an account →</a>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Firebase Compat Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const googleBtn = document.getElementById('googleBtn');
+    const errorBox  = document.getElementById('errorBox');
+    const errorMsg  = document.getElementById('errorMsg');
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorBox.style.display = 'flex';
+      errorBox.style.animation = 'none';
+      void errorBox.offsetWidth; // Trigger reflow
+      errorBox.style.animation = 'shake 0.3s ease';
+    }
+
+    function hideError() {
+      errorBox.style.display = 'none';
+    }
+
+    // Email/Password login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+      
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      
+      submitBtn.disabled = true;
+      const origText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '⏳ Logging in...';
+
+      // Wait for Firebase to finish initializing
+      await window.firebaseReady;
+
+      try {
+        await window.auth.signInWithEmailAndPassword(email, password);
+        // OnAuthStateChanged handles redirect automatically
+      } catch (error) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origText;
+        console.error("Login error:", error);
+        
+        // Custom error messages
+        switch (error.code) {
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+          case 'auth/invalid-credential':
+            showError("Incorrect email or password. Please try again.");
+            break;
+          case 'auth/invalid-email':
+            showError("Please enter a valid email address.");
+            break;
+          case 'auth/user-disabled':
+            showError("This account has been disabled. Contact support.");
+            break;
+          case 'auth/too-many-requests':
+            showError("Too many login attempts. Try again later.");
+            break;
+          default:
+            showError(error.message);
+        }
+      }
+    });
+
+    // Google login
+    googleBtn.addEventListener('click', async () => {
+      hideError();
+      await window.firebaseReady;
+      
+      const provider = new firebase.auth.GoogleAuthProvider();
+      
+      googleBtn.disabled = true;
+      const origText = googleBtn.innerHTML;
+      googleBtn.innerHTML = '⏳ Connecting...';
+
+      try {
+        await window.auth.signInWithPopup(provider);
+        // OnAuthStateChanged handles redirect automatically
+      } catch (error) {
+        googleBtn.disabled = false;
+        googleBtn.innerHTML = origText;
+        console.error("Google login error:", error);
+        if (error.code !== 'auth/popup-closed-by-user') {
+          showError("Google Sign-In failed: " + error.message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

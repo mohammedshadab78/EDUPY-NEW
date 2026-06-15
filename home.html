@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduPy – Python Practice Playground</title>
+  <link rel="icon" href="logo.png">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+  <!-- ═══ TOP NAV ═══════════════════════════════════════════════════════ -->
+  <nav class="topnav">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      </span>
+      <span class="brand-name">EduPy</span>
+    </a>
+
+    <div class="nav-center">
+      <span class="status-dot"></span>
+      <span class="status-text">Playground Active</span>
+    </div>
+
+    <div class="nav-actions" id="navLinks">
+      <a href="projects.html" class="nav-link-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Projects
+      </a>
+      <a href="notes.html" class="nav-link-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Notes
+      </a>
+      <a href="assessments.html" class="nav-link-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="11" y2="17"/></svg>
+        Tests
+      </a>
+      <a href="index.html" class="nav-link-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </a>
+    </div>
+
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <a href="projects.html" class="drawer-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Projects
+    </a>
+    <a href="notes.html" class="drawer-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      Python Notes
+    </a>
+    <a href="assessments.html" class="drawer-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+      Assessments
+    </a>
+    <a href="index.html" class="drawer-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Home
+    </a>
+    <div class="drawer-divider"></div>
+    <button class="drawer-run-btn" id="drawerRunBtn">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Run Code
+    </button>
+  </div>
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- ═══ APP SHELL ══════════════════════════════════════════════════════ -->
+  <div class="app">
+
+    <!-- ── Toolbar ──────────────────────────────────────────────────────── -->
+    <div class="toolbar">
+
+      <!-- File tabs bar -->
+      <div class="file-tabs-bar">
+        <div class="file-tabs" id="fileTabs">
+          <!-- Dynamically rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="toolbar-actions">
+        <button class="btn-run" id="runBtn" title="Run Code (Ctrl+Enter)">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run
+          <kbd>Ctrl+↵</kbd>
+        </button>
+
+        <div class="btn-group">
+          <!-- Clear -->
+          <button class="btn-tool" id="clearBtn" title="Clear editor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            <span>Clear</span>
+          </button>
+          <!-- Save -->
+          <button class="btn-tool" id="saveBtn" title="Save file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span>Save</span>
+          </button>
+          <!-- Open -->
+          <button class="btn-tool" id="openBtn" title="Open file(s)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span>Open</span>
+          </button>
+          <input type="file" id="fileInput" accept=".txt,.py,.edupy" multiple style="display:none" />
+          <!-- Reset -->
+          <button class="btn-tool" id="resetBtn" title="Reset to demo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+            <span>Reset</span>
+          </button>
+          <!-- Share -->
+          <button class="btn-tool" id="shareBtn" title="Share code">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span>Share</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ WORKSPACE ═══════════════════════════════════════════════════ -->
+    <main class="workspace">
+
+      <!-- Editor Panel -->
+      <section class="panel editor-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="panel-dot dot-editor"></span>
+            Editor
+          </div>
+          <span class="lang-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Python / EduPy
+          </span>
+        </div>
+
+        <textarea id="code" spellcheck="false" aria-label="Code editor"></textarea>
+
+        <div class="editor-footer">
+          <span class="hint-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <code>print()</code> · <code>input()</code> · <code>math.sqrt()</code> · <code>try/except</code>
+          </span>
+          <span class="line-count" id="lineCount">Ln 1:1 · 0 lines</span>
+        </div>
+
+        <!-- ▼ Quick Reference button – Desktop only (below editor) -->
+        <div class="qr-btn-wrap desktop-qr">
+          <button class="quick-ref-btn" id="quickRefBtnDesktop" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span class="qr-label">Quick Reference</span>
+            <svg class="qr-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Side Panels -->
+      <aside class="side-panels">
+
+        <!-- ── Terminal Panel (VS Code style) ─────────────────────────── -->
+        <div class="panel terminal-panel">
+
+          <!-- Terminal header with tabs -->
+          <div class="terminal-header">
+            <div class="terminal-tabs">
+              <button class="term-tab active" data-tab="output" title="Program Output">
+                <span class="term-dot" style="background:var(--c-output)"></span>
+                OUTPUT
+              </button>
+              <button class="term-tab" data-tab="errors" title="Errors & Problems">
+                <span class="term-dot" style="background:var(--c-error)"></span>
+                PROBLEMS
+              </button>
+              <button class="term-tab" data-tab="ast" title="Abstract Syntax Tree">
+                <span class="term-dot" style="background:var(--c-ast)"></span>
+                AST
+              </button>
+            </div>
+            <div class="terminal-header-right">
+              <span class="term-timestamp" id="termTimestamp"></span>
+              <button class="icon-btn" id="clearTerminal" title="Clear terminal (×)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Terminal panes -->
+          <div class="terminal-body">
+            <pre id="output" class="term-pane active"><span class="ph">Output will appear here after you run code…</span></pre>
+            <pre id="errors" class="term-pane"><span class="ph">No errors 🎉</span></pre>
+            <pre id="ast"    class="term-pane"><span class="ph">Run code to see AST…</span></pre>
+          </div>
+
+          <!-- Terminal status bar -->
+          <div class="terminal-statusbar">
+            <span class="term-status-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+              EduPy Terminal
+            </span>
+            <span class="term-status-right">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Python
+            </span>
+          </div>
+        </div>
+
+        <!-- ── AST Panel (standalone, accessible) ─────────────────────── -->
+        <!-- NOTE: AST is now part of the terminal tabs above -->
+
+        <!-- ▼ Quick Reference button – Mobile only (after terminal) -->
+        <div class="qr-btn-wrap mobile-qr">
+          <button class="quick-ref-btn" id="quickRefBtnMobile" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span class="qr-label">Quick Reference</span>
+            <svg class="qr-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+
+      </aside>
+    </main>
+
+    <!-- ═══ QUICK REFERENCE (Collapsible) ══════════════════════════════ -->
+    <section class="cheatsheet" id="quickRef" aria-hidden="true">
+      <div class="cheatsheet-header">
+        <div>
+          <h2 class="cheatsheet-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Quick Reference
+          </h2>
+          <p class="cheatsheet-sub">Click any card to copy the snippet into your clipboard</p>
+        </div>
+        <div class="copy-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Click to copy
+        </div>
+      </div>
+
+      <div class="cheat-grid">
+
+        <div class="cheat-card" data-copy tabindex="0" role="button" aria-label="Copy Variables & I/O snippet">
+          <div class="cheat-card-top">
+            <span class="cheat-emoji">🧱</span>
+            <h3>Variables & I/O</h3>
+            <span class="copy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+          </div>
+          <pre><code># Variables
+x = 10
+name = "shadab"
+# Print & input
+print("Hello", name)
+</code></pre>
+        </div>
+
+        <div class="cheat-card" data-copy tabindex="0" role="button" aria-label="Copy Control Flow snippet">
+          <div class="cheat-card-top">
+            <span class="cheat-emoji">🔀</span>
+            <h3>Control Flow</h3>
+            <span class="copy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+          </div>
+          <pre><code>age = int(input("Age: "))
+if age >= 18:
+    print("Adult")
+else:
+    print("Minor")
+
+for i in range(0, 5):
+    print(i)</code></pre>
+        </div>
+
+        <div class="cheat-card" data-copy tabindex="0" role="button" aria-label="Copy Functions & Math snippet">
+          <div class="cheat-card-top">
+            <span class="cheat-emoji">⚙️</span>
+            <h3>Functions & Math</h3>
+            <span class="copy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+          </div>
+          <pre><code>def add(a, b):
+    return a + b
+
+print(add(2, 3))
+
+import math
+print(math.sqrt(25))</code></pre>
+        </div>
+
+        <div class="cheat-card" data-copy tabindex="0" role="button" aria-label="Copy Strings & Dicts snippet">
+          <div class="cheat-card-top">
+            <span class="cheat-emoji">📦</span>
+            <h3>Strings & Dicts</h3>
+            <span class="copy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+          </div>
+          <pre><code>text = "hello world"
+print(text.upper())
+print(len(text))
+
+info = {"name": "Shadab"}
+print(info["name"])</code></pre>
+        </div>
+
+        <div class="cheat-card" data-copy tabindex="0" role="button" aria-label="Copy Lists snippet">
+          <div class="cheat-card-top">
+            <span class="cheat-emoji">📋</span>
+            <h3>Lists</h3>
+            <span class="copy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+          </div>
+          <pre><code>nums = [1, 2, 3, 4, 5]
+nums.append(6)
+
+for n in nums:
+    print(n)
+
+print(sum(nums))</code></pre>
+        </div>
+
+        <div class="cheat-card" data-copy tabindex="0" role="button" aria-label="Copy Try/Except snippet">
+          <div class="cheat-card-top">
+            <span class="cheat-emoji">🛡️</span>
+            <h3>Try / Except</h3>
+            <span class="copy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+          </div>
+          <pre><code>try:
+    x = int(input("Num: "))
+    print(10 / x)
+except ValueError:
+    print("Not a number!")
+except ZeroDivisionError:
+    print("Can't divide by 0")</code></pre>
+        </div>
+
+      </div><!-- /.cheat-grid -->
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>Made  by  <strong>  Mohammed Shadab</strong> · EduPy Project</span>
+      <div class="footer-links">
+        <a href="home.html">Editor</a>
+        <a href="notes.html">Notes</a>
+        <a href="assessments.html">Assessments</a>
+        <a href="projects.html">Projects</a>
+        <a href="index.html">Home</a>
+      </div>
+    </footer>
+
+  </div><!-- /.app -->
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="edupy-stdlib.js"></script>
+  <script src="main.js"></script>
+
+  <script>
+    // ── Hamburger / mobile drawer ──────────────────────────────────────
+    const hamburger = document.getElementById('hamburger');
+    const drawer    = document.getElementById('mobileDrawer');
+    const overlay   = document.getElementById('drawerOverlay');
+
+    function toggleDrawer(open) {
+      hamburger.classList.toggle('open', open);
+      drawer.classList.toggle('open', open);
+      overlay.classList.toggle('open', open);
+      document.body.classList.toggle('drawer-open', open);
+    }
+    hamburger.addEventListener('click', () => toggleDrawer(!drawer.classList.contains('open')));
+    overlay.addEventListener('click', () => toggleDrawer(false));
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => toggleDrawer(false)));
+    document.getElementById('drawerRunBtn').addEventListener('click', () => toggleDrawer(false));
+  </script>
+</body>
+</html>

@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>EduPy – Learn Python the Smart Way</title>
+     <link rel="icon" href="logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ─── RESET & ROOT ─────────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --purple: #6C63FF;
+            --purple-dk: #4B44CC;
+            --purple-lt: #8B83FF;
+            --coral: #FF6B6B;
+            --coral-dk: #CC4444;
+            --coral-lt: #FF8E8E;
+            --mint: #4ECDC4;
+            --mint-dk: #33A89F;
+            --mint-lt: #6ED8D1;
+            --bg: #F0F4FF;
+            --card-bg: #FFFFFF;
+            --text: #2D2B55;
+            --muted: #8884B0;
+            --radius: 24px;
+            --font-body: "Nunito", sans-serif;
+            --font-head: "Syne", sans-serif;
+            --transition-bounce: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition-smooth: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ─── NAV ──────────────────────────────────────────────────── */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 2rem;
+            background: rgba(240, 244, 255, 0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(108, 99, 255, 0.12);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            text-decoration: none;
+        }
+
+        .nav-logo {
+            width: 2.4rem;
+            height: 2.4rem;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--purple), var(--coral));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-head);
+            font-weight: 800;
+            font-size: 1rem;
+            color: #fff;
+            box-shadow: 0 4px 0 var(--purple-dk), 0 8px 16px rgba(108, 99, 255, 0.3);
+            transition: transform var(--transition-bounce), box-shadow var(--transition-smooth);
+        }
+
+        .nav-brand:hover .nav-logo {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 0 var(--purple-dk), 0 12px 22px rgba(108, 99, 255, 0.4);
+        }
+
+        .nav-title {
+            font-family: var(--font-head);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--purple);
+            letter-spacing: 0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        /* ─── Enhanced Nav Buttons ────────────────────────────────── */
+        .nav-btn {
+            padding: 0.5rem 1.1rem;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            font-family: var(--font-body);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: transform var(--transition-bounce), box-shadow var(--transition-smooth), background var(--transition-smooth), border-color var(--transition-smooth);
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(108, 99, 255, 0.3);
+            color: var(--purple);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+            pointer-events: none;
+        }
+
+        .nav-btn:hover {
+            background: rgba(108, 99, 255, 0.12);
+            border-color: var(--purple);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.15);
+        }
+
+        .nav-btn:hover::after {
+            opacity: 1;
+            animation: shimmer 0.8s ease-out forwards;
+        }
+
+        .nav-btn.primary {
+            background: rgba(108, 99, 255, 0.18);
+            border-color: rgba(108, 99, 255, 0.5);
+            color: var(--purple-dk);
+            box-shadow: 0 2px 10px rgba(108, 99, 255, 0.12);
+        }
+
+        .nav-btn.primary:hover {
+            background: rgba(108, 99, 255, 0.26);
+            border-color: var(--purple);
+            box-shadow: 0 8px 24px rgba(108, 99, 255, 0.22);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:active {
+            transform: translateY(1px) scale(0.97);
+            transition: transform 0.08s ease;
+        }
+
+        .nav-btn .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.2rem;
+            height: 1.2rem;
+            flex-shrink: 0;
+            transition: transform var(--transition-bounce);
+        }
+
+        .nav-btn:hover .btn-icon {
+            transform: scale(1.2) rotate(-8deg);
+        }
+
+        .nav-btn.primary:hover .btn-icon {
+            transform: scale(1.25) rotate(-5deg);
+            animation: iconPulse 0.6s ease-out;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            40% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes iconPulse {
+            0% {
+                transform: scale(1);
+            }
+            30% {
+                transform: scale(1.4) rotate(-10deg);
+            }
+            100% {
+                transform: scale(1.25) rotate(-5deg);
+            }
+        }
+
+        /* hamburger */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+            background: none;
+            border: none;
+        }
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--purple);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        /* ─── PARALLAX HERO ────────────────────────────────────────── */
+        .hero-wrapper {
+            position: relative;
+            height: 100vh;
+            min-height: 600px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .parallax-bg {
+            position: absolute;
+            inset: -20%;
+            z-index: 1;
+            will-change: transform;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 30%, rgba(78, 205, 196, 0.35) 0%, transparent 60%),
+                radial-gradient(ellipse 70% 50% at 80% 70%, rgba(255, 107, 107, 0.25) 0%, transparent 55%),
+                radial-gradient(ellipse 90% 80% at 50% 50%, rgba(108, 99, 255, 0.15) 0%, transparent 70%),
+                linear-gradient(160deg, #E8EEFF 0%, #F0F4FF 40%, #FFF0F5 70%, #F0FFFD 100%);
+        }
+
+        .parallax-bg svg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 55%;
+            opacity: 0.18;
+        }
+
+        .parallax-blobs {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+            filter: blur(2px);
+            opacity: 0.55;
+        }
+
+        .blob-1 {
+            width: 220px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.6), rgba(108, 99, 255, 0.1));
+            top: 10%;
+            left: 5%;
+            animation: blobFloat 8s ease-in-out infinite;
+        }
+        .blob-2 {
+            width: 160px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.55), rgba(255, 107, 107, 0.05));
+            top: 20%;
+            right: 8%;
+            border-radius: 45% 55% 40% 60% / 60% 45% 55% 40%;
+            animation: blobFloat 11s ease-in-out infinite reverse;
+        }
+        .blob-3 {
+            width: 130px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(78, 205, 196, 0.6), rgba(78, 205, 196, 0.05));
+            bottom: 25%;
+            left: 15%;
+            animation: blobFloat 9s ease-in-out infinite 2s;
+        }
+        .blob-4 {
+            width: 100px;
+            height: 110px;
+            background: radial-gradient(circle, rgba(255, 200, 100, 0.5), rgba(255, 200, 100, 0.05));
+            top: 55%;
+            right: 18%;
+            border-radius: 50% 50% 40% 60% / 55% 45% 55% 45%;
+            animation: blobFloat 7s ease-in-out infinite 1s;
+        }
+        .blob-5 {
+            width: 80px;
+            height: 85px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.4), transparent);
+            top: 75%;
+            left: 45%;
+            animation: blobFloat 10s ease-in-out infinite 3s;
+        }
+
+        @keyframes blobFloat {
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-18px) rotate(5deg);
+            }
+            66% {
+                transform: translateY(10px) rotate(-4deg);
+            }
+        }
+
+        .parallax-fg {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            padding: 0 1.25rem;
+            max-width: 760px;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(108, 99, 255, 0.25);
+            border-radius: 999px;
+            padding: 0.35rem 0.9rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--purple);
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.04em;
+        }
+
+        .hero-title {
+            font-family: var(--font-head);
+            font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+            font-weight: 800;
+            line-height: 1.15;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .hero-highlight {
+            background: linear-gradient(120deg, var(--purple), var(--coral));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-sub {
+            font-size: clamp(0.9rem, 2vw, 1.05rem);
+            color: var(--muted);
+            max-width: 540px;
+            margin: 0 auto 2rem;
+            line-height: 1.65;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ─── ENHANCED CLAY BUTTON ────────────────────────────────── */
+        .clay-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.6rem;
+            border-radius: 999px;
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+            transition: transform var(--transition-bounce), box-shadow var(--transition-smooth), background var(--transition-smooth);
+            position: relative;
+            top: 0;
+            letter-spacing: 0.01em;
+            overflow: hidden;
+        }
+
+        .clay-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            transition: opacity var(--transition-smooth);
+        }
+
+        .clay-btn::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 999px;
+            background: linear-gradient(120deg, transparent 25%, rgba(255, 255, 255, 0.3) 45%, transparent 65%);
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+            pointer-events: none;
+        }
+
+        .clay-btn:hover::after {
+            opacity: 1;
+            animation: shimmer 1s ease-out forwards;
+        }
+
+        .clay-btn .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.35rem;
+            height: 1.35rem;
+            flex-shrink: 0;
+            transition: transform var(--transition-bounce);
+            position: relative;
+            z-index: 1;
+        }
+
+        .clay-btn:hover .btn-icon {
+            transform: scale(1.2) rotate(-6deg);
+        }
+
+        .clay-btn:active .btn-icon {
+            transform: scale(1.05) rotate(-3deg);
+        }
+
+        .clay-btn.purple {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 8px 0 var(--purple-dk), 0 14px 20px rgba(108, 99, 255, 0.35), 0 0 0 0 rgba(108, 99, 255, 0.5);
+            animation: glowPulse 2.5s ease-in-out infinite;
+        }
+
+        .clay-btn.purple:hover {
+            box-shadow: 0 10px 0 var(--purple-dk), 0 20px 30px rgba(108, 99, 255, 0.45), 0 0 30px rgba(108, 99, 255, 0.3);
+            transform: translateY(-3px);
+            background: var(--purple-lt);
+        }
+
+        .clay-btn.purple:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 var(--purple-dk), 0 6px 10px rgba(108, 99, 255, 0.25);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            animation: none;
+        }
+
+        @keyframes glowPulse {
+            0%,
+            100% {
+                box-shadow: 0 8px 0 var(--purple-dk), 0 14px 20px rgba(108, 99, 255, 0.35), 0 0 0 0 rgba(108, 99, 255, 0.5);
+            }
+            50% {
+                box-shadow: 0 8px 0 var(--purple-dk), 0 14px 20px rgba(108, 99, 255, 0.35), 0 0 18px 6px rgba(108, 99, 255, 0.2);
+            }
+        }
+
+        .clay-btn.coral {
+            background: var(--coral);
+            color: #fff;
+            box-shadow: 0 8px 0 var(--coral-dk), 0 14px 20px rgba(255, 107, 107, 0.35), 0 0 0 0 rgba(255, 107, 107, 0.5);
+            animation: glowPulseCoral 2.5s ease-in-out infinite;
+        }
+
+        @keyframes glowPulseCoral {
+            0%,
+            100% {
+                box-shadow: 0 8px 0 var(--coral-dk), 0 14px 20px rgba(255, 107, 107, 0.35), 0 0 0 0 rgba(255, 107, 107, 0.5);
+            }
+            50% {
+                box-shadow: 0 8px 0 var(--coral-dk), 0 14px 20px rgba(255, 107, 107, 0.35), 0 0 18px 6px rgba(255, 107, 107, 0.2);
+            }
+        }
+
+        .clay-btn.coral:hover {
+            box-shadow: 0 10px 0 var(--coral-dk), 0 20px 30px rgba(255, 107, 107, 0.45), 0 0 30px rgba(255, 107, 107, 0.3);
+            transform: translateY(-3px);
+            background: var(--coral-lt);
+        }
+
+        .clay-btn.coral:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 var(--coral-dk), 0 6px 10px rgba(255, 107, 107, 0.25);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            animation: none;
+        }
+
+        .clay-btn.mint {
+            background: var(--mint);
+            color: #fff;
+            box-shadow: 0 8px 0 var(--mint-dk), 0 14px 20px rgba(78, 205, 196, 0.35), 0 0 0 0 rgba(78, 205, 196, 0.5);
+            animation: glowPulseMint 2.5s ease-in-out infinite;
+        }
+
+        @keyframes glowPulseMint {
+            0%,
+            100% {
+                box-shadow: 0 8px 0 var(--mint-dk), 0 14px 20px rgba(78, 205, 196, 0.35), 0 0 0 0 rgba(78, 205, 196, 0.5);
+            }
+            50% {
+                box-shadow: 0 8px 0 var(--mint-dk), 0 14px 20px rgba(78, 205, 196, 0.35), 0 0 18px 6px rgba(78, 205, 196, 0.2);
+            }
+        }
+
+        .clay-btn.mint:hover {
+            box-shadow: 0 10px 0 var(--mint-dk), 0 20px 30px rgba(78, 205, 196, 0.45), 0 0 30px rgba(78, 205, 196, 0.3);
+            transform: translateY(-3px);
+            background: var(--mint-lt);
+        }
+
+        .clay-btn.mint:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 var(--mint-dk), 0 6px 10px rgba(78, 205, 196, 0.25);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            animation: none;
+        }
+
+        /* ─── ENHANCED GLASS BUTTON ───────────────────────────────── */
+        .glass-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.7rem 1.4rem;
+            border-radius: 999px;
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            border: 1.5px solid rgba(108, 99, 255, 0.35);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            color: var(--purple);
+            transition: transform var(--transition-bounce), background var(--transition-smooth), border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+            box-shadow: 0 4px 14px rgba(108, 99, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: linear-gradient(120deg, transparent 25%, rgba(255, 255, 255, 0.5) 48%, transparent 70%);
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+            pointer-events: none;
+        }
+
+        .glass-btn:hover {
+            background: rgba(108, 99, 255, 0.1);
+            border-color: rgba(108, 99, 255, 0.55);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(108, 99, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .glass-btn:hover::after {
+            opacity: 1;
+            animation: shimmer 0.9s ease-out forwards;
+        }
+
+        .glass-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 6px rgba(108, 99, 255, 0.1);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+        }
+
+        .glass-btn .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.2rem;
+            height: 1.2rem;
+            flex-shrink: 0;
+            transition: transform var(--transition-bounce);
+        }
+
+        .glass-btn:hover .btn-icon {
+            transform: scale(1.18) rotate(-5deg);
+        }
+
+        /* ─── HERO STATS ──────────────────────────────────────────── */
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .val {
+            display: block;
+            font-family: var(--font-head);
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--purple);
+        }
+
+        .hero-stat .lbl {
+            display: block;
+            font-size: 0.73rem;
+            color: var(--muted);
+            margin-top: 0.1rem;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.7rem;
+            color: var(--muted);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(6px);
+            }
+        }
+
+        /* ─── MAIN CONTENT ────────────────────────────────────────── */
+        .content {
+            position: relative;
+            z-index: 10;
+            background: var(--bg);
+            padding: 4rem 1.5rem 3rem;
+        }
+
+        .inner {
+            max-width: 1060px;
+            margin: 0 auto;
+        }
+
+        /* ─── SECTION HEADER ─────────────────────────────────────── */
+        .sec-label {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--purple);
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 999px;
+            padding: 0.25rem 0.75rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .sec-title {
+            font-family: var(--font-head);
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .sec-sub {
+            font-size: 0.9rem;
+            color: var(--muted);
+            max-width: 500px;
+            line-height: 1.6;
+            margin-bottom: 2.2rem;
+        }
+
+        /* ─── CLAY CARDS ─────────────────────────────────────────── */
+        .clay-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow:
+                0 2px 0 rgba(0, 0, 0, 0.04),
+                0 8px 0 rgba(108, 99, 255, 0.08),
+                0 20px 40px rgba(108, 99, 255, 0.10),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .clay-card:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 2px 0 rgba(0, 0, 0, 0.04),
+                0 12px 0 rgba(108, 99, 255, 0.1),
+                0 28px 50px rgba(108, 99, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        /* ─── CODE PREVIEW CARD ──────────────────────────────────── */
+        .code-section {
+            margin-bottom: 4rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .code-card {
+            background: #1e1b4b;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow:
+                0 8px 0 #15124a,
+                0 20px 50px rgba(30, 27, 75, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-card::before {
+            content: '';
+            position: absolute;
+            inset: -40%;
+            background: conic-gradient(from 200deg, rgba(108, 99, 255, 0.2), rgba(255, 107, 107, 0.1), transparent, transparent);
+            opacity: 0.5;
+            filter: blur(10px);
+            pointer-events: none;
+        }
+
+        .code-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .code-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .code-dots span:nth-child(1) {
+            background: #FF6B6B;
+        }
+        .code-dots span:nth-child(2) {
+            background: #FFD93D;
+        }
+        .code-dots span:nth-child(3) {
+            background: #4ECDC4;
+        }
+
+        .code-pill {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #4ECDC4;
+            background: rgba(78, 205, 196, 0.15);
+            border: 1px solid rgba(78, 205, 196, 0.4);
+            border-radius: 999px;
+            padding: 0.15rem 0.6rem;
+        }
+
+        .code-body {
+            font-family: ui-monospace, 'Fira Code', Menlo, monospace;
+            font-size: 0.82rem;
+            line-height: 1.75;
+            white-space: pre;
+            overflow-x: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hc {
+            color: #6B7280;
+        }
+        .hkw {
+            color: #4ECDC4;
+        }
+        .hfn {
+            color: #a5b4fc;
+        }
+        .hstr {
+            color: #FFB347;
+        }
+        .hnum {
+            color: #FF6B6B;
+        }
+
+        /* ─── FEATURES GRID ──────────────────────────────────────── */
+        .features-section {
+            margin-bottom: 4rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        .feature-card {
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            background: var(--card-bg);
+            box-shadow:
+                0 6px 0 rgba(0, 0, 0, 0.06),
+                0 16px 32px rgba(108, 99, 255, 0.09),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow:
+                0 10px 0 rgba(0, 0, 0, 0.06),
+                0 24px 44px rgba(108, 99, 255, 0.13),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        .feature-card:nth-child(1) {
+            border-top: 4px solid var(--purple);
+        }
+        .feature-card:nth-child(2) {
+            border-top: 4px solid var(--coral);
+        }
+        .feature-card:nth-child(3) {
+            border-top: 4px solid var(--mint);
+        }
+
+        .feat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .feat-title {
+            font-family: var(--font-head);
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .feat-body {
+            font-size: 0.84rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 0.6rem;
+        }
+
+        .feat-tag {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--purple);
+            background: rgba(108, 99, 255, 0.08);
+            border-radius: 999px;
+            padding: 0.2rem 0.6rem;
+            display: inline-block;
+        }
+
+        .feature-card:nth-child(2) .feat-tag {
+            color: var(--coral);
+            background: rgba(255, 107, 107, 0.08);
+        }
+        .feature-card:nth-child(3) .feat-tag {
+            color: var(--mint-dk);
+            background: rgba(78, 205, 196, 0.1);
+        }
+
+        /* ─── AUDIENCE STRIP ─────────────────────────────────────── */
+        .audience-section {
+            margin-bottom: 4rem;
+        }
+
+        .audience-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .audience-card {
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            color: #fff;
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.15), 0 20px 40px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease;
+        }
+
+        .audience-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .audience-card.students {
+            background: linear-gradient(135deg, var(--purple) 0%, #9B59B6 100%);
+            box-shadow: 0 8px 0 var(--purple-dk), 0 20px 40px rgba(108, 99, 255, 0.3);
+        }
+
+        .audience-card.colleges {
+            background: linear-gradient(135deg, var(--coral) 0%, #FF8E53 100%);
+            box-shadow: 0 8px 0 var(--coral-dk), 0 20px 40px rgba(255, 107, 107, 0.3);
+        }
+
+        .aud-tag {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.75;
+            margin-bottom: 0.5rem;
+        }
+
+        .aud-title {
+            font-family: var(--font-head);
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .aud-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .aud-list li {
+            font-size: 0.84rem;
+            opacity: 0.88;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+        }
+
+        .aud-list li::before {
+            content: '✓';
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        /* ─── STEPS ──────────────────────────────────────────────── */
+        .steps-section {
+            margin-bottom: 4rem;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        .step-card {
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            background: var(--card-bg);
+            box-shadow:
+                0 6px 0 rgba(0, 0, 0, 0.05),
+                0 16px 32px rgba(108, 99, 255, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .step-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .step-num {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-head);
+            font-size: 1rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.8rem;
+        }
+
+        .step-card:nth-child(1) .step-num {
+            background: var(--purple);
+            box-shadow: 0 4px 0 var(--purple-dk), 0 8px 16px rgba(108, 99, 255, 0.3);
+        }
+        .step-card:nth-child(2) .step-num {
+            background: var(--coral);
+            box-shadow: 0 4px 0 var(--coral-dk), 0 8px 16px rgba(255, 107, 107, 0.3);
+        }
+        .step-card:nth-child(3) .step-num {
+            background: var(--mint);
+            box-shadow: 0 4px 0 var(--mint-dk), 0 8px 16px rgba(78, 205, 196, 0.3);
+        }
+
+        .step-title {
+            font-family: var(--font-head);
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.35rem;
+        }
+
+        .step-body {
+            font-size: 0.84rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ─── ABOUT SECTION ──────────────────────────────────────── */
+        .about-section {
+            margin-bottom: 4rem;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .about-main {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow:
+                0 6px 0 rgba(108, 99, 255, 0.1),
+                0 20px 40px rgba(108, 99, 255, 0.09),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        .about-main h3 {
+            font-family: var(--font-head);
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.6rem;
+        }
+
+        .about-main p {
+            font-size: 0.86rem;
+            color: var(--muted);
+            line-height: 1.65;
+            margin-bottom: 0.7rem;
+        }
+
+        .about-points {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .about-points li {
+            font-size: 0.84rem;
+            color: var(--text);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .about-points li::before {
+            content: '→';
+            color: var(--purple);
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .about-side-card {
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.08), rgba(78, 205, 196, 0.06));
+            border: 1.5px solid rgba(108, 99, 255, 0.15);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 4px 0 rgba(108, 99, 255, 0.08), 0 12px 24px rgba(108, 99, 255, 0.07);
+        }
+
+        .about-side-card h4 {
+            font-family: var(--font-head);
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.6rem;
+        }
+
+        .about-side-card p {
+            font-size: 0.82rem;
+            color: var(--muted);
+            line-height: 1.65;
+            margin-bottom: 0.5rem;
+        }
+
+        .about-future {
+            font-size: 0.77rem;
+            color: var(--purple);
+            font-weight: 600;
+        }
+
+        /* ─── FOOTER ─────────────────────────────────────────────── */
+        .footer {
+            background: #1e1b4b;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            border-radius: 28px 28px 0 0;
+        }
+
+        .footer-left {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .footer-left strong {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .footer-links a {
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .footer-links a:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* ─── REVEAL ANIMATIONS ───────────────────────────────────── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(22px);
+        }
+
+        .reveal.visible {
+            animation: fadeUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ─── INLINE SVG ICON STYLES ──────────────────────────────── */
+        .svg-icon {
+            width: 1.1em;
+            height: 1.1em;
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+
+        .clay-btn .svg-icon {
+            width: 1.2em;
+            height: 1.2em;
+        }
+
+        /* ─── MOBILE RESPONSIVE ───────────────────────────────────── */
+        @media (max-width: 900px) {
+            .code-section {
+                grid-template-columns: 1fr;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .audience-grid {
+                grid-template-columns: 1fr;
+            }
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .nav {
+                padding: 0.75rem 1.1rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: rgba(240, 244, 255, 0.97);
+                backdrop-filter: blur(20px);
+                padding: 1rem 1.25rem 1.5rem;
+                gap: 0.5rem;
+                border-bottom: 1px solid rgba(108, 99, 255, 0.12);
+                z-index: 99;
+            }
+            .nav-links.open .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .hamburger {
+                display: flex;
+            }
+
+            .hero-title {
+                font-size: 1.9rem;
+            }
+            .hero-sub {
+                font-size: 0.85rem;
+            }
+
+            .content {
+                padding: 3rem 1rem 2rem;
+            }
+
+            .hero-stats {
+                gap: 1.25rem;
+            }
+
+            .code-body {
+                font-size: 0.74rem;
+            }
+
+            .audience-card {
+                padding: 1.25rem;
+            }
+
+            .footer {
+                padding: 1.25rem 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            .clay-btn,
+            .glass-btn {
+                width: 100%;
+                justify-content: center;
+                max-width: 280px;
+            }
+        }
+    </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+
+<body>
+
+    <!-- ─── NAV ─────────────────────────────────────────────────── -->
+    <header class="nav" id="nav">
+        <a href="#" class="nav-brand">
+            <div class="nav-logo">Py</div>
+            <span class="nav-title">EduPy</span>
+        </a>
+
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="nav-links" id="nav-links">
+            <a href="home.html" class="nav-btn primary">
+                <span class="btn-icon">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                </span>
+                Open Editor
+            </a>
+            <a href="notes.html" class="nav-btn">
+                <span class="btn-icon">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                </span>
+                Notes
+            </a>
+            <a href="assessments.html" class="nav-btn">
+                <span class="btn-icon">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </span>
+                Assessments
+            </a>
+            <a href="projects.html" class="nav-btn">
+                <span class="btn-icon">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </span>
+                Projects
+            </a>
+            <a href="#about" class="nav-btn">
+                <span class="btn-icon">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                </span>
+                About
+            </a>
+        </nav>
+    </header>
+
+    <!-- ─── PARALLAX HERO ────────────────────────────────────────── -->
+    <section class="hero-wrapper" id="hero">
+
+        <div class="parallax-bg" id="parallaxBg">
+            <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                <path fill="rgba(108,99,255,0.4)" d="M0,200 C200,100 400,280 600,180 C800,80 1000,240 1200,160 C1350,100 1440,180 1440,180 L1440,320 L0,320 Z"/>
+                <path fill="rgba(78,205,196,0.25)" d="M0,250 C300,150 500,300 720,220 C900,150 1100,280 1300,200 L1440,200 L1440,320 L0,320 Z"/>
+                <path fill="rgba(255,107,107,0.15)" d="M0,280 C360,200 600,310 900,260 C1150,220 1350,290 1440,270 L1440,320 L0,320 Z"/>
+            </svg>
+        </div>
+
+        <div class="parallax-blobs" id="parallaxBlobs">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+            <div class="blob blob-4"></div>
+            <div class="blob blob-5"></div>
+        </div>
+
+        <div class="parallax-fg">
+            <div class="hero-eyebrow">✨ Built for absolute beginners</div>
+
+            <h1 class="hero-title">
+                Learn Python the<br>
+                <span class="hero-highlight">smart way</span> with EduPy.
+            </h1>
+
+            <p class="hero-sub">
+                A Python-style playground + notes + assessments — all in your browser.
+                No installs, no setup, just start writing code.
+            </p>
+
+            <div class="hero-actions">
+                <a href="home.html" class="clay-btn purple">
+                    <span class="btn-icon">
+                        <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    </span>
+                    Start coding now
+                </a>
+                <a href="notes.html" class="glass-btn">
+                    <span class="btn-icon">
+                        <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    </span>
+                    View notes
+                </a>
+                <a href="assessments.html" class="glass-btn">
+                    <span class="btn-icon">
+                        <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </span>
+                    Practice
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="val">Python-like</span>
+                    <span class="lbl">syntax &amp; builtins</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="val">20+ topics</span>
+                    <span class="lbl">module-wise notes</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="val">60+ problems</span>
+                    <span class="lbl">with hints &amp; solutions</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-hint">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Scroll to explore
+        </div>
+    </section>
+
+    <!-- ─── MAIN CONTENT ─────────────────────────────────────────── -->
+    <div class="content">
+        <div class="inner">
+
+            <!-- CODE PREVIEW -->
+            <div class="code-section reveal">
+                <div>
+                    <span class="sec-label">Live Playground</span>
+                    <h2 class="sec-title">Code in your browser.<br>No install required.</h2>
+                    <p class="sec-sub">EduPy runs Python-style code right in your browser. See results instantly, inspect errors, and understand how programs work — from the very first line.</p>
+                    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                        <a href="home.html" class="clay-btn purple" style="font-size:0.85rem;padding:0.65rem 1.3rem;">
+                            <span class="btn-icon">
+                                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </span>
+                            Try the editor
+                            <span class="btn-icon" style="margin-left:-0.1rem;">
+                                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </span>
+                        </a>
+                        <a href="notes.html" class="glass-btn" style="font-size:0.82rem;padding:0.6rem 1.2rem;">
+                            <span class="btn-icon">
+                                <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            </span>
+                            Browse notes
+                        </a>
+                    </div>
+                </div>
+
+                <div class="code-card">
+                    <div class="code-card-header">
+                        <div class="code-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <span class="code-pill">No setup needed</span>
+                    </div>
+                    <div class="code-body"><span class="hc"># EduPy – runs in your browser</span>
+                        <span class="hkw">name</span> = <span class="hfn">input</span>(<span class="hstr">"Your name: "</span>)
+                        <span class="hkw">age</span> = <span class="hfn">int</span>(<span class="hfn">input</span>(<span class="hstr">"Your age: "</span>))
+
+                        <span class="hkw">if</span> age &gt;= <span class="hnum">18</span>:
+                        <span class="hfn">print</span>(<span class="hstr">"Welcome,"</span>, name)
+                        <span class="hkw">else</span>:
+                        <span class="hfn">print</span>(<span class="hstr">"Hi,"</span>, name,
+                        <span class="hstr">"– keep learning!"</span>)</div>
+                </div>
+            </div>
+
+            <!-- FEATURES -->
+            <section class="features-section reveal">
+                <span class="sec-label">Why EduPy?</span>
+                <h2 class="sec-title">Everything you need to start.</h2>
+                <p class="sec-sub">Built for CSE students and self-learners who want to grasp Python concepts step by step — no noise, no friction.</p>
+
+                <div class="features-grid">
+                    <article class="feature-card">
+                        <span class="feat-icon">👨‍💻</span>
+                        <div class="feat-title">Live Playground</div>
+                        <p class="feat-body">Browser-based editor with instant output, clear error messages, and AST view. Try ideas, break things, and see exactly what happens.</p>
+                        <span class="feat-tag">Editor · Output · AST</span>
+                    </article>
+
+                    <article class="feature-card">
+                        <span class="feat-icon">📚</span>
+                        <div class="feat-title">Notes &amp; Roadmap</div>
+                        <p class="feat-body">Module-wise notes from syntax basics all the way to OOP and file handling — with examples and clear explanations throughout.</p>
+                        <span class="feat-tag">20+ modules · Examples</span>
+                    </article>
+
+                    <article class="feature-card">
+                        <span class="feat-icon">📝</span>
+                        <div class="feat-title">Assessments</div>
+                        <p class="feat-body">Level-based practice questions with well-placed hints and full solutions. Struggle first, then check — that's how you actually learn.</p>
+                        <span class="feat-tag">6 levels · 60+ questions</span>
+                    </article>
+                </div>
+            </section>
+
+            <!-- FOR STUDENTS / COLLEGES -->
+            <section class="audience-section reveal">
+                <span class="sec-label">Who's it for?</span>
+                <h2 class="sec-title">Built for students &amp; teachers.</h2>
+                <p class="sec-sub">Whether you're learning on your own or running a lab session, EduPy fits right in.</p>
+
+                <div class="audience-grid">
+                    <div class="audience-card students">
+                        <div class="aud-tag">🎓 For Students</div>
+                        <div class="aud-title">Practice Python with confidence</div>
+                        <ul class="aud-list">
+                            <li>Open your browser and start — no setup ever.</li>
+                            <li>Concepts explained in plain language with examples.</li>
+                            <li>Great for first-year CSE and self-learners alike.</li>
+                        </ul>
+                    </div>
+
+                    <div class="audience-card colleges">
+                        <div class="aud-tag">🏫 For Teachers &amp; Colleges</div>
+                        <div class="aud-title">Use EduPy in labs &amp; classes</div>
+                        <ul class="aud-list">
+                            <li>Same environment for every student — no install headaches.</li>
+                            <li>Use notes + assessments as ready-made lab material.</li>
+                            <li>Perfect for introducing programming logic early on.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HOW TO USE -->
+            <section class="steps-section reveal">
+                <span class="sec-label">How it works</span>
+                <h2 class="sec-title">Three steps to get going.</h2>
+                <p class="sec-sub">A simple workflow designed to build real understanding, not just copy-paste habits.</p>
+
+                <div class="steps-grid">
+                    <article class="step-card">
+                        <div class="step-num">1</div>
+                        <div class="step-title">Read the notes</div>
+                        <p class="step-body">Start with the Notes page. Follow modules in order — basics, input/output, conditions, loops, functions, strings, lists, dicts.</p>
+                    </article>
+
+                    <article class="step-card">
+                        <div class="step-num">2</div>
+                        <div class="step-title">Practice in the editor</div>
+                        <p class="step-body">Re-write examples, modify them, break them on purpose. Watching the output and AST teaches you far more than just reading.</p>
+                    </article>
+
+                    <article class="step-card">
+                        <div class="step-num">3</div>
+                        <div class="step-title">Solve assessments</div>
+                        <p class="step-body">Attempt questions level by level. Use hints only when stuck, then review solutions to pick up better patterns.</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ABOUT -->
+            <section class="about-section reveal" id="about">
+                <span class="sec-label">About EduPy</span>
+                <h2 class="sec-title">A project with a purpose.</h2>
+                <p class="sec-sub">Built by Mohammed Shadab to make Python approachable for everyone starting out.</p>
+
+                <div class="about-grid">
+                    <div class="about-main clay-card">
+                        <h3>Why this exists</h3>
+                        <p>Installing Python, configuring IDEs, and decoding cryptic error messages stops a lot of beginners before they even start. EduPy removes all of that friction so you can focus on learning to think like a programmer.</p>
+                        <p>The goal isn't to replicate Python perfectly — it's to teach Python-style thinking: variables, conditions, loops, functions, data structures, and real problem solving in a safe sandbox built for experimentation and mistakes.</p>
+                        <ul class="about-points">
+                            <li>100% browser-based — works on low-end devices.</li>
+                            <li>Clean, distraction-free editor with helpful hints.</li>
+                            <li>Roadmap-style notes from basics to advanced topics.</li>
+                            <li>Assessments that push you to apply, not just read.</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-side-card">
+                        <h4>Where it's headed</h4>
+                        <p>EduPy works as a personal learning tool, a college lab companion, or a portfolio project that shows genuine interest in compilers and education technology.</p>
+                        <p class="about-future">Future ideas: deeper Python compatibility, richer problem sets, and integration with real Python interpreters for advanced learners.</p>
+
+                        <div style="margin-top:1.2rem;">
+                            <a href="home.html" class="clay-btn mint" style="font-size:0.82rem;padding:0.65rem 1.2rem;border-radius:20px;">
+                                <span class="btn-icon">
+                                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                </span>
+                                Start exploring
+                                <span class="btn-icon" style="margin-left:-0.1rem;">
+                                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div><!-- /.inner -->
+    </div><!-- /.content -->
+
+    <!-- ─── FOOTER ────────────────────────────────────────────────── -->
+    <footer class="footer">
+        <div class="footer-left">
+            Made by <strong>Mohammed Shadab</strong> · EduPy Project
+        </div>
+        <div class="footer-links">
+            <a href="home.html">Editor</a>
+            <a href="notes.html">Notes</a>
+            <a href="assessments.html">Assessments</a>
+            <a href="projects.html">Projects</a>
+        </div>
+    </footer>
+
+    <!-- ─── SCRIPTS ───────────────────────────────────────────────── -->
+    <script>
+        // ── Hamburger menu ──────────────────────────────────────────
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('nav-links');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+        });
+
+        // Close menu on link click
+        navLinks.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', () => navLinks.classList.remove('open'));
+        });
+
+        // ── Parallax on scroll (rAF) ─────────────────────────────────
+        const bg = document.getElementById('parallaxBg');
+        const blobs = document.getElementById('parallaxBlobs');
+
+        let ticking = false;
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const sy = window.scrollY;
+                    bg.style.transform = `translateY(${sy * 0.30}px)`;
+                    blobs.style.transform = `translateY(${sy * 0.60}px)`;
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // ── Scroll reveal ────────────────────────────────────────────
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.12 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // ── Clay button pressed feel ──────────────────────────────────
+        document.querySelectorAll('.clay-btn').forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.transition = 'transform 0.08s ease, box-shadow 0.08s ease';
+            });
+            btn.addEventListener('mouseup', () => {
+                btn.style.transition =
+                    'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+        });
+    </script>
+</body>
+</html>

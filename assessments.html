@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>EduPy – MCQ Assessments | Level Up Your Python</title>
+  <link rel="icon" href="logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --purple:#6C63FF;--purple-dk:#4B44CC;--purple-lt:#a09bff;
+      --coral:#FF6B6B;--coral-dk:#CC4444;
+      --mint:#4ECDC4;--mint-dk:#33A89F;
+      --gold:#F5A623;--gold-dk:#C17D0A;
+      --bg:#F4F7FD;--card:#FFFFFF;
+      --text:#1E1B4B;--muted:#5B5B7A;
+      --border:rgba(108,99,255,0.15);
+      --shadow:0 8px 24px rgba(0,0,0,0.06),0 2px 0 rgba(108,99,255,0.1);
+      --r-xl:28px;--r-lg:20px;--r-md:14px;
+      --ease:cubic-bezier(0.2,0.9,0.4,1.1);
+    }
+    html{scroll-behavior:smooth;scroll-padding-top:90px;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    button{cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:inherit;}
+
+    /* ── NAVBAR ── */
+    .navbar{position:sticky;top:0;z-index:100;background:rgba(244,247,253,0.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;flex-wrap:wrap;gap:.6rem;}
+    .logo{display:flex;align-items:center;gap:.5rem;font-weight:800;font-size:1.15rem;text-decoration:none;color:var(--text);}
+    .logo-icon{background:linear-gradient(135deg,var(--purple),var(--coral));width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:#fff;box-shadow:0 3px 0 var(--purple-dk);}
+    .nav-links{display:flex;gap:.4rem;flex-wrap:wrap;}
+    .nav-btn{padding:.38rem .9rem;border-radius:40px;font-weight:600;text-decoration:none;background:rgba(108,99,255,.09);color:var(--purple);font-size:.82rem;display:inline-flex;align-items:center;gap:5px;border:none;transition:.18s;}
+    .nav-btn:hover,.nav-btn.active{background:var(--purple);color:#fff;transform:translateY(-1px);}
+
+    /* ── VIEWS ── */
+    .view{display:none;}.view.active{display:block;}
+    .app{max-width:1200px;margin:0 auto;padding:2rem 1rem 3rem;}
+
+    /* ── HERO ── */
+    .hero{margin-bottom:2rem;}
+    .hero-chip{background:rgba(108,99,255,.12);display:inline-block;padding:.22rem 1rem;border-radius:40px;font-size:.75rem;font-weight:600;color:var(--purple);margin-bottom:.8rem;}
+    .hero-title{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--purple),var(--coral));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.2;}
+    .hero-sub{margin-top:.5rem;color:var(--muted);font-size:.9rem;}
+
+    /* ── OVERALL PROGRESS BAR ── */
+    .overall-progress{background:var(--card);border-radius:var(--r-lg);padding:1rem 1.4rem;margin-bottom:1.8rem;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+    .prog-label{font-weight:700;font-size:.88rem;white-space:nowrap;}
+    .prog-track{flex:1;min-width:120px;height:10px;background:rgba(108,99,255,.12);border-radius:10px;overflow:hidden;}
+    .prog-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--mint));border-radius:10px;transition:width .6s ease;}
+    .prog-text{font-size:.8rem;color:var(--muted);font-weight:600;white-space:nowrap;}
+
+    /* ── LEVEL GRID ── */
+    .level-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;}
+    .level-card{background:var(--card);border-radius:var(--r-xl);padding:1.5rem;box-shadow:var(--shadow);border:2px solid transparent;position:relative;overflow:hidden;transition:transform .22s var(--ease),box-shadow .22s,border-color .22s;}
+    .level-card:hover{transform:translateY(-4px);box-shadow:0 20px 36px -10px rgba(108,99,255,.18);}
+    .level-card.earned{border-color:var(--gold);}
+    .level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--r-xl) var(--r-xl) 0 0;}
+    .level-card[data-color="purple"]::before{background:linear-gradient(90deg,var(--purple),var(--purple-lt));}
+    .level-card[data-color="coral"]::before{background:linear-gradient(90deg,var(--coral),#ff9a9a);}
+    .level-card[data-color="mint"]::before{background:linear-gradient(90deg,var(--mint),#7eeee9);}
+    .level-card[data-color="gold"]::before{background:linear-gradient(90deg,var(--gold),#ffd06a);}
+    .level-card[data-color="blue"]::before{background:linear-gradient(90deg,#3B82F6,#7DD3FC);}
+    .level-card[data-color="red"]::before{background:linear-gradient(90deg,#EF4444,#FCA5A5);}
+
+    .lc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.8rem;}
+    .lc-emoji{font-size:2.2rem;line-height:1;}
+    .badge-pill{background:linear-gradient(135deg,var(--gold),#f9c74f);color:#7a4f00;font-size:.7rem;font-weight:700;padding:.25rem .7rem;border-radius:30px;display:none;align-items:center;gap:.3rem;box-shadow:0 2px 8px rgba(245,166,35,.35);}
+    .badge-pill.show{display:inline-flex;}
+    .lc-title{font-size:1.1rem;font-weight:800;margin-bottom:.25rem;}
+    .lc-sub{font-size:.78rem;color:var(--muted);margin-bottom:.4rem;}
+    .lc-desc{font-size:.82rem;color:var(--muted);line-height:1.5;margin-bottom:1rem;}
+    .lc-meta{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;}
+    .meta-chip{font-size:.72rem;font-weight:600;padding:.2rem .65rem;border-radius:30px;background:rgba(108,99,255,.09);color:var(--purple);}
+    .meta-chip.score{background:rgba(78,205,196,.12);color:var(--mint-dk);}
+
+    .start-btn{width:100%;padding:.75rem;border-radius:var(--r-md);border:none;font-weight:700;font-size:.9rem;background:var(--purple);color:#fff;box-shadow:0 3px 0 var(--purple-dk);transition:transform .15s,box-shadow .15s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+    .start-btn:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--purple-dk);}
+    .start-btn:active{transform:translateY(1px);box-shadow:0 1px 0 var(--purple-dk);}
+    .start-btn[data-color="coral"]{background:var(--coral);box-shadow:0 3px 0 var(--coral-dk);}
+    .start-btn[data-color="coral"]:hover{box-shadow:0 5px 0 var(--coral-dk);}
+    .start-btn[data-color="mint"]{background:var(--mint);box-shadow:0 3px 0 var(--mint-dk);}
+    .start-btn[data-color="mint"]:hover{box-shadow:0 5px 0 var(--mint-dk);}
+    .start-btn[data-color="gold"]{background:var(--gold);box-shadow:0 3px 0 var(--gold-dk);color:#4a2800;}
+    .start-btn[data-color="blue"]{background:#3B82F6;box-shadow:0 3px 0 #1D4ED8;}
+    .start-btn[data-color="red"]{background:#EF4444;box-shadow:0 3px 0 #B91C1C;}
+
+    /* ── QUIZ VIEW ── */
+    #view-quiz .app{max-width:780px;}
+    .quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.6rem;}
+    .quiz-level-label{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.4rem;}
+    .quiz-score-chip{background:rgba(108,99,255,.1);padding:.3rem .85rem;border-radius:30px;font-size:.82rem;font-weight:600;color:var(--purple);}
+
+    .quiz-progress-wrap{margin-bottom:1.5rem;}
+    .qp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;}
+    .qp-label{font-size:.78rem;color:var(--muted);font-weight:600;}
+    .qp-track{height:8px;background:rgba(108,99,255,.1);border-radius:8px;overflow:hidden;}
+    .qp-fill{height:100%;border-radius:8px;transition:width .4s ease;}
+
+    /* ── TIMER ── */
+    .timer-wrap{display:flex;align-items:center;gap:.5rem;}
+    .timer-ring{width:38px;height:38px;position:relative;}
+    .timer-ring svg{transform:rotate(-90deg);}
+    .timer-ring circle{fill:none;stroke-width:3;}
+    .timer-ring .bg{stroke:rgba(108,99,255,.15);}
+    .timer-ring .fg{stroke:var(--purple);stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .3s;}
+    .timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--purple);}
+    .timer-ring.urgent .fg{stroke:var(--coral);}
+    .timer-ring.urgent .timer-num{color:var(--coral);}
+
+    /* ── QUESTION CARD ── */
+    .question-card{background:var(--card);border-radius:var(--r-xl);padding:1.8rem;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:1.2rem;animation:fadeSlide .3s ease;}
+    @keyframes fadeSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    .q-number{font-size:.7rem;font-weight:700;color:var(--purple);background:rgba(108,99,255,.1);display:inline-block;padding:.22rem .7rem;border-radius:30px;margin-bottom:.8rem;}
+    .q-text{font-size:1.05rem;font-weight:700;line-height:1.5;margin-bottom:1.4rem;}
+    .q-code{font-family:'JetBrains Mono',monospace;background:#1e1b4b;color:#e2e8f0;padding:.12rem .5rem;border-radius:6px;font-size:.88em;}
+
+    /* ── OPTIONS ── */
+    .options-grid{display:flex;flex-direction:column;gap:.7rem;}
+    .option-btn{width:100%;text-align:left;padding:.9rem 1.1rem;border-radius:var(--r-md);border:2px solid var(--border);background:var(--bg);font-size:.92rem;font-weight:500;color:var(--text);display:flex;align-items:center;gap:.75rem;transition:border-color .15s,background .15s,transform .15s;position:relative;}
+    .option-btn:hover:not(:disabled){border-color:var(--purple);background:rgba(108,99,255,.05);transform:translateX(3px);}
+    .option-label{width:28px;height:28px;border-radius:8px;background:rgba(108,99,255,.1);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--purple);flex-shrink:0;transition:background .15s,color .15s;}
+    .option-btn.correct{border-color:#22c55e;background:rgba(34,197,94,.08);}
+    .option-btn.correct .option-label{background:#22c55e;color:#fff;}
+    .option-btn.wrong{border-color:var(--coral);background:rgba(255,107,107,.08);}
+    .option-btn.wrong .option-label{background:var(--coral);color:#fff;}
+    .option-btn.selected:not(.correct):not(.wrong){border-color:var(--purple);background:rgba(108,99,255,.08);}
+    .option-btn:disabled{cursor:default;}
+
+    .feedback-row{display:flex;align-items:center;gap:.5rem;margin-top:.8rem;font-size:.85rem;font-weight:600;min-height:1.4em;}
+    .feedback-row.correct{color:#15803d;}
+    .feedback-row.wrong{color:var(--coral-dk);}
+
+    /* ── NEXT BUTTON ── */
+    .next-btn{width:100%;padding:.85rem;border-radius:var(--r-md);border:none;font-weight:700;font-size:.95rem;background:var(--purple);color:#fff;box-shadow:0 3px 0 var(--purple-dk);transition:transform .15s,box-shadow .15s;display:none;margin-top:1rem;}
+    .next-btn.show{display:block;}
+    .next-btn:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--purple-dk);}
+
+    /* ── RESULT VIEW ── */
+    #view-result .app{max-width:640px;text-align:center;}
+    .result-card{background:var(--card);border-radius:var(--r-xl);padding:2.5rem 2rem;box-shadow:var(--shadow);border:1px solid var(--border);}
+    .result-emoji{font-size:4rem;margin-bottom:.6rem;animation:popIn .5s var(--ease);}
+    @keyframes popIn{from{transform:scale(0) rotate(-10deg);}to{transform:scale(1) rotate(0deg);}}
+    .result-title{font-size:1.7rem;font-weight:800;margin-bottom:.4rem;}
+    .result-sub{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;}
+    .score-display{background:var(--bg);border-radius:var(--r-lg);padding:1.2rem;margin-bottom:1.5rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+    .score-box{text-align:center;}
+    .score-num{font-size:2rem;font-weight:800;color:var(--purple);}
+    .score-lbl{font-size:.72rem;color:var(--muted);font-weight:600;margin-top:.2rem;}
+
+    /* ── BADGE ── */
+    .badge-reveal{background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(249,199,79,.08));border:2px solid rgba(245,166,35,.4);border-radius:var(--r-xl);padding:1.5rem 1rem;margin-bottom:1.5rem;animation:glow 2s ease-in-out infinite alternate;}
+    @keyframes glow{from{box-shadow:0 0 10px rgba(245,166,35,.15);}to{box-shadow:0 0 28px rgba(245,166,35,.35);}}
+    .badge-icon{font-size:3.5rem;margin-bottom:.5rem;animation:spinBounce .6s var(--ease) .2s both;}
+    @keyframes spinBounce{from{transform:scale(0) rotate(-180deg);}to{transform:scale(1) rotate(0deg);}}
+    .badge-name{font-size:1.2rem;font-weight:800;color:#7a4f00;margin-bottom:.25rem;}
+    .badge-tagline{font-size:.82rem;color:#9a6300;font-weight:500;}
+    .badge-stars{font-size:1.1rem;margin-top:.5rem;letter-spacing:2px;}
+
+    .result-actions{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center;}
+    .res-btn{padding:.7rem 1.4rem;border-radius:40px;font-weight:700;font-size:.9rem;border:none;transition:.18s;}
+    .res-btn.primary{background:var(--purple);color:#fff;box-shadow:0 3px 0 var(--purple-dk);}
+    .res-btn.primary:hover{transform:translateY(-2px);}
+    .res-btn.ghost{background:var(--bg);color:var(--text);border:2px solid var(--border);}
+    .res-btn.ghost:hover{border-color:var(--purple);color:var(--purple);}
+
+    /* ── FOOTER ── */
+    .footer{background:#1e1b4b;padding:1.1rem 1.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.8rem;border-radius:28px 28px 0 0;color:rgba(255,255,255,.55);font-size:.8rem;margin-top:3rem;}
+    .footer a{color:inherit;text-decoration:none;}
+
+    /* ── CONFETTI (CSS only) ── */
+    .confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden;}
+    .confetti-piece{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall linear forwards;}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:700px){
+      .hero-title{font-size:1.6rem;}
+      .question-card{padding:1.2rem;}
+      .q-text{font-size:.95rem;}
+      .option-btn{padding:.75rem .9rem;font-size:.88rem;}
+      .result-card{padding:1.8rem 1.2rem;}
+      .result-title{font-size:1.4rem;}
+      .level-grid{grid-template-columns:1fr;}
+    }
+    @media(max-width:480px){
+      .app{padding:1.2rem .8rem 2.5rem;}
+      .navbar{padding:.6rem .8rem;}
+      .overall-progress{padding:.8rem 1rem;}
+    }
+  </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">Py</div>
+    <span>EduPy <span style="font-weight:400">MCQ Quiz</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-btn">✏️ Editor</a>
+    <a href="notes.html" class="nav-btn">📘 Notes</a>
+    <a href="index.html" class="nav-btn">🏠 Home</a>
+  </div>
+</nav>
+
+<!-- ═══ VIEW: LEVEL MAP ═══ -->
+<div id="view-map" class="view active">
+  <div class="app">
+    <div class="hero">
+      <div class="hero-chip">🎯 MCQ Assessment · 6 Levels · 72 Questions · Earn Badges</div>
+      <h1 class="hero-title">Test Your Python Knowledge<br>Level by Level</h1>
+      <p class="hero-sub">Choose a level, answer 10 random questions, score 70%+ to earn your badge!</p>
+    </div>
+
+    <div class="overall-progress">
+      <span class="prog-label">🏆 Overall Progress</span>
+      <div class="prog-track"><div class="prog-fill" id="overallFill" style="width:0%"></div></div>
+      <span class="prog-text" id="overallText">0 / 6 badges</span>
+    </div>
+
+    <div class="level-grid" id="levelGrid"><!-- injected --></div>
+  </div>
+</div>
+
+<!-- ═══ VIEW: QUIZ ═══ -->
+<div id="view-quiz" class="view">
+  <div class="app">
+    <div class="quiz-header">
+      <div class="quiz-level-label" id="quizLevelLabel">Level</div>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div class="timer-wrap">
+          <div class="timer-ring" id="timerRing">
+            <svg width="38" height="38" viewBox="0 0 38 38">
+              <circle class="bg" cx="19" cy="19" r="16" stroke-dasharray="100.5" stroke-dashoffset="0"/>
+              <circle class="fg" id="timerArc" cx="19" cy="19" r="16" stroke-dasharray="100.5" stroke-dashoffset="0"/>
+            </svg>
+            <div class="timer-num" id="timerNum">30</div>
+          </div>
+        </div>
+        <div class="quiz-score-chip" id="liveScore">Score: 0</div>
+      </div>
+    </div>
+
+    <div class="quiz-progress-wrap">
+      <div class="qp-row">
+        <span class="qp-label" id="qProgress">Question 1 of 10</span>
+        <span class="qp-label" id="qProgressPct">0%</span>
+      </div>
+      <div class="qp-track"><div class="qp-fill" id="qpFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="question-card" id="questionCard">
+      <div class="q-number" id="qNum">Q1</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div class="feedback-row" id="feedbackRow"></div>
+    </div>
+
+    <button class="next-btn" id="nextBtn">Next Question →</button>
+    <button class="nav-btn" id="quitBtn" style="margin-top:.5rem;display:inline-flex;" onclick="showMap()">← Back to Levels</button>
+  </div>
+</div>
+
+<!-- ═══ VIEW: RESULT ═══ -->
+<div id="view-result" class="view">
+  <div class="app">
+    <div class="result-card" id="resultCard">
+      <div class="result-emoji" id="resultEmoji">🎉</div>
+      <div class="result-title" id="resultTitle">Great Job!</div>
+      <div class="result-sub" id="resultSub">Here's how you did</div>
+
+      <div class="score-display">
+        <div class="score-box"><div class="score-num" id="resScore">0</div><div class="score-lbl">SCORE</div></div>
+        <div class="score-box"><div class="score-num" id="resPct" style="color:var(--mint-dk)">0%</div><div class="score-lbl">ACCURACY</div></div>
+        <div class="score-box"><div class="score-num" id="resCorrect" style="color:#22c55e">0</div><div class="score-lbl">CORRECT</div></div>
+        <div class="score-box"><div class="score-num" id="resWrong" style="color:var(--coral)">0</div><div class="score-lbl">WRONG</div></div>
+      </div>
+
+      <div class="badge-reveal" id="badgeReveal" style="display:none">
+        <div class="badge-icon" id="badgeIcon">🏅</div>
+        <div class="badge-name" id="badgeName">Badge Name</div>
+        <div class="badge-tagline" id="badgeTagline">Achievement unlocked!</div>
+        <div class="badge-stars" id="badgeStars">⭐⭐⭐</div>
+      </div>
+
+      <div class="result-actions">
+        <button class="res-btn primary" id="retryBtn">🔄 Try Again</button>
+        <button class="res-btn ghost" onclick="showMap()">← All Levels</button>
+        <button class="res-btn ghost" id="nextLevelBtn" style="display:none">Next Level →</button>
+        <a href="certificate.html" class="res-btn ghost">🎓 Get Certificate</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFETTI -->
+<div class="confetti-wrap" id="confettiWrap" style="display:none"></div>
+
+<footer class="footer">
+  <span>Made with 💜 by Mohammed Shadab · EduPy Project</span>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <a href="index.html">Editor</a>
+    <a href="notes.html">Notes</a>
+    <a href="assessments.html">Assessments</a>
+  </div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════
+//   DATA — 72 MCQ Questions (12 per level)
+// ══════════════════════════════════════════
+const LEVELS = [
+  {
+    id:"L1", title:"🌟 Level 1", subtitle:"Absolute Beginner",
+    desc:"Basic syntax, variables, data types, print & input.",
+    color:"purple", totalQ:12, perAttempt:10, passScore:7,
+    badge:{ emoji:"🌱", name:"Seedling Badge", tagline:"Mastered the Python basics!", stars:"⭐⭐⭐" },
+    questions:[
+      { q:"Which function is used to display output in Python?", opts:["show()","display()","print()","output()"], ans:2 },
+      { q:"What is the correct way to assign a string to a variable?", opts:['name = [Hello]','name = Hello','name = "Hello"','name = {Hello}'], ans:2 },
+      { q:"What does the <code class='q-code'>input()</code> function return by default?", opts:["integer","float","string","boolean"], ans:2 },
+      { q:"What will <code class='q-code'>print(2 + 3)</code> output?", opts:["2 + 3","23","5","Error"], ans:2 },
+      { q:"Which operator performs integer (floor) division in Python?", opts:["/","//","%","**"], ans:1 },
+      { q:"What is the output of <code class='q-code'>print(10 % 3)</code>?", opts:["3","1","0","10"], ans:1 },
+      { q:"Which of these is a valid Python variable name?", opts:["2name","my-var","my_var","for"], ans:2 },
+      { q:"What is the data type of <code class='q-code'>3.14</code>?", opts:["int","str","bool","float"], ans:3 },
+      { q:"What will <code class='q-code'>print(2 ** 4)</code> output?", opts:["8","6","16","24"], ans:2 },
+      { q:"How do you convert the string <code class='q-code'>\"42\"</code> to an integer?", opts:['str("42")','int("42")','float("42")','num("42")'], ans:1 },
+      { q:'What will <code class="q-code">print("Hello" + " " + "World")</code> output?', opts:["Hello World","HelloWorld",'"Hello World"',"Error"], ans:0 },
+      { q:"Which symbol starts a comment in Python?", opts:["//","/*  */","<!--  -->","#"], ans:3 },
+    ]
+  },
+  {
+    id:"L2", title:"⚡   Level 2", subtitle:"Logic & Conditionals",
+    desc:"if/else, comparisons, boolean logic, operators.",
+    color:"coral", totalQ:12, perAttempt:10, passScore:7,
+    badge:{ emoji:"⚡", name:"Logic Spark Badge", tagline:"Boolean brain unlocked!", stars:"⭐⭐⭐" },
+    questions:[
+      { q:"What keyword starts a conditional statement in Python?", opts:["when","check","if","condition"], ans:2 },
+      { q:'<code class="q-code">x = 7; print("odd" if x % 2 != 0 else "even")</code> — what prints?', opts:["even","odd","7","Error"], ans:1 },
+      { q:"What does <code class='q-code'>elif</code> stand for?", opts:["else if","else in loop","end if","elif is invalid"], ans:0 },
+      { q:"The <code class='q-code'>and</code> operator returns True when…", opts:["either side is True","both sides are True","neither side is True","both sides are False"], ans:1 },
+      { q:"What does <code class='q-code'>not True</code> evaluate to?", opts:["True","1","False","None"], ans:2 },
+      { q:"Which comparison operator checks equality?", opts:["=","===","==",":="], ans:2 },
+      { q:"What does <code class='q-code'>bool(0)</code> return?", opts:["True","0","False","None"], ans:2 },
+      { q:'<code class="q-code">x = 5; y = 10; print(x &lt; y and y &lt; 20)</code> — output?', opts:["False","Error","5","True"], ans:3 },
+      { q:'<code class="q-code">not (True and False)</code> evaluates to?', opts:["False","None","True","Error"], ans:2 },
+      { q:"Which statement correctly checks if a variable <code class='q-code'>x</code> is None?", opts:["x == None","x is None","x = None","x equals None"], ans:1 },
+      { q:'What will <code class="q-code">print("yes") if 3 &gt; 2 else print("no")</code> output?', opts:["no","yes","True","3"], ans:1 },
+      { q:"What does the <code class='q-code'>or</code> operator return True for?", opts:["only when both are True","when at least one is True","when both are False","never"], ans:1 },
+    ]
+  },
+  {
+    id:"L3", title:"📚 Level 3", subtitle:"Strings & Lists",
+    desc:"String methods, list operations, indexing, slicing.",
+    color:"mint", totalQ:12, perAttempt:10, passScore:7,
+    badge:{ emoji:"📚", name:"Word Wizard Badge", tagline:"Strings and lists? Easy!", stars:"⭐⭐⭐" },
+    questions:[
+      { q:'What does <code class="q-code">"hello".upper()</code> return?', opts:["HELLO","Hello","hello","hELLO"], ans:0 },
+      { q:'What is <code class="q-code">len("Python")</code>?', opts:["5","6","7","4"], ans:1 },
+      { q:'What is <code class="q-code">"abc"[1]</code>?', opts:["a","b","c","ab"], ans:1 },
+      { q:'What does <code class="q-code">"hello world".split()</code> return?', opts:["('hello','world')","['hello world']","['hello','world']","{hello, world}"], ans:2 },
+      { q:'What does <code class="q-code">[1,2,3,4][1:3]</code> return?', opts:["[1,2,3]","[2,3,4]","[2,3]","[1,3]"], ans:2 },
+      { q:'What does <code class="q-code">"hello".replace("l","r")</code> return?', opts:["herlo","herro","hello","Error"], ans:1 },
+      { q:"How do you add an element to the <em>end</em> of a list?", opts:["list.add(x)","list.push(x)","list.append(x)","list.insert(x)"], ans:2 },
+      { q:'What does <code class="q-code">[1,2,3].pop()</code> return?', opts:["1","2","3","[1,2]"], ans:2 },
+      { q:'What will <code class="q-code">"abc"[-1]</code> return?', opts:["a","b","c","Error"], ans:2 },
+      { q:'What does <code class="q-code">"hello".startswith("he")</code> return?', opts:["False","True",'"he"',"Error"], ans:1 },
+      { q:'What does <code class="q-code">[1,2,3] + [4,5]</code> return?', opts:["[1,2,3,4,5]","Error","[1,2,3,[4,5]]","[5,7]"], ans:0 },
+      { q:'What is <code class="q-code">len([1, [2,3], 4])</code>?', opts:["4","3","5","2"], ans:1 },
+    ]
+  },
+  {
+    id:"L4", title:"🔄 Level 4", subtitle:"Loops & Patterns",
+    desc:"for, while, range, break, continue, nested loops.",
+    color:"gold", totalQ:12, perAttempt:10, passScore:7,
+    badge:{ emoji:"🔄", name:"Loop Legend Badge", tagline:"Loops bend to your will!", stars:"⭐⭐⭐" },
+    questions:[
+      { q:'What does <code class="q-code">range(5)</code> generate?', opts:["1,2,3,4,5","0,1,2,3,4","0,1,2,3,4,5","1,2,3,4"], ans:1 },
+      { q:"What keyword immediately stops a loop?", opts:["stop","exit","break","return"], ans:2 },
+      { q:"What keyword skips the rest of an iteration and goes to the next?", opts:["skip","continue","next","pass"], ans:1 },
+      { q:'What is the last value of <code class="q-code">i</code> in: <code class="q-code">for i in range(1, 5)</code>?', opts:["5","4","6","1"], ans:1 },
+      { q:'How many times does <code class="q-code">for i in range(0,10,2)</code> loop?', opts:["10","2","5","4"], ans:2 },
+      { q:'What is <code class="q-code">"*" * 4</code>?', opts:["****","* * * *","4","Error"], ans:0 },
+      { q:'What does <code class="q-code">while True:</code> with a <code class="q-code">break</code> inside do?', opts:["Runs forever","Never runs","Runs until break executes","Syntax error"], ans:2 },
+      { q:'<code class="q-code">for i in range(3): print(i)</code> — what is printed (space-separated)?', opts:["1 2 3","0 1 2","0 1 2 3","3"], ans:1 },
+      { q:"How many total iterations in: <code class='q-code'>for i in range(2): for j in range(3)</code>?", opts:["5","6","3","2"], ans:1 },
+      { q:'What does <code class="q-code">range(10, 0, -1)</code> start with?', opts:["0","10","9","1"], ans:1 },
+      { q:"Which loop is best when you don't know the number of iterations in advance?", opts:["for","while","do-while","foreach"], ans:1 },
+      { q:'<code class="q-code">s=0\nfor i in range(1,4): s+=i\nprint(s)</code> — output?', opts:["3","6","10","4"], ans:1 },
+    ]
+  },
+  {
+    id:"L5", title:"🧩 Level 5", subtitle:"Functions & Dictionaries",
+    desc:"def, return, lambda, dict operations, scope.",
+    color:"blue", totalQ:12, perAttempt:10, passScore:7,
+    badge:{ emoji:"🧩", name:"Code Alchemist Badge", tagline:"Functions & dicts mastered!", stars:"⭐⭐⭐" },
+    questions:[
+      { q:"What keyword is used to define a function in Python?", opts:["function","func","def","define"], ans:2 },
+      { q:"What does <code class='q-code'>return</code> do inside a function?", opts:["Prints the value","Sends value back to the caller","Stops the program","Creates a variable"], ans:1 },
+      { q:'<code class="q-code">def f(x): return x*2\nprint(f(5))</code> — output?', opts:["5","10","25","f(5)"], ans:1 },
+      { q:'How do you access the value with key <code class="q-code">"name"</code> from <code class="q-code">d = {"name":"Alex"}</code>?', opts:["d.name","d[\"name\"]","d(name)","d->name"], ans:1 },
+      { q:'What is <code class="q-code">len({"a":1, "b":2, "c":3})</code>?', opts:["1","3","6","2"], ans:1 },
+      { q:'What does <code class="q-code">d.get("key", "default")</code> return if "key" does not exist?', opts:["None","Error",'"default"',"0"], ans:2 },
+      { q:"What is a lambda function?", opts:["A named function","An anonymous one-line function","A recursive function","A class method"], ans:1 },
+      { q:'<code class="q-code">f = lambda x: x**2\nprint(f(4))</code> — output?', opts:["2","8","16","Error"], ans:2 },
+      { q:'What does <code class="q-code">d.keys()</code> return?', opts:["Values","Key-value pairs","All keys","Length"], ans:2 },
+      { q:"What is a default parameter?", opts:["A parameter with no type hint","A parameter with a pre-set value","A global variable","A return type"], ans:1 },
+      { q:'What does <code class="q-code">d.update({"x": 10})</code> do?', opts:["Prints d","Replaces d entirely","Adds or updates key 'x'","Deletes key 'x'"], ans:2 },
+      { q:"What makes a function <em>recursive</em>?", opts:["It uses a for loop","It calls itself","It has no return statement","It uses global variables"], ans:1 },
+    ]
+  },
+  {
+    id:"L6", title:"🚀 Level 6", subtitle:"Advanced Thinking",
+    desc:"Sorting, sets, comprehensions, error handling, modules.",
+    color:"red", totalQ:12, perAttempt:10, passScore:7,
+    badge:{ emoji:"🚀", name:"Python Pro Badge", tagline:"You are a Python champion!", stars:"⭐⭐⭐⭐⭐" },
+    questions:[
+      { q:'What does <code class="q-code">sorted([3,1,4,1,5])</code> return?', opts:["[5,4,3,1,1]","[1,1,3,4,5]","[3,1,4,1,5]","Error"], ans:1 },
+      { q:'What is the output of <code class="q-code">list(set([1,2,2,3,3,3]))</code>?', opts:["[1,2,2,3,3,3]","[1,2,3]","{1,2,3}","Error"], ans:1 },
+      { q:'What does <code class="q-code">[x*2 for x in range(4)]</code> produce?', opts:["[0,2,4,6]","[2,4,6,8]","[1,2,3,4]","[0,1,2,3]"], ans:0 },
+      { q:"What is a <code class='q-code'>try/except</code> block used for?", opts:["Repeating code","Defining functions","Handling runtime errors","Creating loops"], ans:2 },
+      { q:'Does <code class="q-code">"racecar" == "racecar"[::-1]</code> evaluate to True?', opts:["No, False","Yes, True","Error","None"], ans:1 },
+      { q:'What does <code class="q-code">enumerate([\'a\',\'b\',\'c\'])</code> produce?', opts:["[0,1,2]","Indexed (index, value) pairs","['a','b','c']","3"], ans:1 },
+      { q:'What does <code class="q-code">zip([1,2],[3,4])</code> produce?', opts:["[1,2,3,4]","[(1,3),(2,4)]","{1:3,2:4}","Error"], ans:1 },
+      { q:'What does <code class="q-code">"hello world".count("l")</code> return?', opts:["2","3","1","4"], ans:1 },
+      { q:'<code class="q-code">import random; random.randint(1,10)</code> — what is returned?', opts:["A float 1.0–10.0","An int from 1–10 inclusive","An int from 0–9","A string"], ans:1 },
+      { q:"What is an f-string in Python?", opts:["A file-type string","A formatted string literal","A function string","A frozen string"], ans:1 },
+      { q:'What does <code class="q-code">sorted("python")</code> return?', opts:["['python']","Error","['h','n','o','p','t','y']","'hnopty'"], ans:2 },
+      { q:'What is the output of <code class="q-code">print(type([]).__name__)</code>?', opts:["array","tuple","set","list"], ans:3 },
+    ]
+  }
+];
+
+// ══════════════════════════════════════════
+//   STATE
+// ══════════════════════════════════════════
+let state = {
+  levelIdx: 0,
+  questions: [],   // shuffled subset
+  qIdx: 0,
+  score: 0,
+  answered: false,
+  timerVal: 30,
+  timerInterval: null,
+  earnedBadges: JSON.parse(localStorage.getItem("edupy_badges") || "{}"),
+  bestScores: JSON.parse(localStorage.getItem("edupy_scores") || "{}"),
+};
+
+// Global cache for admin-added questions from Firestore
+let dbQuestions = [];
+if (window.firebaseReady) {
+  window.firebaseReady.then(() => {
+    window.db.collection('questions').get().then(snapshot => {
+      snapshot.forEach(doc => {
+        dbQuestions.push(doc.data());
+      });
+    }).catch(err => console.error("Firestore load custom questions failed:", err));
+  });
+}
+
+// ══════════════════════════════════════════
+//   UTILITIES
+// ══════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function saveProgress() {
+  localStorage.setItem("edupy_badges", JSON.stringify(state.earnedBadges));
+  localStorage.setItem("edupy_scores", JSON.stringify(state.bestScores));
+
+  // Sync progress to Firestore
+  if (window.auth && window.auth.currentUser && window.db) {
+    const uid = window.auth.currentUser.uid;
+    const badgeNamesMap = {
+      "L1": "Seedling Badge",
+      "L2": "Logic Spark Badge",
+      "L3": "Word Wizard Badge",
+      "L4": "Loop Legend Badge",
+      "L5": "Code Alchemist Badge",
+      "L6": "Python Master Badge"
+    };
+
+    const badgesList = [];
+    Object.keys(state.earnedBadges).forEach(lvlId => {
+      if (state.earnedBadges[lvlId] && badgeNamesMap[lvlId]) {
+        badgesList.push(badgeNamesMap[lvlId]);
+      }
+    });
+
+    const scoresMap = {};
+    Object.keys(state.bestScores).forEach(lvlId => {
+      const lvlNum = lvlId.replace('L', '');
+      scoresMap[`level${lvlNum}`] = Math.round((state.bestScores[lvlId] / 10) * 100);
+    });
+
+    let highestPassed = 0;
+    Object.keys(state.earnedBadges).forEach(lvlId => {
+      const lvlNum = parseInt(lvlId.replace('L', ''));
+      if (state.earnedBadges[lvlId] && lvlNum > highestPassed) {
+        highestPassed = lvlNum;
+      }
+    });
+    const currentLevel = Math.min(6, highestPassed + 1);
+
+    window.db.collection('users').doc(uid).update({
+      badges: badgesList,
+      scores: scoresMap,
+      level: currentLevel
+    }).catch(err => console.error("Firestore sync scores failed:", err));
+  }
+}
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ══════════════════════════════════════════
+//   LEVEL MAP
+// ══════════════════════════════════════════
+function showMap() {
+  clearInterval(state.timerInterval);
+  buildLevelGrid();
+  updateOverallProgress();
+  showView('view-map');
+}
+
+function buildLevelGrid() {
+  const grid = document.getElementById('levelGrid');
+  grid.innerHTML = LEVELS.map((lv, idx) => {
+    const earned = state.earnedBadges[lv.id];
+    const best = state.bestScores[lv.id];
+    const bestPct = best ? Math.round((best / lv.perAttempt) * 100) : null;
+    return `
+      <div class="level-card${earned ? ' earned' : ''}" data-color="${lv.color}">
+        <div class="lc-top">
+          <div style="font-size:2.2rem">${lv.title.split(' ')[0]}</div>
+          <div class="badge-pill${earned ? ' show' : ''}">🏅 Badge Earned!</div>
+        </div>
+        <div class="lc-title">${lv.title.substring(3)}</div>
+        <div class="lc-sub">${lv.subtitle}</div>
+        <div class="lc-desc">${lv.desc}</div>
+        <div class="lc-meta">
+          <span class="meta-chip">📋 ${lv.perAttempt} questions</span>
+          <span class="meta-chip">🎯 Pass: ${lv.passScore}/${lv.perAttempt}</span>
+          ${bestPct !== null ? `<span class="meta-chip score">Best: ${bestPct}%</span>` : ''}
+        </div>
+        <button class="start-btn" data-color="${lv.color}" onclick="startLevel(${idx})">
+          ${earned ? '🔄 Retake Quiz' : '▶ Start Quiz'}
+        </button>
+      </div>`;
+  }).join('');
+}
+
+function updateOverallProgress() {
+  const earned = Object.keys(state.earnedBadges).length;
+  const pct = Math.round((earned / LEVELS.length) * 100);
+  document.getElementById('overallFill').style.width = pct + '%';
+  document.getElementById('overallText').textContent = `${earned} / ${LEVELS.length} badges`;
+}
+
+// ══════════════════════════════════════════
+//   QUIZ
+// ══════════════════════════════════════════
+function startLevel(idx) {
+  clearInterval(state.timerInterval);
+  const lv = LEVELS[idx];
+  state.levelIdx = idx;
+
+  // Merge static levels questions with custom questions from Firestore
+  const levelDbQ = dbQuestions.filter(q => q.levelId === lv.id);
+  const combinedQuestions = [...lv.questions, ...levelDbQ];
+
+  state.questions = shuffle(combinedQuestions).slice(0, lv.perAttempt);
+  state.qIdx = 0;
+  state.score = 0;
+  state.answered = false;
+
+  document.getElementById('quizLevelLabel').innerHTML = `${lv.title.split(' ')[0]} <strong>${lv.title.substring(3)}</strong>`;
+  const fill = document.getElementById('qpFill');
+  fill.style.background = colorToGradient(lv.color);
+  showView('view-quiz');
+  renderQuestion();
+}
+
+function colorToGradient(c) {
+  const map = {
+    purple: 'linear-gradient(90deg,#6C63FF,#a09bff)',
+    coral:  'linear-gradient(90deg,#FF6B6B,#ff9a9a)',
+    mint:   'linear-gradient(90deg,#4ECDC4,#7eeee9)',
+    gold:   'linear-gradient(90deg,#F5A623,#f9c74f)',
+    blue:   'linear-gradient(90deg,#3B82F6,#7DD3FC)',
+    red:    'linear-gradient(90deg,#EF4444,#FCA5A5)',
+  };
+  return map[c] || map.purple;
+}
+
+function renderQuestion() {
+  const lv = LEVELS[state.levelIdx];
+  const q = state.questions[state.qIdx];
+  state.answered = false;
+
+  // progress
+  const pct = Math.round((state.qIdx / lv.perAttempt) * 100);
+  document.getElementById('qProgress').textContent = `Question ${state.qIdx+1} of ${lv.perAttempt}`;
+  document.getElementById('qProgressPct').textContent = pct + '%';
+  document.getElementById('qpFill').style.width = pct + '%';
+  document.getElementById('qNum').textContent = `Q${state.qIdx+1}`;
+  document.getElementById('qText').innerHTML = q.q;
+  document.getElementById('liveScore').textContent = `Score: ${state.score}`;
+  document.getElementById('feedbackRow').textContent = '';
+  document.getElementById('feedbackRow').className = 'feedback-row';
+  document.getElementById('nextBtn').classList.remove('show');
+
+  const labels = ['A','B','C','D'];
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = q.opts.map((opt, i) => `
+    <button class="option-btn" onclick="selectAnswer(${i})">
+      <span class="option-label">${labels[i]}</span>
+      <span>${opt}</span>
+    </button>
+  `).join('');
+
+  // Trigger card animation by re-rendering
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = '';
+
+  // Timer
+  startTimer(30);
+}
+
+function startTimer(seconds) {
+  clearInterval(state.timerInterval);
+  state.timerVal = seconds;
+  const arc = document.getElementById('timerArc');
+  const num = document.getElementById('timerNum');
+  const ring = document.getElementById('timerRing');
+  const circumference = 100.5;
+
+  function updateTimer() {
+    const frac = state.timerVal / seconds;
+    arc.style.strokeDashoffset = circumference * (1 - frac);
+    num.textContent = state.timerVal;
+    ring.classList.toggle('urgent', state.timerVal <= 8);
+  }
+  updateTimer();
+
+  state.timerInterval = setInterval(() => {
+    state.timerVal--;
+    updateTimer();
+    if (state.timerVal <= 0) {
+      clearInterval(state.timerInterval);
+      if (!state.answered) timeOut();
+    }
+  }, 1000);
+}
+
+function timeOut() {
+  state.answered = true;
+  const q = state.questions[state.qIdx];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[q.ans].classList.add('correct');
+  const fb = document.getElementById('feedbackRow');
+  fb.textContent = "⏰ Time's up! The correct answer is highlighted.";
+  fb.className = 'feedback-row wrong';
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function selectAnswer(chosen) {
+  if (state.answered) return;
+  state.answered = true;
+  clearInterval(state.timerInterval);
+
+  const q = state.questions[state.qIdx];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedbackRow');
+  if (chosen === q.ans) {
+    state.score++;
+    btns[chosen].classList.add('correct');
+    fb.textContent = '✅ Correct! Well done.';
+    fb.className = 'feedback-row correct';
+  } else {
+    btns[chosen].classList.add('wrong');
+    btns[q.ans].classList.add('correct');
+    fb.textContent = `❌ Wrong. The correct answer was ${['A','B','C','D'][q.ans]}.`;
+    fb.className = 'feedback-row wrong';
+  }
+  document.getElementById('liveScore').textContent = `Score: ${state.score}`;
+
+  const lv = LEVELS[state.levelIdx];
+  if (state.qIdx + 1 >= lv.perAttempt) {
+    document.getElementById('nextBtn').textContent = 'See Results →';
+  } else {
+    document.getElementById('nextBtn').textContent = 'Next Question →';
+  }
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  state.qIdx++;
+  const lv = LEVELS[state.levelIdx];
+  if (state.qIdx >= lv.perAttempt) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+});
+
+// ══════════════════════════════════════════
+//   RESULT
+// ══════════════════════════════════════════
+function showResult() {
+  clearInterval(state.timerInterval);
+  const lv = LEVELS[state.levelIdx];
+  const { score } = state;
+  const total = lv.perAttempt;
+  const pct = Math.round((score / total) * 100);
+  const passed = score >= lv.passScore;
+
+  // Update best score
+  const prev = state.bestScores[lv.id] || 0;
+  if (score > prev) { state.bestScores[lv.id] = score; }
+
+  if (passed) {
+    state.earnedBadges[lv.id] = true;
+    saveProgress();
+  } else {
+    saveProgress();
+  }
+
+  document.getElementById('resScore').textContent = score;
+  document.getElementById('resPct').textContent = pct + '%';
+  document.getElementById('resCorrect').textContent = score;
+  document.getElementById('resWrong').textContent = total - score;
+
+  if (passed) {
+    document.getElementById('resultEmoji').textContent = '🎉';
+    document.getElementById('resultTitle').textContent = pct === 100 ? 'Perfect Score!' : 'Level Passed!';
+    document.getElementById('resultSub').textContent = `You scored ${score}/${total} — ${pct}%! Badge unlocked!`;
+    const b = lv.badge;
+    document.getElementById('badgeIcon').textContent = b.emoji;
+    document.getElementById('badgeName').textContent = b.name;
+    document.getElementById('badgeTagline').textContent = b.tagline;
+    document.getElementById('badgeStars').textContent = b.stars;
+    document.getElementById('badgeReveal').style.display = 'block';
+    launchConfetti();
+  } else {
+    document.getElementById('resultEmoji').textContent = '😤';
+    document.getElementById('resultTitle').textContent = 'Keep Trying!';
+    document.getElementById('resultSub').textContent = `You scored ${score}/${total}. Need ${lv.passScore} to pass. You've got this!`;
+    document.getElementById('badgeReveal').style.display = 'none';
+  }
+
+  // Next level button
+  const nextBtn = document.getElementById('nextLevelBtn');
+  if (passed && state.levelIdx < LEVELS.length - 1) {
+    nextBtn.style.display = 'inline-block';
+    nextBtn.onclick = () => startLevel(state.levelIdx + 1);
+  } else {
+    nextBtn.style.display = 'none';
+  }
+
+  document.getElementById('retryBtn').onclick = () => startLevel(state.levelIdx);
+  showView('view-result');
+}
+
+// ══════════════════════════════════════════
+//   CONFETTI
+// ══════════════════════════════════════════
+function launchConfetti() {
+  const wrap = document.getElementById('confettiWrap');
+  wrap.style.display = 'block';
+  wrap.innerHTML = '';
+  const colors = ['#6C63FF','#FF6B6B','#4ECDC4','#F5A623','#22c55e','#f472b6','#60a5fa'];
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*-10}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-duration:${2+Math.random()*2.5}s;
+      animation-delay:${Math.random()*0.8}s;
+    `;
+    wrap.appendChild(el);
+  }
+  setTimeout(() => { wrap.style.display='none'; wrap.innerHTML=''; }, 4000);
+}
+
+// ══════════════════════════════════════════
+//   INIT
+// ══════════════════════════════════════════
+// Real-time synchronization of assessments from Firestore
+if (window.firebaseReady) {
+  window.firebaseReady.then(() => {
+    window.auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const doc = await window.db.collection('users').doc(user.uid).get();
+          if (doc.exists) {
+            const data = doc.data();
+            const badgeIdMap = {
+              "Seedling Badge": "L1",
+              "Logic Spark Badge": "L2",
+              "Word Wizard Badge": "L3",
+              "Loop Legend Badge": "L4",
+              "Code Alchemist Badge": "L5",
+              "Python Master Badge": "L6"
+            };
+            
+            const newBadges = {};
+            if (Array.isArray(data.badges)) {
+              data.badges.forEach(bname => {
+                if (badgeIdMap[bname]) newBadges[badgeIdMap[bname]] = true;
+              });
+            }
+            state.earnedBadges = newBadges;
+
+            const newScores = {};
+            if (data.scores) {
+              Object.keys(data.scores).forEach(skey => {
+                const lvlNum = skey.replace('level', '');
+                newScores[`L${lvlNum}`] = Math.round((data.scores[skey] / 100) * 10);
+              });
+            }
+            state.bestScores = newScores;
+
+            localStorage.setItem("edupy_badges", JSON.stringify(state.earnedBadges));
+            localStorage.setItem("edupy_scores", JSON.stringify(state.bestScores));
+            buildLevelGrid();
+            updateOverallProgress();
+          }
+        } catch (e) {
+          console.error("Firestore load assessments failed:", e);
+        }
+      }
+    });
+  });
+}
+
+showMap();
+
+// Check for deep link level parameter on load
+const urlParams = new URLSearchParams(window.location.search);
+const lvlParam = urlParams.get('level');
+if (lvlParam) {
+  const lvlIdx = parseInt(lvlParam) - 1;
+  if (lvlIdx >= 0 && lvlIdx < LEVELS.length) {
+    // Small delay to let Firebase load questions first
+    setTimeout(() => startLevel(lvlIdx), 450);
+  }
+}
+</script>
+</body>
+</html>

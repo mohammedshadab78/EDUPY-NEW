@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduPy – Code Flow Visualizer</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --purple: #6C63FF; --purple-dk: #4B44CC; --purple-lt: #8B83FF;
+  --coral: #FF6B6B;  --coral-dk: #CC4444;
+  --mint: #4ECDC4;   --mint-dk: #33A89F;
+  --amber: #FFBA08;
+  --bg: #F0F4FF; --card-bg: #FFFFFF; --text: #2D2B55; --muted: #8884B0;
+  --radius: 24px;
+  --font-body: "Nunito", sans-serif;
+  --font-head: "Syne", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --bounce: 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  --smooth: 0.22s cubic-bezier(0.4,0,0.2,1);
+  /* terminal */
+  --trm-bg: #0F0E1A;
+  --trm-bg2: #1A192E;
+  --trm-border: rgba(108,99,255,0.2);
+  --trm-green: #4ECDC4;
+  --trm-yellow: #FFBA08;
+  --trm-red: #FF6B6B;
+  --trm-purple: #9B93FF;
+  --trm-white: #E8E6FF;
+  --trm-dim: #5A5880;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+/* ── NAV ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 2rem;
+  background: rgba(240,244,255,0.85);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(108,99,255,0.12);
+}
+.nav-brand { display: flex; align-items: center; gap: 0.65rem; text-decoration: none; }
+.nav-logo {
+  width: 2.4rem; height: 2.4rem; border-radius: 14px;
+  background: linear-gradient(135deg, var(--purple), var(--coral));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-weight: 800; font-size: 1rem; color: #fff;
+  box-shadow: 0 4px 0 var(--purple-dk), 0 8px 16px rgba(108,99,255,0.3);
+  transition: transform var(--bounce);
+}
+.nav-brand:hover .nav-logo { transform: translateY(-2px) scale(1.05); }
+.nav-title { font-family: var(--font-head); font-size: 1.2rem; font-weight: 800; color: var(--purple); }
+.nav-badge {
+  font-size: 0.68rem; font-weight: 800; padding: 0.2rem 0.6rem;
+  border-radius: 999px; background: linear-gradient(120deg,var(--purple),var(--coral));
+  color: white; letter-spacing: 0.04em; margin-left: 0.3rem;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 6.5rem 2rem 2.5rem;
+  text-align: center;
+  background: linear-gradient(160deg, #E8EEFF 0%, #F0F4FF 50%, #FFF0F5 100%);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 20% 30%, rgba(108,99,255,0.1) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 40% at 80% 70%, rgba(255,107,107,0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(255,255,255,0.6); backdrop-filter: blur(10px);
+  border: 1px solid rgba(108,99,255,0.25); border-radius: 999px;
+  padding: 0.35rem 0.9rem; font-size: 0.78rem; font-weight: 700;
+  color: var(--purple); margin-bottom: 1rem; letter-spacing: 0.04em;
+}
+.hero-title {
+  font-family: var(--font-head); font-size: clamp(1.8rem,4.5vw,2.8rem);
+  font-weight: 800; color: var(--text); margin-bottom: 0.7rem; line-height: 1.15;
+}
+.hero-title span { background: linear-gradient(120deg,var(--purple),var(--coral)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-sub { font-size: 0.95rem; color: var(--muted); max-width: 500px; margin: 0 auto; line-height: 1.65; }
+
+/* ── PROJECT SELECTOR ── */
+.proj-selector {
+  display: flex; justify-content: center; gap: 0.6rem; flex-wrap: wrap;
+  padding: 1.5rem 1.5rem 0.5rem;
+}
+.proj-tab {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.6rem 1.4rem; border-radius: 999px;
+  font-family: var(--font-body); font-size: 0.86rem; font-weight: 700;
+  cursor: pointer; border: 2px solid transparent;
+  transition: all var(--bounce); background: white;
+  color: var(--muted); box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.proj-tab:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.proj-tab.active { color: white; transform: translateY(-2px); }
+.proj-tab.t-guess.active { background: var(--coral); box-shadow: 0 6px 0 var(--coral-dk), 0 12px 24px rgba(255,107,107,0.3); }
+.proj-tab.t-todo.active  { background: var(--mint);  box-shadow: 0 6px 0 var(--mint-dk),  0 12px 24px rgba(78,205,196,0.3); }
+.proj-tab.t-calc.active  { background: var(--purple);box-shadow: 0 6px 0 var(--purple-dk),0 12px 24px rgba(108,99,255,0.3); }
+
+/* ── MAIN LAYOUT ── */
+.visualizer-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+
+.split-card {
+  background: white; border-radius: 28px;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.06), 0 20px 40px rgba(0,0,0,0.08);
+  overflow: hidden;
+  display: none;
+  animation: panelIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.split-card.active { display: flex; flex-direction: column; }
+@keyframes panelIn { from { opacity:0; transform:translateY(16px) scale(0.97); } to { opacity:1; transform:none; } }
+
+/* ── CARD HEADER ── */
+.card-header {
+  display: flex; align-items: center; gap: 0.9rem;
+  padding: 1.2rem 1.75rem 0.9rem;
+  border-bottom: 1.5px solid rgba(0,0,0,0.06);
+  flex-wrap: wrap;
+}
+.proj-icon {
+  width: 2.8rem; height: 2.8rem; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+}
+.proj-icon.purple { background: linear-gradient(135deg,rgba(108,99,255,0.15),rgba(108,99,255,0.08)); box-shadow: 0 3px 0 rgba(108,99,255,0.2); }
+.proj-icon.coral  { background: linear-gradient(135deg,rgba(255,107,107,0.15),rgba(255,107,107,0.08)); box-shadow: 0 3px 0 rgba(255,107,107,0.2); }
+.proj-icon.mint   { background: linear-gradient(135deg,rgba(78,205,196,0.15),rgba(78,205,196,0.08)); box-shadow: 0 3px 0 rgba(78,205,196,0.2); }
+.proj-meta { flex: 1; }
+.proj-name { font-family: var(--font-head); font-size: 1.15rem; font-weight: 800; color: var(--text); }
+.proj-tagline { font-size: 0.78rem; color: var(--muted); margin-top: 0.1rem; }
+.concept-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.4rem; }
+.ctag {
+  font-size: 0.67rem; font-weight: 700; padding: 0.18rem 0.55rem;
+  border-radius: 999px; letter-spacing: 0.03em;
+}
+.ctag.purple { background: rgba(108,99,255,0.1); color: var(--purple); }
+.ctag.coral  { background: rgba(255,107,107,0.1); color: var(--coral-dk); }
+.ctag.mint   { background: rgba(78,205,196,0.1);  color: var(--mint-dk); }
+.ctag.amber  { background: rgba(255,186,8,0.12);  color: #a07800; }
+
+/* ── SPEED CONTROLS ── */
+.controls-bar {
+  display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  padding: 0.75rem 1.75rem;
+  background: var(--bg); border-bottom: 1.5px solid rgba(0,0,0,0.06);
+}
+.ctrl-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.mode-btn {
+  padding: 0.4rem 0.95rem; border-radius: 999px;
+  font-family: var(--font-body); font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; border: 2px solid rgba(108,99,255,0.2);
+  background: white; color: var(--muted);
+  transition: all var(--bounce);
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.mode-btn:hover { border-color: var(--purple); color: var(--purple); transform: translateY(-1px); }
+.mode-btn.active { background: var(--purple); color: white; border-color: var(--purple); box-shadow: 0 4px 0 var(--purple-dk); }
+.speed-group { display: flex; align-items: center; gap: 0.4rem; margin-left: auto; }
+.speed-btn {
+  width: 1.9rem; height: 1.9rem; border-radius: 8px; border: 2px solid rgba(108,99,255,0.2);
+  background: white; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--smooth);
+}
+.speed-btn.active { background: rgba(108,99,255,0.1); color: var(--purple); border-color: var(--purple); }
+.speed-btn:hover:not(.active) { border-color: var(--muted); }
+.reset-btn {
+  padding: 0.4rem 0.85rem; border-radius: 999px;
+  font-family: var(--font-body); font-size: 0.75rem; font-weight: 700;
+  cursor: pointer; border: 2px solid rgba(255,107,107,0.3);
+  background: white; color: var(--coral-dk);
+  transition: all var(--smooth);
+}
+.reset-btn:hover { background: rgba(255,107,107,0.08); border-color: var(--coral); }
+
+/* ── SPLIT PANES ── */
+.split-body {
+  display: grid; grid-template-columns: 1fr 1fr; min-height: 520px;
+}
+@media (max-width: 700px) {
+  .split-body { grid-template-columns: 1fr; }
+}
+
+/* LEFT PANE – colorful UI */
+.pane-ui {
+  padding: 1.25rem 1.5rem;
+  border-right: 1.5px solid rgba(0,0,0,0.07);
+}
+.pane-label {
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem;
+}
+.pane-label::before {
+  content: ''; display: block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--mint);
+}
+
+/* Highlight overlay for active element */
+.step-highlight {
+  outline: 3px solid var(--amber) !important;
+  outline-offset: 3px;
+  border-radius: 10px;
+  animation: highlightPulse 0.6s ease;
+  position: relative; z-index: 5;
+}
+@keyframes highlightPulse {
+  0%   { outline-color: transparent; }
+  30%  { outline-color: var(--amber); }
+  100% { outline-color: var(--amber); }
+}
+
+/* RIGHT PANE – terminal */
+.pane-terminal {
+  background: var(--trm-bg);
+  display: flex; flex-direction: column;
+}
+.terminal-topbar {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  background: var(--trm-bg2);
+  border-bottom: 1px solid var(--trm-border);
+}
+.tdot { width: 10px; height: 10px; border-radius: 50%; }
+.tdot-r { background: #ff5f57; }
+.tdot-y { background: #febc2e; }
+.tdot-g { background: #28c840; }
+.terminal-title { margin-left: auto; font-family: var(--font-mono); font-size: 0.65rem; color: var(--trm-dim); letter-spacing: 0.06em; }
+
+.terminal-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Step progress */
+.step-progress {
+  display: flex; gap: 0; align-items: stretch;
+  border-bottom: 1px solid var(--trm-border);
+  overflow-x: auto; scrollbar-width: none;
+}
+.step-progress::-webkit-scrollbar { display: none; }
+.step-pip {
+  flex: 1; min-width: 20px; height: 4px;
+  background: rgba(255,255,255,0.07);
+  transition: background 0.3s;
+  cursor: pointer;
+}
+.step-pip.done   { background: var(--mint); }
+.step-pip.active { background: var(--amber); animation: pipPulse 0.8s ease infinite alternate; }
+@keyframes pipPulse { from { opacity: 0.7; } to { opacity: 1; } }
+
+/* Code view */
+.code-scroll {
+  flex: 1; overflow-y: auto; padding: 1rem;
+  scrollbar-width: thin; scrollbar-color: rgba(108,99,255,0.2) transparent;
+}
+.code-scroll::-webkit-scrollbar { width: 4px; }
+.code-scroll::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.2); border-radius: 4px; }
+
+.code-line {
+  display: flex; gap: 0; align-items: flex-start;
+  font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.75;
+  border-radius: 6px; transition: background 0.2s;
+  position: relative;
+}
+.code-line.active-line {
+  background: rgba(255,186,8,0.12);
+}
+.code-line.active-line::before {
+  content: '▶';
+  position: absolute; left: -14px;
+  color: var(--amber); font-size: 0.6rem; top: 50%; transform: translateY(-50%);
+  animation: arrowBounce 0.4s var(--bounce);
+}
+@keyframes arrowBounce { from { transform: translateY(-50%) translateX(-4px); } to { transform: translateY(-50%) translateX(0); } }
+.code-line.done-line { opacity: 0.45; }
+.line-num { color: var(--trm-dim); min-width: 1.6rem; text-align: right; margin-right: 1rem; user-select: none; font-size: 0.68rem; }
+.line-code { color: var(--trm-white); white-space: pre-wrap; word-break: break-word; }
+
+/* Token colors */
+.tk-kw     { color: var(--trm-purple); }
+.tk-fn     { color: var(--trm-green); }
+.tk-str    { color: var(--trm-red); }
+.tk-num    { color: var(--trm-yellow); }
+.tk-cmt    { color: var(--trm-dim); font-style: italic; }
+.tk-op     { color: rgba(255,255,255,0.55); }
+.tk-var    { color: #c8c0ff; }
+
+/* Step explanation box */
+.step-explain {
+  padding: 0.9rem 1rem;
+  background: var(--trm-bg2);
+  border-top: 1px solid var(--trm-border);
+  min-height: 80px;
+}
+.explain-tag {
+  font-size: 0.63rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--trm-dim); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;
+}
+.explain-tag span {
+  display: inline-flex; width: 6px; height: 6px; border-radius: 50%; background: var(--amber);
+  animation: dotBlink 1s ease infinite alternate;
+}
+@keyframes dotBlink { from { opacity: 0.4; } to { opacity: 1; } }
+.explain-text {
+  font-family: var(--font-mono); font-size: 0.75rem; color: var(--trm-white); line-height: 1.55;
+}
+.explain-concept {
+  margin-top: 0.45rem; font-size: 0.68rem;
+  color: var(--trm-green); font-family: var(--font-body); font-weight: 700;
+}
+
+/* Manual nav buttons */
+.nav-btns {
+  display: flex; gap: 0.5rem; padding: 0.75rem 1rem;
+  background: var(--trm-bg2); border-top: 1px solid var(--trm-border);
+}
+.nav-btn-t {
+  flex: 1; padding: 0.55rem; border-radius: 10px; border: 2px solid rgba(108,99,255,0.25);
+  background: transparent; cursor: pointer; font-family: var(--font-body); font-size: 0.78rem; font-weight: 800;
+  color: var(--trm-white); transition: all var(--smooth);
+  display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+}
+.nav-btn-t:hover:not(:disabled) { background: rgba(108,99,255,0.15); border-color: var(--purple-lt); }
+.nav-btn-t:disabled { opacity: 0.3; cursor: not-allowed; }
+.nav-btn-t.next-btn { border-color: rgba(78,205,196,0.35); color: var(--trm-green); }
+.nav-btn-t.next-btn:hover:not(:disabled) { background: rgba(78,205,196,0.12); border-color: var(--trm-green); }
+
+/* Step counter badge */
+.step-counter {
+  font-family: var(--font-mono); font-size: 0.68rem;
+  color: var(--trm-dim); text-align: center;
+  padding: 0.3rem; align-self: center;
+}
+
+/* ── MINI UI COMPONENTS ── (live inside left pane) */
+
+/* Calculator mini */
+.mini-calc-display {
+  background: #1e1b4b; border-radius: 12px; padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem; text-align: right;
+  transition: outline 0.2s;
+}
+.mini-calc-expr { font-family: var(--font-mono); font-size: 0.68rem; color: rgba(255,255,255,0.4); min-height: 1.1em; }
+.mini-calc-result { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; color: white; min-height: 1.2em; }
+.mini-calc-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.4rem; }
+.mini-calc-btn {
+  padding: 0.65rem 0.3rem; border-radius: 10px; border: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 0.85rem; font-weight: 700;
+  transition: transform var(--bounce), box-shadow var(--smooth);
+  background: white; color: var(--text); box-shadow: 0 3px 0 rgba(0,0,0,0.12);
+}
+.mini-calc-btn:hover { transform: translateY(-1px); }
+.mini-calc-btn.op  { background: rgba(108,99,255,0.12); color: var(--purple); }
+.mini-calc-btn.eq  { background: var(--purple); color: white; box-shadow: 0 3px 0 var(--purple-dk); }
+.mini-calc-btn.clr { background: rgba(255,107,107,0.12); color: var(--coral-dk); }
+.mini-calc-btn.sp2 { grid-column: span 2; }
+
+/* Guess mini */
+.mini-guess-status {
+  text-align: center; padding: 0.9rem; background: var(--bg); border-radius: 14px;
+  margin-bottom: 0.75rem; border: 1.5px solid rgba(0,0,0,0.07);
+}
+.mini-guess-emoji { font-size: 1.6rem; margin-bottom: 0.2rem; }
+.mini-guess-msg { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+.mini-guess-sub { font-size: 0.7rem; color: var(--muted); }
+.mini-guess-row { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+.mini-guess-input {
+  flex: 1; padding: 0.6rem 0.75rem; border-radius: 10px;
+  border: 2px solid rgba(0,0,0,0.1); font-size: 0.95rem;
+  font-family: var(--font-mono); font-weight: 600; text-align: center;
+  outline: none;
+}
+.mini-guess-btn {
+  padding: 0.6rem 1rem; border-radius: 10px; border: none; cursor: pointer;
+  font-weight: 800; font-size: 0.8rem; font-family: var(--font-body);
+  background: var(--coral); color: white; box-shadow: 0 3px 0 var(--coral-dk);
+}
+
+/* Todo mini */
+.mini-todo-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.mini-todo-input {
+  flex: 1; padding: 0.6rem 0.8rem; border-radius: 10px;
+  border: 2px solid rgba(0,0,0,0.1); font-family: var(--font-body);
+  font-size: 0.85rem; font-weight: 600; outline: none;
+}
+.mini-todo-add {
+  padding: 0.6rem 1rem; border-radius: 10px; border: none; cursor: pointer;
+  font-weight: 800; font-size: 0.8rem; font-family: var(--font-body);
+  background: var(--mint); color: white; box-shadow: 0 3px 0 var(--mint-dk);
+}
+.mini-todo-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.mini-todo-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: var(--bg); border-radius: 10px; padding: 0.55rem 0.75rem;
+  border: 1.5px solid rgba(0,0,0,0.06); font-size: 0.82rem; font-weight: 600;
+}
+.mini-todo-item.done-item { opacity: 0.5; text-decoration: line-through; }
+.mini-check {
+  width: 1.1rem; height: 1.1rem; border-radius: 5px; flex-shrink: 0;
+  border: 2px solid rgba(0,0,0,0.15); background: white;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: all var(--smooth);
+}
+.mini-check.checked { background: var(--mint); border-color: var(--mint); }
+.mini-check svg { opacity: 0; }
+.mini-check.checked svg { opacity: 1; }
+.prio-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.prio-high { background: var(--coral); }
+.prio-med  { background: var(--amber); }
+.prio-low  { background: var(--mint); }
+
+/* ── INSPIRED BOX ── */
+.inspired-box {
+  margin-top: 1.5rem;
+  background: linear-gradient(135deg, rgba(108,99,255,0.06), rgba(78,205,196,0.04));
+  border: 1.5px dashed rgba(108,99,255,0.25); border-radius: 16px;
+  padding: 1rem 1.2rem;
+}
+.inspired-title { font-size: 0.7rem; font-weight: 800; color: var(--purple); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.inspired-text { font-size: 0.78rem; color: var(--text); line-height: 1.6; }
+.inspired-text code { font-family: var(--font-mono); background: rgba(108,99,255,0.1); padding: 0.1rem 0.35rem; border-radius: 4px; color: var(--purple); font-size: 0.72rem; }
+</style>
+<style>*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --purple: #6C63FF; --purple-dk: #4B44CC; --purple-lt: #8B83FF;
+  --coral: #FF6B6B;  --coral-dk: #CC4444;
+  --mint: #4ECDC4;   --mint-dk: #33A89F;
+  --amber: #FFBA08;
+  --bg: #F0F4FF; --card-bg: #FFFFFF; --text: #2D2B55; --muted: #8884B0;
+  --radius: 24px;
+  --font-body: "Nunito", sans-serif;
+  --font-head: "Syne", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --bounce: 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  --smooth: 0.22s cubic-bezier(0.4,0,0.2,1);
+  /* terminal */
+  --trm-bg: #0F0E1A;
+  --trm-bg2: #1A192E;
+  --trm-border: rgba(108,99,255,0.2);
+  --trm-green: #4ECDC4;
+  --trm-yellow: #FFBA08;
+  --trm-red: #FF6B6B;
+  --trm-purple: #9B93FF;
+  --trm-white: #E8E6FF;
+  --trm-dim: #5A5880;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+/* ── NEW NAVBAR (same as notes/assessments/home pages) ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(244, 247, 253, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(108, 99, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.logo-icon {
+  background: linear-gradient(135deg, var(--purple), var(--coral));
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: white;
+  box-shadow: 0 3px 0 var(--purple-dk);
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 40px;
+  font-weight: 600;
+  text-decoration: none;
+  background: rgba(108, 99, 255, 0.08);
+  color: var(--purple);
+  transition: 0.2s ease;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.nav-btn.primary {
+  background: var(--purple);
+  color: white;
+  box-shadow: 0 2px 6px rgba(108, 99, 255, 0.3);
+}
+
+.nav-btn:hover {
+  transform: translateY(-2px);
+  background: var(--purple);
+  color: white;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 6.5rem 2rem 2.5rem;
+  text-align: center;
+  background: linear-gradient(160deg, #E8EEFF 0%, #F0F4FF 50%, #FFF0F5 100%);
+  position: relative; overflow: hidden;
+}
+.complete-btn {
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 2px solid rgba(78, 205, 196, 0.3);
+  background: white;
+  color: var(--mint-dk);
+  font-weight: 700;
+  font-size: 0.75rem;
+  transition: 0.18s;
+  cursor: pointer;
+}
+.complete-btn.done {
+  background: var(--mint);
+  color: #fff;
+  border-color: var(--mint-dk);
+  box-shadow: 0 4px 0 var(--mint-dk);
+}
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #1e1b4b;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 40px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 1000;
+  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.3s;
+  opacity: 0;
+  pointer-events: none;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+</style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar">
+  <div class="logo">
+    <div class="logo-icon">Py</div>
+    <span>EduPy <span style="font-weight: 400;">Visualizer</span></span>
+  </div>
+  <div class="nav-links">
+    <a href="home.html" class="nav-btn">✏️ Editor</a>
+    <a href="notes.html" class="nav-btn">📘 Notes</a>
+    <a href="assessments.html" class="nav-btn">📝 Assessments</a>
+    <a href="projects.html" class="nav-btn primary">🎬 Visualizer</a>
+    <a href="index.html" class="nav-btn">🏠 Home</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">🔍 Watch Code Run, Step by Step</div>
+  <h1 class="hero-title">See <span>How Programs Work</span><br>in Real Time</h1>
+  <p class="hero-sub">Pick a project, choose auto-play or step manually, and watch the code light up as each line executes. Perfect for beginners! 🚀</p>
+</div>
+
+<!-- PROJECT SELECTOR -->
+<div class="proj-selector">
+  <button class="proj-tab t-guess active" onclick="selectProject('guess',this)">🎲 Guess Game</button>
+  <button class="proj-tab t-calc"  onclick="selectProject('calc',this)">🧮 Calculator</button>
+  <button class="proj-tab t-todo"  onclick="selectProject('todo',this)">✅ To-Do App</button>
+</div>
+
+<!-- VISUALIZER AREA -->
+<div class="visualizer-wrap">
+
+  <!-- ═══ GUESS GAME CARD ═══ -->
+  <div class="split-card active" id="card-guess">
+    <div class="card-header">
+      <div class="proj-icon coral">🎲</div>
+      <div class="proj-meta">
+        <div class="proj-name">Number Guessing Game</div>
+        <div class="proj-tagline">Follow the logic from start to win!</div>
+        <div class="concept-tags">
+          <span class="ctag coral">if / elif / else</span>
+          <span class="ctag purple">while loop</span>
+          <span class="ctag mint">random module</span>
+          <span class="ctag amber">variables</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-bar" id="ctrl-guess">
+      <span class="ctrl-label">Mode:</span>
+      <!-- Manual is now default -->
+      <button class="mode-btn" id="auto-guess" onclick="setMode('guess','auto')">▶ Auto-Play</button>
+      <button class="mode-btn active" id="manual-guess" onclick="setMode('guess','manual')">👆 Manual Step</button>
+      <div class="speed-group">
+        <span class="ctrl-label">Speed:</span>
+        <button class="speed-btn active" data-speed="1200" onclick="setSpeed('guess',1200,this)">1×</button>
+        <button class="speed-btn" data-speed="700" onclick="setSpeed('guess',700,this)">2×</button>
+        <button class="speed-btn" data-speed="350" onclick="setSpeed('guess',350,this)">3×</button>
+      </div>
+      <button class="reset-btn" onclick="resetViz('guess')">↺ Reset</button>
+      <button class="complete-btn" id="comp-guess" onclick="toggleProjectCompleted('guess')">Mark Completed</button>
+    </div>
+
+    <div class="split-body">
+      <!-- Left UI pane -->
+      <div class="pane-ui" id="ui-guess">
+        <div class="pane-label">Live App Preview</div>
+        <div id="guess-status-box" class="mini-guess-status">
+          <div class="mini-guess-emoji" id="g-emoji">🤔</div>
+          <div class="mini-guess-msg" id="g-msg">I'm thinking of a number 1–100…</div>
+          <div class="mini-guess-sub" id="g-sub">Make your first guess!</div>
+        </div>
+        <div class="mini-guess-row">
+          <input class="mini-guess-input" id="g-input" type="number" min="1" max="100" placeholder="50" />
+          <button class="mini-guess-btn" id="g-btn" onclick="liveGuess()">Guess!</button>
+        </div>
+        <div id="g-history" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.75rem;"></div>
+
+        <div class="inspired-box">
+          <div class="inspired-title">💡 Key Concept</div>
+          <div class="inspired-text">The <code>if secret &gt; guess</code> condition is how the program <strong>decides</strong> which message to show you. Every decision in code is an <code>if</code> statement!</div>
+        </div>
+      </div>
+
+      <!-- Right terminal pane -->
+      <div class="pane-terminal" id="term-guess">
+        <div class="terminal-topbar">
+          <div class="tdot tdot-r"></div>
+          <div class="tdot tdot-y"></div>
+          <div class="tdot tdot-g"></div>
+          <div class="terminal-title">guess_game.py</div>
+        </div>
+        <div class="step-progress" id="pips-guess"></div>
+        <div class="code-scroll" id="code-guess"></div>
+        <div class="step-explain" id="explain-guess">
+          <div class="explain-tag"><span></span>What's happening now</div>
+          <div class="explain-text" id="explain-text-guess">Press ▶ Auto-Play or step manually to trace the code!</div>
+          <div class="explain-concept" id="explain-concept-guess"></div>
+        </div>
+        <div class="nav-btns" id="navbtns-guess">
+          <button class="nav-btn-t" id="prev-guess" onclick="stepViz('guess',-1)" disabled>← Prev</button>
+          <div class="step-counter" id="counter-guess">–</div>
+          <button class="nav-btn-t next-btn" id="next-guess" onclick="stepViz('guess',1)">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /guess card -->
+
+  <!-- ═══ CALCULATOR CARD ═══ -->
+  <div class="split-card" id="card-calc">
+    <div class="card-header">
+      <div class="proj-icon purple">🧮</div>
+      <div class="proj-meta">
+        <div class="proj-name">Calculator</div>
+        <div class="proj-tagline">See how button clicks become math!</div>
+        <div class="concept-tags">
+          <span class="ctag purple">eval()</span>
+          <span class="ctag coral">event listener</span>
+          <span class="ctag mint">string concat</span>
+          <span class="ctag amber">try/except</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-bar" id="ctrl-calc">
+      <span class="ctrl-label">Mode:</span>
+      <button class="mode-btn" id="auto-calc" onclick="setMode('calc','auto')">▶ Auto-Play</button>
+      <button class="mode-btn active" id="manual-calc" onclick="setMode('calc','manual')">👆 Manual Step</button>
+      <div class="speed-group">
+        <span class="ctrl-label">Speed:</span>
+        <button class="speed-btn active" data-speed="1200" onclick="setSpeed('calc',1200,this)">1×</button>
+        <button class="speed-btn" data-speed="700" onclick="setSpeed('calc',700,this)">2×</button>
+        <button class="speed-btn" data-speed="350" onclick="setSpeed('calc',350,this)">3×</button>
+      </div>
+      <button class="reset-btn" onclick="resetViz('calc')">↺ Reset</button>
+      <button class="complete-btn" id="comp-calc" onclick="toggleProjectCompleted('calc')">Mark Completed</button>
+    </div>
+
+    <div class="split-body">
+      <div class="pane-ui" id="ui-calc">
+        <div class="pane-label">Live App Preview</div>
+        <div class="mini-calc-display" id="calc-display-mini">
+          <div class="mini-calc-expr" id="mc-expr"></div>
+          <div class="mini-calc-result" id="mc-result">0</div>
+        </div>
+        <div class="mini-calc-grid">
+          <button class="mini-calc-btn clr sp2" onclick="miniCalc('C')">C</button>
+          <button class="mini-calc-btn op" onclick="miniCalc('/')">÷</button>
+          <button class="mini-calc-btn op" onclick="miniCalc('*')">×</button>
+          <button class="mini-calc-btn" onclick="miniCalc('7')">7</button>
+          <button class="mini-calc-btn" onclick="miniCalc('8')">8</button>
+          <button class="mini-calc-btn" onclick="miniCalc('9')">9</button>
+          <button class="mini-calc-btn op" onclick="miniCalc('-')">−</button>
+          <button class="mini-calc-btn" onclick="miniCalc('4')">4</button>
+          <button class="mini-calc-btn" onclick="miniCalc('5')">5</button>
+          <button class="mini-calc-btn" onclick="miniCalc('6')">6</button>
+          <button class="mini-calc-btn op" onclick="miniCalc('+')">+</button>
+          <button class="mini-calc-btn" onclick="miniCalc('1')">1</button>
+          <button class="mini-calc-btn" onclick="miniCalc('2')">2</button>
+          <button class="mini-calc-btn" onclick="miniCalc('3')">3</button>
+          <button class="mini-calc-btn eq" onclick="miniCalc('=')">＝</button>
+          <button class="mini-calc-btn sp2" onclick="miniCalc('0')">0</button>
+          <button class="mini-calc-btn op" onclick="miniCalc('.')">.</button>
+        </div>
+        <div class="inspired-box" style="margin-top:1rem;">
+          <div class="inspired-title" style="color:var(--purple);">💡 Key Concept</div>
+          <div class="inspired-text">The <code>eval()</code> function turns a <strong>string like "3+4"</strong> into a real math answer. It's like asking Python to be your calculator!</div>
+        </div>
+      </div>
+
+      <div class="pane-terminal" id="term-calc">
+        <div class="terminal-topbar">
+          <div class="tdot tdot-r"></div>
+          <div class="tdot tdot-y"></div>
+          <div class="tdot tdot-g"></div>
+          <div class="terminal-title">calculator.py</div>
+        </div>
+        <div class="step-progress" id="pips-calc"></div>
+        <div class="code-scroll" id="code-calc"></div>
+        <div class="step-explain" id="explain-calc">
+          <div class="explain-tag"><span></span>What's happening now</div>
+          <div class="explain-text" id="explain-text-calc">Press ▶ Auto-Play to see each line run!</div>
+          <div class="explain-concept" id="explain-concept-calc"></div>
+        </div>
+        <div class="nav-btns" id="navbtns-calc">
+          <button class="nav-btn-t" id="prev-calc" onclick="stepViz('calc',-1)" disabled>← Prev</button>
+          <div class="step-counter" id="counter-calc">–</div>
+          <button class="nav-btn-t next-btn" id="next-calc" onclick="stepViz('calc',1)">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /calc card -->
+
+  <!-- ═══ TODO CARD ═══ -->
+  <div class="split-card" id="card-todo">
+    <div class="card-header">
+      <div class="proj-icon mint">✅</div>
+      <div class="proj-meta">
+        <div class="proj-name">To-Do App</div>
+        <div class="proj-tagline">Trace how lists & objects power a real app!</div>
+        <div class="concept-tags">
+          <span class="ctag mint">lists / arrays</span>
+          <span class="ctag purple">objects / dicts</span>
+          <span class="ctag coral">filter()</span>
+          <span class="ctag amber">DOM update</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-bar" id="ctrl-todo">
+      <span class="ctrl-label">Mode:</span>
+      <button class="mode-btn" id="auto-todo" onclick="setMode('todo','auto')">▶ Auto-Play</button>
+      <button class="mode-btn active" id="manual-todo" onclick="setMode('todo','manual')">👆 Manual Step</button>
+      <div class="speed-group">
+        <span class="ctrl-label">Speed:</span>
+        <button class="speed-btn active" data-speed="1200" onclick="setSpeed('todo',1200,this)">1×</button>
+        <button class="speed-btn" data-speed="700" onclick="setSpeed('todo',700,this)">2×</button>
+        <button class="speed-btn" data-speed="350" onclick="setSpeed('todo',350,this)">3×</button>
+      </div>
+      <button class="reset-btn" onclick="resetViz('todo')">↺ Reset</button>
+      <button class="complete-btn" id="comp-todo" onclick="toggleProjectCompleted('todo')">Mark Completed</button>
+    </div>
+
+    <div class="split-body">
+      <div class="pane-ui" id="ui-todo">
+        <div class="pane-label">Live App Preview</div>
+        <div class="mini-todo-row">
+          <input class="mini-todo-input" id="t-input" placeholder="Add a task…" />
+          <button class="mini-todo-add" id="t-add-btn" onclick="liveAddTodo()">+ Add</button>
+        </div>
+        <div class="mini-todo-list" id="t-list"></div>
+        <div class="inspired-box" style="margin-top:1rem;">
+          <div class="inspired-title" style="color:var(--mint-dk);">💡 Key Concept</div>
+          <div class="inspired-text">Every task is an <strong>object</strong> (a dictionary in Python) with keys like <code>text</code>, <code>done</code>, and <code>priority</code>. A <strong>list of objects</strong> is how almost every real app stores data!</div>
+        </div>
+      </div>
+
+      <div class="pane-terminal" id="term-todo">
+        <div class="terminal-topbar">
+          <div class="tdot tdot-r"></div>
+          <div class="tdot tdot-y"></div>
+          <div class="tdot tdot-g"></div>
+          <div class="terminal-title">todo_app.py</div>
+        </div>
+        <div class="step-progress" id="pips-todo"></div>
+        <div class="code-scroll" id="code-todo"></div>
+        <div class="step-explain" id="explain-todo">
+          <div class="explain-tag"><span></span>What's happening now</div>
+          <div class="explain-text" id="explain-text-todo">Press ▶ Auto-Play to watch the program flow!</div>
+          <div class="explain-concept" id="explain-concept-todo"></div>
+        </div>
+        <div class="nav-btns" id="navbtns-todo">
+          <button class="nav-btn-t" id="prev-todo" onclick="stepViz('todo',-1)" disabled>← Prev</button>
+          <div class="step-counter" id="counter-todo">–</div>
+          <button class="nav-btn-t next-btn" id="next-todo" onclick="stepViz('todo',1)">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /todo card -->
+
+</div><!-- /visualizer-wrap -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATA: Steps for each project
+   Each step: { lines: [lineNums], explain, concept, highlight, uiAction }
+═══════════════════════════════════════════════════════════════ */
+
+const PROJECTS = {
+
+  /* ── GUESS GAME ─────────────────────────────────────────── */
+  guess: {
+    code: [
+      { n:1,  html: `<span class="tk-kw">import</span> random` },
+      { n:2,  html: `` },
+      { n:3,  html: `<span class="tk-cmt"># Pick a secret number</span>` },
+      { n:4,  html: `secret = random.<span class="tk-fn">randint</span>(<span class="tk-num">1</span>, <span class="tk-num">100</span>)` },
+      { n:5,  html: `attempts = <span class="tk-num">0</span>` },
+      { n:6,  html: `` },
+      { n:7,  html: `<span class="tk-kw">print</span>(<span class="tk-str">"I'm thinking of a number 1-100!"</span>)` },
+      { n:8,  html: `` },
+      { n:9,  html: `<span class="tk-kw">while</span> <span class="tk-kw">True</span>:   <span class="tk-cmt"># keep looping until correct</span>` },
+      { n:10, html: `    guess = <span class="tk-fn">int</span>(<span class="tk-fn">input</span>(<span class="tk-str">"Your guess: "</span>))` },
+      { n:11, html: `    attempts += <span class="tk-num">1</span>` },
+      { n:12, html: `` },
+      { n:13, html: `    <span class="tk-kw">if</span> secret <span class="tk-op">&gt;</span> guess:` },
+      { n:14, html: `        <span class="tk-kw">print</span>(<span class="tk-str">"Too low! Go higher ↑"</span>)` },
+      { n:15, html: `    <span class="tk-kw">elif</span> secret <span class="tk-op">&lt;</span> guess:` },
+      { n:16, html: `        <span class="tk-kw">print</span>(<span class="tk-str">"Too high! Go lower ↓"</span>)` },
+      { n:17, html: `    <span class="tk-kw">else</span>:   <span class="tk-cmt"># must be equal!</span>` },
+      { n:18, html: `        <span class="tk-kw">print</span>(<span class="tk-str">f"You got it in {attempts} tries!"</span>)` },
+      { n:19, html: `        <span class="tk-kw">break</span>  <span class="tk-cmt"># exit the loop</span>` },
+    ],
+    steps: [
+      { lines:[1],    explain:`Line 1: We import the random module. This gives us access to Python's built-in tools for generating random numbers.`, concept:`📦 import = loading a toolbox`, uiAction:'none' },
+      { lines:[3,4],  explain:`Lines 3–4: random.randint(1,100) picks a secret number between 1 and 100. It's stored in the variable "secret".`, concept:`🎲 variable = a labelled box that holds a value`, uiAction:'setSecret' },
+      { lines:[5],    explain:`Line 5: attempts = 0. We start a counter at zero. Every time the player guesses, this number goes up by 1.`, concept:`🔢 counter variable — starts at 0`, uiAction:'none' },
+      { lines:[7],    explain:`Line 7: print() sends a message to the screen. This is how the program talks to the user!`, concept:`📢 print() = show text on screen`, uiAction:'showMsg' },
+      { lines:[9],    explain:`Line 9: while True — this starts an infinite loop! The program keeps asking for guesses until we use "break" to stop it.`, concept:`🔁 while loop = repeat until we say stop`, uiAction:'flashLoop' },
+      { lines:[10],   explain:`Line 10: input() pauses and waits for the user to type. int() converts that text into a number we can compare.`, concept:`⌨️ input() + int() = read a number from user`, uiAction:'focusInput' },
+      { lines:[11],   explain:`Line 11: attempts += 1 means "add 1 to attempts". Same as writing attempts = attempts + 1. The counter goes up!`, concept:`➕ += is shorthand for adding to a variable`, uiAction:'none' },
+      { lines:[13,14],explain:`Lines 13–14: if secret > guess — the secret is bigger, so the guess is too LOW. Python runs the print("Too low!") line.`, concept:`🔍 if statement = a decision point in the code`, uiAction:'guessLow' },
+      { lines:[15,16],explain:`Lines 15–16: elif secret < guess — the secret is smaller, so the guess is too HIGH. elif means "else if" — a second condition to check.`, concept:`🔀 elif = "else if" — another condition to try`, uiAction:'guessHigh' },
+      { lines:[17,18,19], explain:`Lines 17–19: else means none of the above — so the guess must be exactly right! We print the win message and use break to exit the loop.`, concept:`🎉 else = "in every other case" — the final branch`, uiAction:'guessWin' },
+    ]
+  },
+
+  /* ── CALCULATOR ─────────────────────────────────────────── */
+  calc: {
+    code: [
+      { n:1,  html: `<span class="tk-cmt"># expression stores what user typed</span>` },
+      { n:2,  html: `expression = <span class="tk-str">""</span>  <span class="tk-cmt"># start empty</span>` },
+      { n:3,  html: `` },
+      { n:4,  html: `<span class="tk-kw">def</span> <span class="tk-fn">on_button_click</span>(value):` },
+      { n:5,  html: `    <span class="tk-kw">global</span> expression` },
+      { n:6,  html: `` },
+      { n:7,  html: `    <span class="tk-kw">if</span> value <span class="tk-op">==</span> <span class="tk-str">"C"</span>:   <span class="tk-cmt"># clear</span>` },
+      { n:8,  html: `        expression = <span class="tk-str">""</span>` },
+      { n:9,  html: `        display.<span class="tk-fn">set_text</span>(<span class="tk-str">"0"</span>)` },
+      { n:10, html: `` },
+      { n:11, html: `    <span class="tk-kw">elif</span> value <span class="tk-op">==</span> <span class="tk-str">"="</span>:   <span class="tk-cmt"># evaluate</span>` },
+      { n:12, html: `        <span class="tk-kw">try</span>:` },
+      { n:13, html: `            result = <span class="tk-fn">eval</span>(expression)` },
+      { n:14, html: `            display.<span class="tk-fn">set_text</span>(result)` },
+      { n:15, html: `            expression = <span class="tk-fn">str</span>(result)` },
+      { n:16, html: `        <span class="tk-kw">except</span>:` },
+      { n:17, html: `            display.<span class="tk-fn">set_text</span>(<span class="tk-str">"Error"</span>)` },
+      { n:18, html: `` },
+      { n:19, html: `    <span class="tk-kw">else</span>:   <span class="tk-cmt"># any digit or operator</span>` },
+      { n:20, html: `        expression += value` },
+      { n:21, html: `        display.<span class="tk-fn">set_text</span>(expression)` },
+    ],
+    steps: [
+      { lines:[1,2],  explain:`Lines 1–2: We create a variable called expression that starts as an empty string "". It will build up as the user taps buttons.`, concept:`📝 string variable = holds text like "3+4"`, uiAction:'calcReset' },
+      { lines:[4,5],  explain:`Lines 4–5: We define a function called on_button_click. A function is reusable code that runs whenever a button is pressed. "global" lets us modify expression from inside the function.`, concept:`🔧 def = define a reusable block of code`, uiAction:'none' },
+      { lines:[7,8,9],explain:`Lines 7–9: if value == "C" — if the user pressed Clear, reset expression to "" and show "0" on the display.`, concept:`🧹 == means "is equal to" — checking a condition`, uiAction:'calcPressC' },
+      { lines:[11,12,13],explain:`Lines 11–13: elif value == "=" — time to calculate! eval() takes our string "3+4" and computes the actual math answer: 7.`, concept:`🧮 eval() = run a string as real Python code`, uiAction:'calcPress3' },
+      { lines:[14,15],explain:`Lines 14–15: We show the result on the display and also save it back into expression (so the user can keep calculating).`, concept:`📺 updating the display = changing what the user sees`, uiAction:'calcPressPlus' },
+      { lines:[16,17],explain:`Lines 16–17: except catches errors — like if the user typed "3++" by mistake. Instead of crashing, we show "Error" politely!`, concept:`🛡️ try/except = handle mistakes gracefully`, uiAction:'none' },
+      { lines:[19,20,21],explain:`Lines 19–21: else handles all other buttons (digits, operators). expression += value adds the new character to the end of the string. The display updates instantly!`, concept:`➕ string += appends a character to a string`, uiAction:'calcPress4' },
+      { lines:[13],   explain:`Back to eval(): now expression might be "3+4". Python evaluates it and returns 7. The display updates and the user sees their answer!`, concept:`✨ eval("3+4") returns the integer 7`, uiAction:'calcEquals' },
+    ]
+  },
+
+  /* ── TODO APP ───────────────────────────────────────────── */
+  todo: {
+    code: [
+      { n:1,  html: `<span class="tk-cmt"># List to hold all tasks</span>` },
+      { n:2,  html: `todos = []` },
+      { n:3,  html: `next_id = <span class="tk-num">1</span>` },
+      { n:4,  html: `` },
+      { n:5,  html: `<span class="tk-kw">def</span> <span class="tk-fn">add_task</span>(text, priority):` },
+      { n:6,  html: `    <span class="tk-kw">global</span> next_id` },
+      { n:7,  html: `    task = {` },
+      { n:8,  html: `        <span class="tk-str">"id"</span>: next_id,` },
+      { n:9,  html: `        <span class="tk-str">"text"</span>: text,` },
+      { n:10, html: `        <span class="tk-str">"done"</span>: <span class="tk-kw">False</span>,` },
+      { n:11, html: `        <span class="tk-str">"priority"</span>: priority` },
+      { n:12, html: `    }` },
+      { n:13, html: `    todos.<span class="tk-fn">append</span>(task)` },
+      { n:14, html: `    next_id += <span class="tk-num">1</span>` },
+      { n:15, html: `` },
+      { n:16, html: `<span class="tk-kw">def</span> <span class="tk-fn">toggle_done</span>(task_id):` },
+      { n:17, html: `    <span class="tk-kw">for</span> task <span class="tk-kw">in</span> todos:` },
+      { n:18, html: `        <span class="tk-kw">if</span> task[<span class="tk-str">"id"</span>] <span class="tk-op">==</span> task_id:` },
+      { n:19, html: `            task[<span class="tk-str">"done"</span>] = <span class="tk-kw">not</span> task[<span class="tk-str">"done"</span>]` },
+      { n:20, html: `` },
+      { n:21, html: `<span class="tk-kw">def</span> <span class="tk-fn">get_active</span>():` },
+      { n:22, html: `    <span class="tk-kw">return</span> [t <span class="tk-kw">for</span> t <span class="tk-kw">in</span> todos <span class="tk-kw">if</span> <span class="tk-kw">not</span> t[<span class="tk-str">"done"</span>]]` },
+      { n:23, html: `` },
+      { n:24, html: `<span class="tk-cmt"># Start: add first tasks</span>` },
+      { n:25, html: `<span class="tk-fn">add_task</span>(<span class="tk-str">"Learn Python"</span>, <span class="tk-str">"high"</span>)` },
+      { n:26, html: `<span class="tk-fn">add_task</span>(<span class="tk-str">"Build a project"</span>, <span class="tk-str">"med"</span>)` },
+    ],
+    steps: [
+      { lines:[1,2,3], explain:`Lines 1–3: todos = [] creates an empty list. This is where ALL tasks will live. next_id is a counter so each task gets a unique number.`, concept:`📋 list = an ordered collection of items`, uiAction:'todoInit' },
+      { lines:[5,6],   explain:`Lines 5–6: We define the add_task function. It takes two inputs: the text of the task and its priority level. "global" lets us update next_id.`, concept:`🔧 function parameters = values passed in when calling it`, uiAction:'none' },
+      { lines:[7,8,9,10,11,12], explain:`Lines 7–12: We create a task dictionary — an object with named fields: id, text, done (starts False), and priority. Curly braces {} create a dictionary in Python.`, concept:`🗃️ dictionary = key:value pairs, like a labelled form`, uiAction:'todoHighlight' },
+      { lines:[13,14], explain:`Lines 13–14: todos.append(task) adds the new task to the end of our list. Then next_id += 1 so the next task gets a different id number.`, concept:`➕ list.append() = add an item to the end of a list`, uiAction:'todoAdd' },
+      { lines:[16,17,18,19], explain:`Lines 16–19: toggle_done loops through every task with "for". When it finds the right id, it flips done from False → True (or back). "not" reverses a boolean.`, concept:`🔄 for loop = visit each item in a list one by one`, uiAction:'todoCheck' },
+      { lines:[21,22], explain:`Lines 21–22: get_active uses a list comprehension — a compact way to build a filtered list. It returns only tasks where done is False.`, concept:`⚡ list comprehension = filter a list in one line`, uiAction:'todoFilter' },
+      { lines:[24,25,26], explain:`Lines 24–26: Finally we call add_task twice to start with some demo tasks. The function runs, creates dictionaries, appends them to the list.`, concept:`🚀 calling a function = running the code inside it`, uiAction:'todoAddTwo' },
+    ]
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE – default mode is now 'manual'
+═══════════════════════════════════════════════════════════════ */
+const state = {
+  guess: { step: -1, mode: 'manual', speed: 1200, timer: null },
+  calc:  { step: -1, mode: 'manual', speed: 1200, timer: null },
+  todo:  { step: -1, mode: 'manual', speed: 1200, timer: null },
+};
+
+// Live UI state for mini apps
+let gSecret = Math.floor(Math.random()*100)+1, gAttempts=0;
+let calcExpr = '', mcResult = '0';
+let miniTodos = [
+  { id:1, text:'Learn Python', done:false, priority:'high' },
+  { id:2, text:'Build a project', done:false, priority:'med' },
+];
+let nextTodoId = 3;
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT — render code for all projects
+═══════════════════════════════════════════════════════════════ */
+function initAll() {
+  ['guess','calc','todo'].forEach(p => {
+    renderCode(p);
+    renderPips(p);
+  });
+  renderMiniTodos();
+}
+
+function renderCode(proj) {
+  const el = document.getElementById('code-'+proj);
+  const lines = PROJECTS[proj].code;
+  el.innerHTML = lines.map((l,i) =>
+    `<div class="code-line" id="${proj}-line-${i+1}">` +
+    `<span class="line-num">${l.n}</span>` +
+    `<span class="line-code">${l.html || '&nbsp;'}</span>` +
+    `</div>`
+  ).join('');
+}
+
+function renderPips(proj) {
+  const el = document.getElementById('pips-'+proj);
+  const steps = PROJECTS[proj].steps;
+  el.innerHTML = steps.map((s,i) =>
+    `<div class="step-pip" id="${proj}-pip-${i}" title="Step ${i+1}"></div>`
+  ).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROJECT SELECT
+═══════════════════════════════════════════════════════════════ */
+function selectProject(proj, btn) {
+  document.querySelectorAll('.split-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.proj-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('card-'+proj).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODE & SPEED
+═══════════════════════════════════════════════════════════════ */
+function setMode(proj, mode) {
+  clearTimer(proj);
+  state[proj].mode = mode;
+  document.getElementById('auto-'+proj).classList.toggle('active', mode==='auto');
+  document.getElementById('manual-'+proj).classList.toggle('active', mode==='manual');
+  if (mode === 'auto') {
+    if (state[proj].step < 0) state[proj].step = 0;
+    runAuto(proj);
+  }
+}
+
+function setSpeed(proj, ms, btn) {
+  state[proj].speed = ms;
+  document.querySelectorAll(`#ctrl-${proj} .speed-btn`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (state[proj].mode === 'auto' && state[proj].timer) {
+    clearTimer(proj);
+    runAuto(proj);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AUTO PLAY
+═══════════════════════════════════════════════════════════════ */
+function runAuto(proj) {
+  clearTimer(proj);
+  const steps = PROJECTS[proj].steps;
+  if (state[proj].step >= steps.length) return;
+  applyStep(proj, state[proj].step);
+  state[proj].timer = setTimeout(() => {
+    state[proj].step++;
+    if (state[proj].step < steps.length) runAuto(proj);
+    else updateNavBtns(proj);
+  }, state[proj].speed);
+}
+
+function clearTimer(proj) {
+  if (state[proj].timer) { clearTimeout(state[proj].timer); state[proj].timer = null; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MANUAL STEP
+═══════════════════════════════════════════════════════════════ */
+function stepViz(proj, dir) {
+  clearTimer(proj);
+  state[proj].mode = 'manual';
+  document.getElementById('auto-'+proj).classList.remove('active');
+  document.getElementById('manual-'+proj).classList.add('active');
+  const steps = PROJECTS[proj].steps;
+  state[proj].step = Math.max(0, Math.min(steps.length-1, state[proj].step + dir));
+  applyStep(proj, state[proj].step);
+  updateNavBtns(proj);
+}
+
+function updateNavBtns(proj) {
+  const s = state[proj].step;
+  const max = PROJECTS[proj].steps.length - 1;
+  const prevBtn = document.getElementById('prev-'+proj);
+  const nextBtn = document.getElementById('next-'+proj);
+  if (prevBtn) prevBtn.disabled = s <= 0;
+  if (nextBtn) nextBtn.disabled = s >= max;
+  const counter = document.getElementById('counter-'+proj);
+  if (counter) counter.textContent = s >= 0 ? `${s+1} / ${max+1}` : '–';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   APPLY STEP — highlight code + update explain + UI action
+═══════════════════════════════════════════════════════════════ */
+function applyStep(proj, stepIdx) {
+  const data = PROJECTS[proj];
+  const step = data.steps[stepIdx];
+  if (!step) return;
+
+  // clear all line states
+  data.code.forEach((l,i) => {
+    const el = document.getElementById(`${proj}-line-${i+1}`);
+    if (el) { el.classList.remove('active-line','done-line'); }
+  });
+  // done lines = all lines in previous steps
+  for (let s=0; s<stepIdx; s++) {
+    data.steps[s].lines.forEach(ln => {
+      const el = document.getElementById(`${proj}-line-${ln}`);
+      if (el) el.classList.add('done-line');
+    });
+  }
+  // active lines
+  step.lines.forEach(ln => {
+    const el = document.getElementById(`${proj}-line-${ln}`);
+    if (el) {
+      el.classList.add('active-line');
+      el.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    }
+  });
+
+  // pips
+  data.steps.forEach((_,i) => {
+    const pip = document.getElementById(`${proj}-pip-${i}`);
+    if (!pip) return;
+    pip.classList.remove('active','done');
+    if (i < stepIdx) pip.classList.add('done');
+    if (i === stepIdx) pip.classList.add('active');
+  });
+
+  // explanation
+  document.getElementById(`explain-text-${proj}`).textContent = step.explain;
+  document.getElementById(`explain-concept-${proj}`).textContent = step.concept || '';
+
+  // counter
+  updateNavBtns(proj);
+
+  // UI action
+  doUIAction(proj, step.uiAction, stepIdx);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════════════ */
+function resetViz(proj) {
+  clearTimer(proj);
+  state[proj].step = -1;
+  // clear highlights
+  PROJECTS[proj].code.forEach((_,i) => {
+    const el = document.getElementById(`${proj}-line-${i+1}`);
+    if (el) el.classList.remove('active-line','done-line');
+  });
+  PROJECTS[proj].steps.forEach((_,i) => {
+    const pip = document.getElementById(`${proj}-pip-${i}`);
+    if (pip) pip.classList.remove('active','done');
+  });
+  document.getElementById(`explain-text-${proj}`).textContent = 'Press ▶ Auto-Play or step manually to trace the code!';
+  document.getElementById(`explain-concept-${proj}`).textContent = '';
+  updateNavBtns(proj);
+
+  // reset mini UIs
+  if (proj==='guess') { gSecret=Math.floor(Math.random()*100)+1; gAttempts=0; resetGuessUI(); }
+  if (proj==='calc')  { calcExpr=''; document.getElementById('mc-expr').textContent=''; document.getElementById('mc-result').textContent='0'; }
+  if (proj==='todo')  { miniTodos=[{id:1,text:'Learn Python',done:false,priority:'high'},{id:2,text:'Build a project',done:false,priority:'med'}]; nextTodoId=3; renderMiniTodos(); }
+
+  // Do NOT auto restart – stay in manual mode
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UI ACTIONS — animate the left pane in sync with code
+═══════════════════════════════════════════════════════════════ */
+function flash(elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.classList.remove('step-highlight');
+  void el.offsetWidth;
+  el.classList.add('step-highlight');
+  setTimeout(() => el.classList.remove('step-highlight'), 1400);
+}
+
+function doUIAction(proj, action, stepIdx) {
+  if (!action || action==='none') return;
+
+  if (proj==='guess') {
+    if (action==='setSecret') {
+      gSecret = Math.floor(Math.random()*100)+1;
+      flash('guess-status-box');
+      document.getElementById('g-msg').textContent = `Secret number chosen! (between 1-100)`;
+      document.getElementById('g-sub').textContent = `It's locked in — time to guess!`;
+    }
+    if (action==='showMsg') {
+      flash('g-msg');
+      document.getElementById('g-msg').textContent = `I'm thinking of a number 1–100…`;
+    }
+    if (action==='flashLoop') {
+      flash('g-btn');
+    }
+    if (action==='focusInput') {
+      flash('g-input');
+      document.getElementById('g-input').focus();
+    }
+    if (action==='guessLow') {
+      flash('guess-status-box');
+      document.getElementById('g-emoji').textContent='🔽';
+      document.getElementById('g-msg').textContent = `${Math.floor(gSecret*0.4)+1} is too low!`;
+      document.getElementById('g-sub').textContent = 'Try a higher number.';
+      addChip('g-history','too low ↑','chip-low');
+    }
+    if (action==='guessHigh') {
+      flash('guess-status-box');
+      document.getElementById('g-emoji').textContent='🔼';
+      document.getElementById('g-msg').textContent = `${gSecret+10} is too high!`;
+      document.getElementById('g-sub').textContent = 'Try a lower number.';
+      addChip('g-history','too high ↓','chip-high');
+    }
+    if (action==='guessWin') {
+      flash('guess-status-box');
+      document.getElementById('g-emoji').textContent='🎉';
+      document.getElementById('g-msg').textContent = `You got it! The number was ${gSecret}!`;
+      document.getElementById('g-sub').textContent = 'Solved — break exits the loop!';
+      addChip('g-history',`${gSecret} ✓`,'chip-win');
+    }
+  }
+
+  if (proj==='calc') {
+    if (action==='calcReset') { calcExpr=''; updateCalcDisplay('0',''); flash('calc-display-mini'); }
+    if (action==='calcPressC') { calcExpr=''; updateCalcDisplay('0',''); flash('calc-display-mini'); }
+    if (action==='calcPress3') { calcExpr='3'; updateCalcDisplay('3',''); flash('mc-result'); }
+    if (action==='calcPressPlus') { calcExpr='3+'; updateCalcDisplay('3+','3+'); flash('mc-result'); }
+    if (action==='calcPress4') { calcExpr='3+4'; updateCalcDisplay('3+4','3+4'); flash('mc-result'); }
+    if (action==='calcEquals') { updateCalcDisplay('7','3+4'); flash('mc-result'); calcExpr='7'; }
+  }
+
+  if (proj==='todo') {
+    if (action==='todoInit') { flash('t-list'); }
+    if (action==='todoHighlight') { flash('t-add-btn'); }
+    if (action==='todoAdd') {
+      if (miniTodos.length < 4) {
+        miniTodos.unshift({id:nextTodoId++,text:'New Task Added!',done:false,priority:'high'});
+        renderMiniTodos();
+        const items = document.querySelectorAll('.mini-todo-item');
+        if (items[0]) { flash(items[0].id||'t-list'); }
+      }
+    }
+    if (action==='todoCheck') {
+      if (miniTodos.length>0) {
+        miniTodos[miniTodos.length-1].done = !miniTodos[miniTodos.length-1].done;
+        renderMiniTodos();
+        flash('t-list');
+      }
+    }
+    if (action==='todoFilter') { flash('t-list'); }
+    if (action==='todoAddTwo') {
+      miniTodos = [{id:1,text:'Learn Python',done:false,priority:'high'},{id:2,text:'Build a project',done:false,priority:'med'}];
+      nextTodoId=3;
+      renderMiniTodos();
+      flash('t-list');
+    }
+  }
+}
+
+function addChip(containerId, text, cls) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const chip = document.createElement('span');
+  chip.style.cssText = 'padding:0.22rem 0.6rem;border-radius:999px;font-size:0.72rem;font-weight:800;font-family:var(--font-mono);';
+  chip.className = 'history-chip ' + cls;
+  chip.textContent = text;
+  c.appendChild(chip);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MINI LIVE APPS
+═══════════════════════════════════════════════════════════════ */
+function resetGuessUI() {
+  document.getElementById('g-emoji').textContent='🤔';
+  document.getElementById('g-msg').textContent="I'm thinking of a number 1–100…";
+  document.getElementById('g-sub').textContent='Make your first guess!';
+  document.getElementById('g-history').innerHTML='';
+  document.getElementById('g-input').value='';
+}
+
+function liveGuess() {
+  const val = parseInt(document.getElementById('g-input').value);
+  if (!val || val<1 || val>100) return;
+  gAttempts++;
+  const status = document.getElementById('guess-status-box');
+  if (val < gSecret) {
+    document.getElementById('g-emoji').textContent='🔽';
+    document.getElementById('g-msg').textContent=val+' is too low!';
+    document.getElementById('g-sub').textContent='Try a higher number.';
+    addChip('g-history',val+' ↑','chip-low');
+  } else if (val > gSecret) {
+    document.getElementById('g-emoji').textContent='🔼';
+    document.getElementById('g-msg').textContent=val+' is too high!';
+    document.getElementById('g-sub').textContent='Try a lower number.';
+    addChip('g-history',val+' ↓','chip-high');
+  } else {
+    document.getElementById('g-emoji').textContent='🎉';
+    document.getElementById('g-msg').textContent='You got it in '+gAttempts+' tries!';
+    document.getElementById('g-sub').textContent='Solved! Use reset to play again.';
+    addChip('g-history',val+' ✓','chip-win');
+    gSecret=Math.floor(Math.random()*100)+1; gAttempts=0;
+  }
+  document.getElementById('g-input').value='';
+  flash('guess-status-box');
+}
+
+// calc style overrides for chip classes
+const chipStyles = `.chip-low{background:rgba(78,205,196,0.15);color:var(--mint-dk)}.chip-high{background:rgba(255,107,107,0.15);color:var(--coral-dk)}.chip-win{background:rgba(108,99,255,0.15);color:var(--purple)}`;
+const styleEl = document.createElement('style'); styleEl.textContent = chipStyles; document.head.appendChild(styleEl);
+
+function updateCalcDisplay(result, expr) {
+  document.getElementById('mc-result').textContent = result;
+  document.getElementById('mc-expr').textContent = expr;
+}
+
+function miniCalc(v) {
+  if (v==='C') { calcExpr=''; updateCalcDisplay('0',''); return; }
+  if (v==='=') {
+    try {
+      const r = eval(calcExpr);
+      updateCalcDisplay(String(r), calcExpr);
+      calcExpr = String(r);
+    } catch { updateCalcDisplay('Error',''); calcExpr=''; }
+    return;
+  }
+  calcExpr += v;
+  updateCalcDisplay(calcExpr, calcExpr.length>8?calcExpr.slice(-8):calcExpr);
+  document.getElementById('mc-result').textContent = calcExpr;
+}
+
+function renderMiniTodos() {
+  const list = document.getElementById('t-list');
+  if (!list) return;
+  if (miniTodos.length===0) {
+    list.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.8rem;">📋 No tasks yet!</div>';
+    return;
+  }
+  list.innerHTML = miniTodos.map(t =>
+    `<div class="mini-todo-item${t.done?' done-item':''}" id="todo-item-${t.id}">
+      <div class="mini-check${t.done?' checked':''}" onclick="liveTodoCheck(${t.id})">
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="prio-dot prio-${t.priority}"></div>
+      <span>${t.text}</span>
+    </div>`
+  ).join('');
+}
+
+function liveTodoCheck(id) {
+  const t = miniTodos.find(x=>x.id===id);
+  if (t) { t.done=!t.done; renderMiniTodos(); }
+}
+
+function liveAddTodo() {
+  const input = document.getElementById('t-input');
+  const text = input.value.trim();
+  if (!text) return;
+  miniTodos.unshift({id:nextTodoId++,text,done:false,priority:'high'});
+  input.value='';
+  renderMiniTodos();
+  flash('t-list');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOT – no auto-start, wait for user action
+   State management for completed projects
+═══════════════════════════════════════════════════════════════ */
+let projectProgress = { guess: false, calc: false, todo: false };
+
+function toggleProjectCompleted(proj) {
+  projectProgress[proj] = !projectProgress[proj];
+  updateProjectCompletionUI(proj);
+
+  // Sync with Firestore if authenticated
+  if (window.auth && window.auth.currentUser && window.db) {
+    const uid = window.auth.currentUser.uid;
+    window.db.collection('users').doc(uid).update({
+      projects: projectProgress
+    }).then(() => {
+      showProjectsToast(projectProgress[proj] ? "🎉 Project marked as completed!" : "Project progress updated");
+    }).catch(err => console.error("Firestore sync project error:", err));
+  } else {
+    // Guest fallback
+    localStorage.setItem("edupy_projects_progress", JSON.stringify(projectProgress));
+    showProjectsToast(projectProgress[proj] ? "🎉 Project marked as completed!" : "Project progress updated");
+  }
+}
+
+function updateProjectCompletionUI(proj) {
+  const btn = document.getElementById(`comp-${proj}`);
+  if (!btn) return;
+  const isDone = projectProgress[proj];
+  btn.classList.toggle('done', isDone);
+  btn.innerHTML = isDone ? '✓ Completed!' : 'Mark Completed';
+}
+
+function showProjectsToast(msg) {
+  const t = document.getElementById("toast");
+  if (t) {
+    t.textContent = msg;
+    t.className = "toast show";
+    setTimeout(() => t.classList.remove("show"), 2200);
+  } else {
+    alert(msg);
+  }
+}
+
+// Listen for Auth resolution to sync completion progress
+if (window.firebaseReady) {
+  window.firebaseReady.then(() => {
+    window.auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const doc = await window.db.collection('users').doc(user.uid).get();
+          if (doc.exists) {
+            const data = doc.data();
+            if (data.projects) {
+              projectProgress = data.projects;
+              ['guess', 'calc', 'todo'].forEach(updateProjectCompletionUI);
+            }
+          }
+        } catch (error) {
+          console.error("Firestore loading projects failed:", error);
+        }
+      } else {
+        // Load local storage progress
+        const local = JSON.parse(localStorage.getItem("edupy_projects_progress") || "{}");
+        ['guess', 'calc', 'todo'].forEach(p => {
+          projectProgress[p] = !!local[p];
+          updateProjectCompletionUI(p);
+        });
+      }
+    });
+  });
+}
+
+initAll();
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>

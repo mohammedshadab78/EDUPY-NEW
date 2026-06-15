@@ -1,0 +1,640 @@
+
++<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPy – Certificate Generator</title>
+  <link rel="icon" href="logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #6C63FF; --purple-dk: #4B44CC; --purple-lt: #a09bff;
+      --coral: #FF6B6B;  --coral-dk: #CC4444;
+      --mint: #4ECDC4;   --mint-dk: #33A89F;
+      --gold: #F5A623;   --gold-dk: #C17D0A;
+      --bg: #F0F4FF; --card: #fff; --text: #2D2B55; --muted: #8884B0;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(240,244,255,0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(108,99,255,0.12);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .65rem 1rem;
+      gap: .5rem;
+    }
+    .logo { display: flex; align-items: center; gap: .5rem; text-decoration: none; color: var(--text); font-weight: 800; font-size: 1.05rem; flex-shrink: 0; }
+    .logo-icon { background: linear-gradient(135deg,var(--purple),var(--coral)); width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .8rem; color: #fff; box-shadow: 0 3px 0 var(--purple-dk); }
+    .nav-links { display: flex; gap: .3rem; flex-wrap: wrap; justify-content: flex-end; }
+    .nav-btn { padding: .35rem .75rem; border-radius: 40px; font-weight: 600; text-decoration: none; background: rgba(108,99,255,.09); color: var(--purple); font-size: .78rem; display: inline-flex; align-items: center; gap: 4px; border: none; cursor: pointer; transition: .18s; font-family: inherit; white-space: nowrap; }
+    .nav-btn:hover, .nav-btn:active { background: var(--purple); color: #fff; }
+    @media (max-width: 520px) {
+      .nav-hide-sm { display: none; }
+      .nav-btn { padding: .3rem .6rem; font-size: .72rem; }
+    }
+
+    /* ── CONTAINER ── */
+    .container { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+    /* ── PAGE HEADER ── */
+    .page-header { text-align: center; margin-bottom: 1.8rem; }
+    .header-chip { background: rgba(108,99,255,.12); display: inline-block; padding: .22rem 1rem; border-radius: 40px; font-size: .72rem; font-weight: 700; color: var(--purple); margin-bottom: .7rem; }
+    .page-title { font-family: 'Syne', sans-serif; font-size: clamp(1.5rem,5vw,2.4rem); font-weight: 800; background: linear-gradient(135deg,var(--purple),var(--coral)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: .4rem; line-height: 1.2; }
+    .page-sub { color: var(--muted); font-size: clamp(.8rem,2.5vw,.9rem); }
+
+    /* ── SETUP CARD ── */
+    .setup-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: clamp(1.2rem,4vw,2rem);
+      box-shadow: 0 8px 24px rgba(0,0,0,.06), 0 2px 0 rgba(108,99,255,.1);
+      border: 1px solid rgba(108,99,255,.12);
+      margin-bottom: 1.5rem;
+    }
+    .setup-title { font-size: .95rem; font-weight: 800; margin-bottom: 1.1rem; display: flex; align-items: center; gap: .5rem; }
+    .input-wrap { width: 100%; }
+    .input-label { font-size: .78rem; font-weight: 700; color: var(--muted); margin-bottom: .4rem; display: block; }
+    .name-input {
+      width: 100%; padding: .75rem 1.1rem; border-radius: 14px;
+      border: 2px solid rgba(108,99,255,.2); background: var(--bg);
+      font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 600;
+      color: var(--text); outline: none; transition: border-color .18s;
+    
+    }
+    .name-input:focus { border-color: var(--purple); }
+
+    /* ── BADGE CHIPS ── */
+    .progress-row { margin-top: 1.1rem; padding-top: 1.1rem; border-top: 1px solid rgba(108,99,255,.1); }
+    .prog-info { font-size: .78rem; font-weight: 700; color: var(--muted); margin-bottom: .6rem; }
+    .badge-chips { display: flex; gap: .4rem; flex-wrap: wrap; }
+    .badge-chip {
+      padding: .28rem .7rem; border-radius: 30px; font-size: .72rem; font-weight: 700;
+      background: rgba(108,99,255,.09); color: var(--purple);
+      border: 1.5px solid rgba(108,99,255,.2);
+      display: inline-flex; align-items: center; gap: .25rem;
+    }
+    .badge-chip.earned { background: rgba(245,166,35,.12); color: #7a4f00; border-color: rgba(245,166,35,.4); }
+    .badge-chip.not-earned { opacity: .38; }
+
+    /* ── WARNING ── */
+    .warning-box {
+      background: rgba(255,107,107,.08); border: 1.5px solid rgba(255,107,107,.3);
+      border-radius: 14px; padding: 1rem 1.2rem; display: none;
+      align-items: flex-start; gap: .8rem; margin-top: 1rem;
+    }
+    .warning-box.show { display: flex; }
+    .warning-text { font-size: .82rem; font-weight: 600; color: #CC4444; line-height: 1.5; }
+    .warning-link { color: var(--purple); font-weight: 700; text-decoration: none; }
+
+    /* ── ACTION BUTTONS ── */
+    .action-row { display: flex; gap: .7rem; margin-top: 1.4rem; flex-wrap: wrap; }
+    .btn-generate, .btn-download, .btn-share {
+      flex: 1; min-width: 140px;
+      padding: .8rem 1.2rem; border-radius: 999px;
+      font-family: 'Nunito', sans-serif; font-size: .9rem; font-weight: 800;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+      transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-generate { border: none; background: var(--purple); color: #fff; box-shadow: 0 5px 0 var(--purple-dk), 0 8px 18px rgba(108,99,255,.28); }
+    .btn-generate:hover { transform: translateY(-3px); box-shadow: 0 8px 0 var(--purple-dk), 0 14px 24px rgba(108,99,255,.36); }
+    .btn-generate:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--purple-dk); }
+    .btn-download { border: 2px solid rgba(108,99,255,.3); background: rgba(255,255,255,.7); color: var(--purple); }
+    .btn-download:hover { background: rgba(108,99,255,.08); border-color: var(--purple); transform: translateY(-2px); }
+    .btn-share { border: none; background: #25D366; color: #fff; box-shadow: 0 5px 0 #1a9e4d; }
+    .btn-share:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #1a9e4d; }
+    @media (max-width: 400px) {
+      .action-row { flex-direction: column; }
+      .btn-generate, .btn-download, .btn-share { width: 100%; min-width: unset; }
+    }
+
+    /* ══════════════════════════════════════
+       CERTIFICATE PREVIEW (scaled on mobile)
+       The actual #certificate is always 900px
+       for PDF quality. We scale the wrapper.
+    ══════════════════════════════════════ */
+    .cert-wrapper { display: none; margin-top: .5rem; }
+    .cert-wrapper.visible { display: block; }
+    .cert-section-label { font-size: .75rem; font-weight: 700; color: var(--muted); margin-bottom: .8rem; display: flex; align-items: center; gap: .4rem; }
+
+    /* Outer scaler — JS sets transform */
+    .cert-scaler-outer {
+      width: 100%;
+      overflow: hidden;
+      /* height set by JS after scale */
+    }
+    .cert-scaler-inner {
+      transform-origin: top left;
+      /* transform: scale(N) set by JS */
+      width: 900px;
+    }
+
+    /* ── THE CERTIFICATE (always 900px) ── */
+    #certificate {
+      width: 900px;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .cert-corner { position: absolute; width: 50px; height: 50px; border-color: rgba(108,99,255,.2); border-style: solid; border-width: 0; }
+    .cert-corner.tl { top: 20px; left: 20px; border-top-width: 2.5px; border-left-width: 2.5px; border-top-left-radius: 2px; }
+    .cert-corner.tr { top: 20px; right: 20px; border-top-width: 2.5px; border-right-width: 2.5px; border-top-right-radius: 2px; }
+    .cert-corner.bl { bottom: 20px; left: 20px; border-bottom-width: 2.5px; border-left-width: 2.5px; border-bottom-left-radius: 2px; }
+    .cert-corner.br { bottom: 20px; right: 20px; border-bottom-width: 2.5px; border-right-width: 2.5px; border-bottom-right-radius: 2px; }
+
+    .cert-watermark {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-family: 'Syne', sans-serif; font-size: 7rem; font-weight: 800;
+      color: rgba(108,99,255,.04); letter-spacing: .1em;
+      pointer-events: none; white-space: nowrap; z-index: 0; user-select: none;
+    }
+
+    /* Banner */
+    .cert-banner {
+      background: linear-gradient(135deg, #6C63FF 0%, #8B83FF 40%, #FF6B6B 100%);
+      padding: 26px 46px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    .cert-banner::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 80% at 80% 50%, rgba(255,255,255,.12), transparent);
+    }
+    .cert-brand { display: flex; align-items: center; gap: 12px; z-index: 1; }
+    .cert-logo-box {
+      width: 50px; height: 50px; border-radius: 15px;
+      background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.4);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.25rem; color: #fff;
+    }
+    .cert-brand-name { font-family: 'Syne', sans-serif; font-size: 1.45rem; font-weight: 800; color: #fff; }
+    .cert-brand-sub { font-size: .7rem; color: rgba(255,255,255,.75); font-weight: 600; margin-top: 1px; }
+    .cert-banner-right { z-index: 1; text-align: right; }
+    .cert-banner-label { font-size: .7rem; color: rgba(255,255,255,.7); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .cert-banner-title { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: #fff; }
+
+    /* Body */
+    .cert-body { padding: 32px 50px 28px; background: #fff; position: relative; z-index: 1; }
+    .cert-presented { font-size: .75rem; font-weight: 700; color: var(--muted); text-align: center; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
+    .cert-name {
+      font-family: 'Dancing Script', cursive; font-size: 3rem; font-weight: 700;
+      text-align: center;
+      background: linear-gradient(135deg, #6C63FF, #FF6B6B);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      margin-bottom: 3px; line-height: 1.2;
+    }
+    .cert-name-underline { width: 260px; height: 2px; background: linear-gradient(90deg,transparent,rgba(108,99,255,.35),transparent); margin: 0 auto 14px; }
+    .cert-desc { text-align: center; font-size: .85rem; color: var(--muted); font-weight: 600; line-height: 1.6; max-width: 560px; margin: 0 auto 20px; }
+
+    /* Badges */
+    .cert-badges-label { font-size: .68rem; font-weight: 800; color: var(--muted); text-align: center; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px; }
+    .cert-badges-grid { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+    .cert-badge-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 10px 12px; border-radius: 14px; min-width: 86px;
+      background: linear-gradient(135deg,rgba(245,166,35,.1),rgba(249,199,79,.06));
+      border: 1.5px solid rgba(245,166,35,.35);
+    }
+    .cert-badge-emoji { font-size: 1.7rem; line-height: 1; }
+    .cert-badge-name { font-size: .62rem; font-weight: 800; color: #7a4f00; text-align: center; line-height: 1.3; }
+    .cert-badge-stars { font-size: .58rem; letter-spacing: 1px; }
+
+    /* Stats */
+    .cert-stats {
+      display: flex; justify-content: center;
+      background: var(--bg); border-radius: 14px; overflow: hidden;
+      border: 1.5px solid rgba(108,99,255,.1); margin-bottom: 24px;
+    }
+    .cert-stat { flex: 1; text-align: center; padding: 10px 8px; border-right: 1px solid rgba(108,99,255,.08); }
+    .cert-stat:last-child { border-right: none; }
+    .cert-stat-num { font-size: 1.35rem; font-weight: 900; background: linear-gradient(135deg,var(--purple),var(--coral)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .cert-stat-lbl { font-size: .62rem; font-weight: 700; color: var(--muted); margin-top: 2px; }
+
+    /* Bottom row */
+    .cert-bottom { display: flex; align-items: flex-end; justify-content: space-between; padding-top: 18px; border-top: 1.5px solid rgba(108,99,255,.1); }
+    .cert-sig-block { text-align: center; }
+    .cert-sig { font-family: 'Dancing Script', cursive; font-size: 1.55rem; color: var(--purple); line-height: 1; }
+    .cert-sig-line { width: 130px; height: 1.5px; background: rgba(108,99,255,.25); margin: 5px 0; }
+    .cert-sig-label { font-size: .62rem; font-weight: 700; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+    .cert-seal {
+      width: 76px; height: 76px; border-radius: 50%;
+      background: linear-gradient(135deg,#6C63FF,#FF6B6B);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #fff; font-size: .52rem; font-weight: 800; text-align: center;
+      letter-spacing: .04em; text-transform: uppercase;
+      box-shadow: 0 4px 16px rgba(108,99,255,.35); border: 3px solid rgba(255,255,255,.3);
+      line-height: 1.4;
+    }
+    .cert-seal-emoji { font-size: 1.3rem; margin-bottom: 2px; }
+    .cert-date-block { text-align: right; }
+    .cert-date { font-size: .72rem; font-weight: 700; color: var(--muted); }
+    .cert-id { font-size: .62rem; color: rgba(108,99,255,.5); font-weight: 600; margin-top: 3px; }
+
+    /* ── FOOTER ── */
+    .footer { background: #1e1b4b; padding: 1rem 1.2rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: .7rem; border-radius: 24px 24px 0 0; color: rgba(255,255,255,.5); font-size: .75rem; margin-top: 3rem; }
+    .footer a { color: inherit; text-decoration: none; }
+    @media (max-width: 480px) {
+      .footer { flex-direction: column; text-align: center; align-items: center; }
+    }
+  </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">Py</div>
+    <span>EduPy</span>
+  </a>
+  <div class="nav-links">
+    <a href="home.html" class="nav-btn nav-hide-sm">✏️ Editor</a>
+    <a href="notes.html" class="nav-btn nav-hide-sm">📘 Notes</a>
+    <a href="assessments.html" class="nav-btn">🎯 Assessments</a>
+    <a href="index.html" class="nav-btn">🏠 Home</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-chip">🏆 Certificate Generator</div>
+    <h1 class="page-title">Your EduPy Certificate</h1>
+    <p class="page-sub">Complete levels, earn badges, download your official Python certificate.</p>
+  </div>
+
+  <!-- Setup Card -->
+  <div class="setup-card">
+    <div class="setup-title">🎓 Generate Your Certificate</div>
+
+    <div class="input-wrap">
+      <label class="input-label" for="studentName">Your Full Name</label>
+      <input id="studentName" class="name-input" type="text" placeholder="e.g. Mohammed Shadab" maxlength="50" autocomplete="name">
+    </div>
+
+    <!-- Badge progress -->
+    <div class="progress-row">
+      <div class="prog-info">📊 Your Badges:</div>
+      <div class="badge-chips" id="badgeChips"></div>
+    </div>
+
+    <!-- Warning if no badges -->
+    <div class="warning-box" id="warningBox">
+      <span style="font-size:1.4rem;flex-shrink:0">⚠️</span>
+      <div class="warning-text">
+        No badges earned yet!
+        <a href="assessments.html" class="warning-link">Complete levels first →</a><br>
+        <small style="opacity:.7">Score 70%+ on any level to earn a badge.</small>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-generate" onclick="generateCert()">✨ Generate</button>
+      <button class="btn-download" id="btnDownload" onclick="downloadPDF()" style="display:none">⬇️ Download PDF</button>
+      <button class="btn-share" id="btnShare" onclick="shareWhatsApp()" style="display:none">💬 WhatsApp</button>
+    </div>
+  </div>
+
+  <!-- Certificate Preview (scaled) -->
+  <div class="cert-wrapper" id="certWrapper">
+    <div class="cert-section-label">👁️ Certificate Preview</div>
+    <div class="cert-scaler-outer" id="certScalerOuter">
+      <div class="cert-scaler-inner" id="certScalerInner">
+
+        <!-- THE CERTIFICATE — always 900px, scaled via JS transform -->
+        <div id="certificate">
+          <div class="cert-watermark">EDUPY</div>
+          <div class="cert-corner tl"></div>
+          <div class="cert-corner tr"></div>
+          <div class="cert-corner bl"></div>
+          <div class="cert-corner br"></div>
+
+          <!-- Banner -->
+          <div class="cert-banner">
+            <div class="cert-brand">
+              <div class="cert-logo-box">Py</div>
+              <div>
+                <div class="cert-brand-name">EduPy</div>
+                <div class="cert-brand-sub">Learn Python the Smart Way</div>
+              </div>
+            </div>
+            <div class="cert-banner-right">
+              <div class="cert-banner-label">Certificate of Achievement</div>
+              <div class="cert-banner-title">Python Programming</div>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div class="cert-body">
+            <div class="cert-presented">This certificate is proudly presented to</div>
+            <div class="cert-name" id="certName">Your Name</div>
+            <div class="cert-name-underline"></div>
+            <div class="cert-desc" id="certDesc">For successfully completing the EduPy Python Assessment Programme, demonstrating knowledge, persistence, and a genuine passion for programming.</div>
+
+            <div class="cert-badges-label">Badges Earned</div>
+            <div class="cert-badges-grid" id="certBadgesGrid"></div>
+
+            <div class="cert-stats">
+              <div class="cert-stat"><div class="cert-stat-num" id="certBadgeCount">0</div><div class="cert-stat-lbl">Badges</div></div>
+              <div class="cert-stat"><div class="cert-stat-num">6</div><div class="cert-stat-lbl">Total Levels</div></div>
+              <div class="cert-stat"><div class="cert-stat-num" id="certQCount">0</div><div class="cert-stat-lbl">Questions</div></div>
+              <div class="cert-stat"><div class="cert-stat-num" id="certScore">—</div><div class="cert-stat-lbl">Best Score</div></div>
+            </div>
+
+            <div class="cert-bottom">
+              <div class="cert-sig-block">
+                <div class="cert-sig">Mohammed Shadab</div>
+                <div class="cert-sig-line"></div>
+                <div class="cert-sig-label">Creator · EduPy Project</div>
+              </div>
+              <div class="cert-seal">
+                <div class="cert-seal-emoji">🏆</div>
+                VERIFIED<br>ACHIEVEMENT
+              </div>
+              <div class="cert-date-block">
+                <div class="cert-date" id="certDate">—</div>
+                <div class="cert-id" id="certId">—</div>
+              </div>
+            </div>
+          </div><!-- /cert-body -->
+        </div><!-- /#certificate -->
+
+      </div><!-- /.cert-scaler-inner -->
+    </div><!-- /.cert-scaler-outer -->
+  </div><!-- /.cert-wrapper -->
+
+</div><!-- /.container -->
+
+<footer class="footer">
+  <span>Made with 💜 by Mohammed Shadab · EduPy</span>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+    <a href="index.html">Home</a>
+    <a href="home.html">Editor</a>
+    <a href="notes.html">Notes</a>
+    <a href="assessments.html">Assessments</a>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════
+const LEVEL_META = [
+  { id:"L1", badge:{ emoji:"🌱", name:"Seedling Badge",       stars:"⭐⭐⭐" } },
+  { id:"L2", badge:{ emoji:"⚡", name:"Logic Spark Badge",    stars:"⭐⭐⭐" } },
+  { id:"L3", badge:{ emoji:"📚", name:"Word Wizard Badge",    stars:"⭐⭐⭐" } },
+  { id:"L4", badge:{ emoji:"🔄", name:"Loop Legend Badge",    stars:"⭐⭐⭐" } },
+  { id:"L5", badge:{ emoji:"🧩", name:"Code Alchemist Badge", stars:"⭐⭐⭐" } },
+  { id:"L6", badge:{ emoji:"🐍", name:"Python Master Badge",  stars:"⭐⭐⭐⭐⭐" } },
+];
+
+// ═══════════════════════════════════════════
+//  LOAD PROGRESS
+// ═══════════════════════════════════════════
+let earnedBadges = JSON.parse(localStorage.getItem("edupy_badges") || "{}");
+let bestScores   = JSON.parse(localStorage.getItem("edupy_scores") || "{}");
+let earnedList   = LEVEL_META.filter(lv => earnedBadges[lv.id]);
+let earnedCount  = earnedList.length;
+
+// ── Render badge chips ──
+function renderBadgeChips() {
+  earnedList  = LEVEL_META.filter(lv => earnedBadges[lv.id]);
+  earnedCount = earnedList.length;
+
+  document.getElementById('badgeChips').innerHTML = LEVEL_META.map((lv, i) => {
+    const earned = earnedBadges[lv.id];
+    return `<span class="badge-chip ${earned ? 'earned' : 'not-earned'}">${lv.badge.emoji} L${i+1}</span>`;
+  }).join('');
+  
+  if (earnedCount === 0) {
+    document.getElementById('warningBox').classList.add('show');
+  } else {
+    document.getElementById('warningBox').classList.remove('show');
+  }
+}
+
+// Initial draw
+renderBadgeChips();
+
+// Real-time synchronization of certificate data from Firestore
+if (window.firebaseReady) {
+  window.firebaseReady.then(() => {
+    window.auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const doc = await window.db.collection('users').doc(user.uid).get();
+          if (doc.exists) {
+            const data = doc.data();
+            
+            // Pre-fill name input
+            if (data.name) {
+              document.getElementById('studentName').value = data.name;
+            }
+
+            // Map badges from Firestore
+            const badgeIdMap = {
+              "Seedling Badge": "L1",
+              "Logic Spark Badge": "L2",
+              "Word Wizard Badge": "L3",
+              "Loop Legend Badge": "L4",
+              "Code Alchemist Badge": "L5",
+              "Python Master Badge": "L6"
+            };
+            
+            const newBadges = {};
+            if (Array.isArray(data.badges)) {
+              data.badges.forEach(bname => {
+                if (badgeIdMap[bname]) newBadges[badgeIdMap[bname]] = true;
+              });
+            }
+            earnedBadges = newBadges;
+
+            // Map scores
+            const newScores = {};
+            if (data.scores) {
+              Object.keys(data.scores).forEach(skey => {
+                const lvlNum = skey.replace('level', '');
+                newScores[`L${lvlNum}`] = Math.round((data.scores[skey] / 100) * 10);
+              });
+            }
+            bestScores = newScores;
+
+            // Cache and redraw
+            localStorage.setItem("edupy_badges", JSON.stringify(earnedBadges));
+            localStorage.setItem("edupy_scores", JSON.stringify(bestScores));
+            renderBadgeChips();
+          }
+        } catch (error) {
+          console.error("Firestore loading certificate progress failed:", error);
+        }
+      }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════
+//  SCALE CERTIFICATE TO FIT SCREEN
+// ═══════════════════════════════════════════
+function scaleCert() {
+  const outer = document.getElementById('certScalerOuter');
+  const inner = document.getElementById('certScalerInner');
+  const availW = outer.parentElement.clientWidth - 2; // 2px breathing room
+  const certW  = 900;
+  const scale  = Math.min(1, availW / certW);
+  inner.style.transform = `scale(${scale})`;
+  // Set outer height to match scaled certificate height
+  const certH = document.getElementById('certificate').offsetHeight;
+  outer.style.height = (certH * scale) + 'px';
+}
+
+window.addEventListener('resize', scaleCert);
+
+// ═══════════════════════════════════════════
+//  GENERATE
+// ═══════════════════════════════════════════
+function generateCert() {
+  const nameInput = document.getElementById('studentName').value.trim();
+  if (!nameInput) {
+    const inp = document.getElementById('studentName');
+    inp.focus(); inp.style.borderColor = 'var(--coral)';
+    inp.placeholder = 'Please enter your name!';
+    setTimeout(() => { inp.style.borderColor = ''; inp.placeholder = 'e.g. Mohammed Shadab'; }, 2000);
+    return;
+  }
+
+  document.getElementById('certName').textContent = nameInput;
+
+  const now = new Date();
+  document.getElementById('certDate').textContent = 'Issued: ' + now.toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+
+  const certId = 'EDUPY-' + Math.random().toString(36).substr(2,8).toUpperCase();
+  document.getElementById('certId').textContent = 'Cert ID: ' + certId;
+
+  document.getElementById('certBadgeCount').textContent = earnedCount;
+  document.getElementById('certQCount').textContent = earnedCount * 10;
+
+  const scores = Object.values(bestScores);
+  document.getElementById('certScore').textContent = scores.length
+    ? Math.max(...scores.map(s => Math.round((s/10)*100))) + '%' : '—';
+
+  const descMap = {
+    0: `for their effort in exploring EduPy and beginning their Python journey.`,
+    1: `for completing Level 1 of EduPy and mastering Python fundamentals.`,
+    2: `for completing 2 levels, demonstrating strong understanding of Python basics and logic.`,
+    3: `for earning 3 badges — covering variables, logic, strings, and lists.`,
+    4: `for earning 4 badges — showcasing command of Python fundamentals, conditions, strings, and loops.`,
+    5: `for earning 5 out of 6 badges, demonstrating comprehensive Python knowledge and dedication.`,
+    6: `for earning ALL 6 badges in EduPy — an outstanding achievement and a true Python champion! 🏆`,
+  };
+  document.getElementById('certDesc').textContent =
+    `This certificate is awarded to ${nameInput} ` + (descMap[earnedCount] || descMap[0]);
+
+  const grid = document.getElementById('certBadgesGrid');
+  grid.innerHTML = earnedCount === 0
+    ? `<div style="font-size:.78rem;color:var(--muted);font-style:italic;padding:10px 0;">No badges yet — complete levels to unlock them!</div>`
+    : earnedList.map(lv => `
+        <div class="cert-badge-item">
+          <div class="cert-badge-emoji">${lv.badge.emoji}</div>
+          <div class="cert-badge-name">${lv.badge.name}</div>
+          <div class="cert-badge-stars">${lv.badge.stars}</div>
+        </div>`).join('');
+
+  const wrapper = document.getElementById('certWrapper');
+  wrapper.classList.add('visible');
+
+  // Wait for DOM paint then scale
+  requestAnimationFrame(() => {
+    scaleCert();
+    wrapper.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+
+  document.getElementById('btnDownload').style.display = 'inline-flex';
+  document.getElementById('btnShare').style.display = 'inline-flex';
+}
+
+// ═══════════════════════════════════════════
+//  DOWNLOAD PDF
+// ═══════════════════════════════════════════
+async function downloadPDF() {
+  const btn = document.getElementById('btnDownload');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Please wait…';
+  btn.disabled = true;
+
+  try {
+    // Temporarily reset scale so html2canvas captures full 900px
+    const inner = document.getElementById('certScalerInner');
+    const outer = document.getElementById('certScalerOuter');
+    const prevTransform = inner.style.transform;
+    const prevHeight    = outer.style.height;
+    inner.style.transform = 'scale(1)';
+    outer.style.height = 'auto';
+
+    const cert = document.getElementById('certificate');
+    const canvas = await html2canvas(cert, {
+      scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false,
+    });
+
+    // Restore scale
+    inner.style.transform = prevTransform;
+    outer.style.height    = prevHeight;
+
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = pdf.internal.pageSize.getHeight();
+    const ratio  = Math.min(pdfW / canvas.width, pdfH / canvas.height);
+    const finalW = canvas.width * ratio;
+    const finalH = canvas.height * ratio;
+    pdf.addImage(imgData, 'PNG', (pdfW-finalW)/2, (pdfH-finalH)/2, finalW, finalH);
+
+    const name = document.getElementById('studentName').value.trim().replace(/\s+/g,'_') || 'EduPy';
+    pdf.save(`${name}_EduPy_Certificate.pdf`);
+  } catch(e) {
+    alert('Could not generate PDF. Please try again.');
+    console.error(e);
+  }
+
+  btn.innerHTML = orig;
+  btn.disabled = false;
+}
+
+// ═══════════════════════════════════════════
+//  SHARE ON WHATSAPP
+// ═══════════════════════════════════════════
+function shareWhatsApp() {
+  const name = document.getElementById('studentName').value.trim() || 'I';
+  const badgeNames = earnedList.map(lv => lv.badge.emoji + ' ' + lv.badge.name).join('\n');
+  let msg;
+  if (earnedCount === 0) {
+    msg = `🐍 I just started learning Python on *EduPy* — a free browser-based platform!\nNo installation needed. Try it! 🚀`;
+  } else if (earnedCount === 6) {
+    msg = `🏆 I completed ALL 6 levels on *EduPy* and earned every badge!\n\n🎖️ My badges:\n${badgeNames}\n\n🐍 I am now a *Python Champion*! Try EduPy — free & works in your browser. 🚀`;
+  } else {
+    msg = `🎓 I earned ${earnedCount} badge${earnedCount > 1 ? 's' : ''} on *EduPy* — a free Python learning platform!\n\n🎖️ My badges:\n${badgeNames}\n\n🐍 Try it yourself — no installation needed! 🚀`;
+  }
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+</script>
+</body>
+</html>
