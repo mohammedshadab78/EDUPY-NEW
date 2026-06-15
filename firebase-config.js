@@ -24,7 +24,8 @@ const PUBLIC_PAGES = [
   '/',
   '/index.html',
   '/login.html',
-  '/register.html'
+  '/register.html',
+  '/forgot-password.html'
 ];
 
 // Determine if the current page is public
