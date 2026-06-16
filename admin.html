@@ -558,6 +558,17 @@
     // Run security check on load
     document.addEventListener("DOMContentLoaded", () => {
       verifyAdminAccess();
+
+      // Easter egg click trigger in Admin panel
+      const adminTitle = document.querySelector('.admin-header h1');
+      if (adminTitle) {
+        adminTitle.style.cursor = 'help';
+        adminTitle.addEventListener('dblclick', () => {
+          if (typeof openSecretTerminal === 'function') {
+            openSecretTerminal();
+          }
+        });
+      }
     });
   </script>
 </body>
