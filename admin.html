@@ -981,26 +981,27 @@
     async function verifyAdminAccess() {
       await window.firebaseReady;
       
-      const user = window.auth.currentUser;
-      if (!user) return; // firebase-config.js handles redirection to login
+      window.auth.onAuthStateChanged(async (user) => {
+        if (!user) return; // firebase-config.js handles redirection to login
 
-      try {
-        const doc = await window.db.collection('users').doc(user.uid).get();
-        if (doc.exists && doc.data().role === 'admin') {
-          // Grant access
-          document.body.classList.add('authorized');
-          // Load default data
-          loadAnalytics();
-        } else {
-          // Denied - Redirect to dashboard
-          console.warn("User is not admin. Redirecting...");
-          alert("Access Denied! Admin role is required to access this panel.");
+        try {
+          const doc = await window.db.collection('users').doc(user.uid).get();
+          if (doc.exists && doc.data().role === 'admin') {
+            // Grant access
+            document.body.classList.add('authorized');
+            // Load default data
+            loadAnalytics();
+          } else {
+            // Denied - Redirect to dashboard
+            console.warn("User is not admin. Redirecting...");
+            alert("Access Denied! Admin role is required to access this panel.");
+            window.location.href = 'dashboard.html';
+          }
+        } catch (e) {
+          console.error("Error verifying admin role:", e);
           window.location.href = 'dashboard.html';
         }
-      } catch (e) {
-        console.error("Error verifying admin role:", e);
-        window.location.href = 'dashboard.html';
-      }
+      });
     }
 
     // ── TAB SYSTEM ──

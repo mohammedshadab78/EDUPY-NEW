@@ -565,82 +565,83 @@
     async function loadDashboardData() {
       await window.firebaseReady;
       
-      const user = window.auth.currentUser;
-      if (!user) return; // firebase-config.js redirects automatically if not logged in
+      window.auth.onAuthStateChanged((user) => {
+        if (!user) return; // firebase-config.js redirects automatically if not logged in
 
-      const userDocRef = window.db.collection('users').doc(user.uid);
-      
-      // Listen for realtime data updates
-      userDocRef.onSnapshot((doc) => {
-        if (!doc.exists) return;
+        const userDocRef = window.db.collection('users').doc(user.uid);
         
-        const data = doc.data();
-        
-        // 1. Update basic header greeting
-        document.getElementById('welcomeText').innerHTML = `Welcome back, <strong style="color: var(--purple)">${data.name || user.displayName || user.email.split('@')[0]}</strong>!`;
-
-        // 2. Update stat counts
-        document.getElementById('streakVal').textContent = data.streak || 1;
-        document.getElementById('badgeCount').textContent = (data.badges || []).length;
-        document.getElementById('levelVal').textContent = `Level ${data.level || 1}`;
-
-        // 3. Render "Continue Learning" Button behavior
-        const activeLevel = data.level || 1;
-        const contBtn = document.getElementById('continueBtn');
-        contBtn.innerHTML = `<span>🚀 Continue from Level ${activeLevel}</span>`;
-        contBtn.onclick = () => {
-          // Redirect to assessments.html, passing the level active index (1-6) as query parameter
-          window.location.href = `assessments.html?level=${activeLevel}`;
-        };
-
-        // 4. Render Level assessment progress bars
-        const scores = data.scores || {};
-        const badgesEarnedList = data.badges || [];
-        const levelListEl = document.getElementById('levelList');
-        
-        levelListEl.innerHTML = DASHBOARD_LEVELS.map((lvl, index) => {
-          const scoreKey = `level${index + 1}`;
-          const percentage = scores[scoreKey] !== undefined ? scores[scoreKey] : null;
+        // Listen for realtime data updates
+        userDocRef.onSnapshot((doc) => {
+          if (!doc.exists) return;
           
-          // Badge names associated with this index
-          const badgeAssoc = ALL_BADGES[index].name;
-          const isPassed = badgesEarnedList.includes(badgeAssoc);
+          const data = doc.data();
           
-          let statusHtml = '<span class="level-score-badge">Locked / Untaken</span>';
-          if (percentage !== null) {
-            statusHtml = `<span class="level-score-badge ${isPassed ? 'passed' : ''}">Best Score: ${percentage}% ${isPassed ? '(Passed ✓)' : '(Try again)'}</span>`;
-          }
+          // 1. Update basic header greeting
+          document.getElementById('welcomeText').innerHTML = `Welcome back, <strong style="color: var(--purple)">${data.name || user.displayName || user.email.split('@')[0]}</strong>!`;
 
-          return `
-            <div class="level-item">
-              <div class="level-item-top">
-                <div class="level-info">
-                  <span class="level-name">${lvl.name}</span>
-                  <span class="level-sub">${lvl.sub}</span>
+          // 2. Update stat counts
+          document.getElementById('streakVal').textContent = data.streak || 1;
+          document.getElementById('badgeCount').textContent = (data.badges || []).length;
+          document.getElementById('levelVal').textContent = `Level ${data.level || 1}`;
+
+          // 3. Render "Continue Learning" Button behavior
+          const activeLevel = data.level || 1;
+          const contBtn = document.getElementById('continueBtn');
+          contBtn.innerHTML = `<span>🚀 Continue from Level ${activeLevel}</span>`;
+          contBtn.onclick = () => {
+            // Redirect to assessments.html, passing the level active index (1-6) as query parameter
+            window.location.href = `assessments.html?level=${activeLevel}`;
+          };
+
+          // 4. Render Level assessment progress bars
+          const scores = data.scores || {};
+          const badgesEarnedList = data.badges || [];
+          const levelListEl = document.getElementById('levelList');
+          
+          levelListEl.innerHTML = DASHBOARD_LEVELS.map((lvl, index) => {
+            const scoreKey = `level${index + 1}`;
+            const percentage = scores[scoreKey] !== undefined ? scores[scoreKey] : null;
+            
+            // Badge names associated with this index
+            const badgeAssoc = ALL_BADGES[index].name;
+            const isPassed = badgesEarnedList.includes(badgeAssoc);
+            
+            let statusHtml = '<span class="level-score-badge">Locked / Untaken</span>';
+            if (percentage !== null) {
+              statusHtml = `<span class="level-score-badge ${isPassed ? 'passed' : ''}">Best Score: ${percentage}% ${isPassed ? '(Passed ✓)' : '(Try again)'}</span>`;
+            }
+
+            return `
+              <div class="level-item">
+                <div class="level-item-top">
+                  <div class="level-info">
+                    <span class="level-name">${lvl.name}</span>
+                    <span class="level-sub">${lvl.sub}</span>
+                  </div>
+                  ${statusHtml}
                 </div>
-                ${statusHtml}
+                <div class="level-progress-track">
+                  <div class="level-progress-fill" style="width: ${percentage || 0}%"></div>
+                </div>
               </div>
-              <div class="level-progress-track">
-                <div class="level-progress-fill" style="width: ${percentage || 0}%"></div>
+            `;
+          }).join('');
+
+          // 5. Render Badges list
+          const badgesGridEl = document.getElementById('badgesGrid');
+          badgesGridEl.innerHTML = ALL_BADGES.map(badge => {
+            const isUnlocked = badgesEarnedList.includes(badge.name);
+            return `
+              <div class="badge-card ${isUnlocked ? 'unlocked' : ''}" title="${badge.name}: ${badge.description}">
+                <div class="badge-emoji">${isUnlocked ? badge.emoji : '🔒'}</div>
+                <div class="badge-name">${badge.name}</div>
               </div>
-            </div>
-          `;
-        }).join('');
+            `;
+          }).join('');
 
-        // 5. Render Badges list
-        const badgesGridEl = document.getElementById('badgesGrid');
-        badgesGridEl.innerHTML = ALL_BADGES.map(badge => {
-          const isUnlocked = badgesEarnedList.includes(badge.name);
-          return `
-            <div class="badge-card ${isUnlocked ? 'unlocked' : ''}" title="${badge.name}: ${badge.description}">
-              <div class="badge-emoji">${isUnlocked ? badge.emoji : '🔒'}</div>
-              <div class="badge-name">${badge.name}</div>
-            </div>
-          `;
-        }).join('');
-
-      }, (error) => {
-        console.error("Dashboard snap listener error:", error);
+        }, (error) => {
+          console.error("Dashboard snap listener error:", error);
+        });
       });
     }
 
