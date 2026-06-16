@@ -120,7 +120,7 @@
 
     /* ── CONTAINER ── */
     .app-container {
-      max-width: 1000px;
+      max-width: 1200px;
       width: 100%;
       margin: 0 auto;
       padding: 2.5rem 1.5rem 4rem;
@@ -136,7 +136,7 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 2rem;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--gold-dk), var(--coral));
+      background: linear-gradient(135deg, var(--purple), var(--coral));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -148,14 +148,133 @@
       font-size: 0.92rem;
     }
 
-    /* ── GRID LAYOUT ── */
+    /* ── TABS ── */
+    .admin-tabs {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2.2rem;
+      border-bottom: 2px solid rgba(108, 99, 255, 0.08);
+      padding-bottom: 0.6rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 0.6rem 1.2rem;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+      white-space: nowrap;
+      border-radius: 8px;
+    }
+
+    .tab-btn:hover {
+      color: var(--purple);
+      background: rgba(108, 99, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      color: var(--purple);
+      background: rgba(108, 99, 255, 0.08);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -0.65rem;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--purple);
+      border-radius: 3px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: tabFadeIn 0.3s ease;
+    }
+
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── ANALYTICS CARDS ── */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: var(--r-xl);
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .stat-icon {
+      font-size: 2rem;
+      width: 52px;
+      height: 52px;
+      border-radius: var(--r-md);
+      background: rgba(108, 99, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-card.badge-count .stat-icon { background: rgba(245, 166, 35, 0.08); }
+    .stat-card.active-users .stat-icon { background: rgba(78, 205, 196, 0.08); }
+    .stat-card.streak-avg .stat-icon { background: rgba(255, 107, 107, 0.08); }
+
+    .stat-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .stat-lbl {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── LISTINGS & GRIDS ── */
     .admin-grid {
       display: grid;
       grid-template-columns: 1.2fr 1fr;
       gap: 1.8rem;
     }
 
-    @media (max-width: 850px) {
+    .admin-full-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.8rem;
+    }
+
+    @media (max-width: 900px) {
       .admin-grid {
         grid-template-columns: 1fr;
       }
@@ -164,15 +283,16 @@
     .panel {
       background: var(--card);
       border-radius: var(--r-xl);
-      padding: 2rem;
+      padding: 1.8rem;
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       margin-bottom: 1.5rem;
+      overflow-x: auto;
     }
 
     .panel-title {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       font-weight: 800;
       color: var(--text);
       margin-bottom: 1.5rem;
@@ -181,6 +301,36 @@
       gap: 0.5rem;
       border-bottom: 1.5px solid rgba(108, 99, 255, 0.08);
       padding-bottom: 0.6rem;
+    }
+
+    /* ── TABLES ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    .data-table th {
+      padding: 0.75rem 1rem;
+      background: #F8FAFC;
+      font-weight: 700;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+    }
+
+    .data-table td {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(108, 99, 255, 0.08);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .data-table tr:hover {
+      background: rgba(108, 99, 255, 0.02);
     }
 
     /* ── FORMS ── */
@@ -198,7 +348,7 @@
       letter-spacing: 0.04em;
     }
 
-    .input-field, .select-field {
+    .input-field, .select-field, .textarea-field {
       width: 100%;
       padding: 0.75rem 1rem;
       border-radius: var(--r-lg);
@@ -212,7 +362,7 @@
       transition: all 0.2s;
     }
 
-    .input-field:focus, .select-field:focus {
+    .input-field:focus, .select-field:focus, .textarea-field:focus {
       border-color: var(--purple);
       background: #fff;
     }
@@ -224,26 +374,59 @@
       margin-bottom: 1.2rem;
     }
 
-    @media (max-width: 500px) {
-      .options-group {
-        grid-template-columns: 1fr;
-      }
+    /* ── BADGES & STATUS ── */
+    .level-badge {
+      display: inline-flex;
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: rgba(108, 99, 255, 0.08);
+      color: var(--purple);
     }
 
+    .status-badge {
+      display: inline-flex;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .status-badge.active { background: rgba(78, 205, 196, 0.12); color: var(--mint-dk); }
+    .status-badge.banned { background: rgba(255, 107, 107, 0.12); color: var(--coral-dk); }
+
+    /* ── CONTROLS & SEARCH ── */
+    .filters-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filters-row .input-field {
+      max-width: 320px;
+    }
+
+    .filters-row .select-field {
+      max-width: 200px;
+    }
+
+    /* ── BUTTONS ── */
     .btn-action {
-      width: 100%;
-      padding: 0.85rem;
+      padding: 0.75rem 1.2rem;
       border-radius: var(--r-lg);
       border: none;
       font-family: inherit;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       background: var(--purple);
       color: #fff;
       box-shadow: 0 4px 0 var(--purple-dk);
       cursor: pointer;
       transition: transform 0.1s, box-shadow 0.1s;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
@@ -264,11 +447,102 @@
       box-shadow: 0 4px 0 var(--gold-dk);
       color: #3d2200;
     }
-    .btn-action.gold:hover {
-      box-shadow: 0 6px 0 var(--gold-dk);
+    .btn-action.gold:hover { box-shadow: 0 6px 0 var(--gold-dk); }
+    .btn-action.gold:active { box-shadow: 0 2px 0 var(--gold-dk); }
+
+    .btn-action.danger {
+      background: var(--coral);
+      box-shadow: 0 4px 0 var(--coral-dk);
+      color: #fff;
     }
-    .btn-action.gold:active {
-      box-shadow: 0 2px 0 var(--gold-dk);
+    .btn-action.danger:hover { box-shadow: 0 6px 0 var(--coral-dk); }
+    .btn-action.danger:active { box-shadow: 0 2px 0 var(--coral-dk); }
+
+    .btn-table {
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      text-decoration: none;
+    }
+
+    .btn-table.edit {
+      background: rgba(108, 99, 255, 0.08);
+      color: var(--purple);
+    }
+    .btn-table.edit:hover { background: var(--purple); color: #fff; }
+
+    .btn-table.delete {
+      background: rgba(255, 107, 107, 0.08);
+      color: var(--coral-dk);
+    }
+    .btn-table.delete:hover { background: var(--coral-dk); color: #fff; }
+
+    .btn-table.ban {
+      background: rgba(245, 166, 35, 0.1);
+      color: var(--gold-dk);
+    }
+    .btn-table.ban:hover { background: var(--gold-dk); color: #fff; }
+
+    /* ── MODALS ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-window {
+      background: var(--card);
+      border-radius: var(--r-xl);
+      width: 90%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2.2rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.18);
+      position: relative;
+      transform: scale(0.95);
+      transition: transform 0.25s var(--ease);
+    }
+
+    .modal-overlay.active .modal-window {
+      transform: scale(1);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--coral-dk);
     }
 
     /* ── FOOTER ── */
@@ -337,90 +611,335 @@
     
     <div class="admin-header">
       <h1>🔑 Course Administration Panel</h1>
-      <p>Configure levels, append database quiz questions, and extend visualization projects.</p>
+      <p>Configure course metrics, write quiz files, review submissions, and manage user privileges.</p>
     </div>
 
-    <div class="admin-grid">
-      <!-- Left: Question form -->
-      <section class="panel">
-        <h2 class="panel-title">📝 Add MCQ Quiz Question</h2>
-        
-        <form id="questionForm">
-          <div class="form-group">
-            <label class="form-label" for="levelSelect">Target Level</label>
-            <select class="select-field" id="levelSelect" required>
-              <option value="L1">Level 1: Absolute Beginner</option>
-              <option value="L2">Level 2: Logic & Conditionals</option>
-              <option value="L3">Level 3: Strings & Lists</option>
-              <option value="L4">Level 4: Loops & Patterns</option>
-              <option value="L5">Level 5: Functions & Dictionaries</option>
-              <option value="L6">Level 6: Advanced Thinking</option>
-            </select>
-          </div>
+    <!-- TABS NAVIGATION -->
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="switchTab('analytics')">📊 Analytics Overview</button>
+      <button class="tab-btn" onclick="switchTab('questions')">📝 MCQ Manager</button>
+      <button class="tab-btn" onclick="switchTab('projects')">🎬 Projects Manager</button>
+      <button class="tab-btn" onclick="switchTab('users')">👥 Users Manager</button>
+    </div>
 
-          <div class="form-group">
-            <label class="form-label" for="questionText">Question Content (HTML tags supported)</label>
-            <input class="input-field" type="text" id="questionText" placeholder="e.g. What is the output of print(type([]))?" required>
+    <!-- ── TAB CONTENT: ANALYTICS ── -->
+    <div id="tab-analytics" class="tab-content active">
+      <div class="analytics-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-details">
+            <span class="stat-val" id="analytics-total-users">0</span>
+            <span class="stat-lbl">Registered Students</span>
           </div>
+        </div>
+        <div class="stat-card badge-count">
+          <div class="stat-icon">🎖️</div>
+          <div class="stat-details">
+            <span class="stat-val" id="analytics-total-badges">0</span>
+            <span class="stat-lbl">Badges Earned</span>
+          </div>
+        </div>
+        <div class="stat-card active-users">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-details">
+            <span class="stat-val" id="analytics-popular-level">L1</span>
+            <span class="stat-lbl">Most Popular Level</span>
+          </div>
+        </div>
+        <div class="stat-card streak-avg">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-details">
+            <span class="stat-val" id="analytics-avg-streak">0.0</span>
+            <span class="stat-lbl">Avg. Streak Days</span>
+          </div>
+        </div>
+      </div>
 
-          <div class="form-group">
-            <label class="form-label">Answer Options</label>
-            <div class="options-group">
-              <input class="input-field" type="text" id="optA" placeholder="Option A" required>
-              <input class="input-field" type="text" id="optB" placeholder="Option B" required>
-              <input class="input-field" type="text" id="optC" placeholder="Option C" required>
-              <input class="input-field" type="text" id="optD" placeholder="Option D" required>
+      <div class="admin-full-grid">
+        <section class="panel">
+          <h2 class="panel-title">📈 Level Performance & Active Users</h2>
+          <table class="data-table" id="analytics-level-table">
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Concept Topic</th>
+                <th>Users Enrolled</th>
+                <th>Attempted Scores Average</th>
+              </tr>
+            </thead>
+            <tbody id="analytics-levels-body">
+              <!-- Dynamically loaded -->
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+
+    <!-- ── TAB CONTENT: MCQ QUESTIONS ── -->
+    <div id="tab-questions" class="tab-content">
+      <div class="admin-grid">
+        <!-- Add Question Form -->
+        <section class="panel">
+          <h2 class="panel-title">➕ Add MCQ Quiz Question</h2>
+          
+          <form id="questionForm">
+            <div class="form-group">
+              <label class="form-label" for="levelSelect">Target Level</label>
+              <select class="select-field" id="levelSelect" required>
+                <option value="L1">Level 1: Absolute Beginner</option>
+                <option value="L2">Level 2: Logic & Conditionals</option>
+                <option value="L3">Level 3: Strings & Lists</option>
+                <option value="L4">Level 4: Loops & Patterns</option>
+                <option value="L5">Level 5: Functions & Dictionaries</option>
+                <option value="L6">Level 6: Advanced Thinking</option>
+              </select>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="form-label" for="correctAnswer">Correct Option</label>
-            <select class="select-field" id="correctAnswer" required>
-              <option value="0">Option A</option>
-              <option value="1">Option B</option>
-              <option value="2">Option C</option>
-              <option value="3">Option D</option>
+            <div class="form-group">
+              <label class="form-label" for="questionText">Question Content (HTML tags supported)</label>
+              <input class="input-field" type="text" id="questionText" placeholder="e.g. What is the output of print(type([]))?" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Answer Options</label>
+              <div class="options-group">
+                <input class="input-field" type="text" id="optA" placeholder="Option A" required>
+                <input class="input-field" type="text" id="optB" placeholder="Option B" required>
+                <input class="input-field" type="text" id="optC" placeholder="Option C" required>
+                <input class="input-field" type="text" id="optD" placeholder="Option D" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="correctAnswer">Correct Option</label>
+              <select class="select-field" id="correctAnswer" required>
+                <option value="0">Option A</option>
+                <option value="1">Option B</option>
+                <option value="2">Option C</option>
+                <option value="3">Option D</option>
+              </select>
+            </div>
+
+            <button class="btn-action" type="submit" id="qSubBtn">
+              <span>➕ Save Question to Cloud</span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Questions List -->
+        <section class="panel">
+          <h2 class="panel-title">📚 Active Question List</h2>
+          <div class="filters-row">
+            <select class="select-field" id="filterQuestionLevel" onchange="loadQuestions()">
+              <option value="ALL">All Levels</option>
+              <option value="L1">Level 1</option>
+              <option value="L2">Level 2</option>
+              <option value="L3">Level 3</option>
+              <option value="L4">Level 4</option>
+              <option value="L5">Level 5</option>
+              <option value="L6">Level 6</option>
+            </select>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Lvl</th>
+                <th>Question</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="questions-list-body">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+
+    <!-- ── TAB CONTENT: PROJECTS ── -->
+    <div id="tab-projects" class="tab-content">
+      <div class="admin-grid">
+        <!-- Add Project Form -->
+        <section class="panel">
+          <h2 class="panel-title">🎬 Add Visualizer Project</h2>
+          
+          <form id="projectForm">
+            <div class="form-group">
+              <label class="form-label" for="projTitle">Project Title</label>
+              <input class="input-field" type="text" id="projTitle" placeholder="e.g. Binary Search Tree" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projTagline">Tagline</label>
+              <input class="input-field" type="text" id="projTagline" placeholder="e.g. Visualize search algorithms step by step" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projTags">Concept Tags (comma separated)</label>
+              <input class="input-field" type="text" id="projTags" placeholder="e.g. recursion, trees, binary" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projCode">Python Code Snippet</label>
+              <textarea class="textarea-field" id="projCode" placeholder="def search(root, key):..." style="height: 120px; font-family:'JetBrains Mono', monospace;" required></textarea>
+            </div>
+
+            <button class="btn-action gold" type="submit" id="projSubBtn">
+              <span>🎬 Add New Visualizer</span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Projects list -->
+        <section class="panel">
+          <h2 class="panel-title">📂 Registered Visualizations</h2>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Tags</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="projects-list-body">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+
+    <!-- ── TAB CONTENT: USERS MANAGER ── -->
+    <div id="tab-users" class="tab-content">
+      <div class="admin-full-grid">
+        <section class="panel">
+          <h2 class="panel-title">👥 Registered Students Database</h2>
+          
+          <!-- Filters and Search -->
+          <div class="filters-row">
+            <input type="text" class="input-field" id="searchUser" placeholder="Search by name or email..." oninput="filterUsers()">
+            <select class="select-field" id="filterUserLevel" onchange="filterUsers()">
+              <option value="ALL">All Levels</option>
+              <option value="1">Level 1</option>
+              <option value="2">Level 2</option>
+              <option value="3">Level 3</option>
+              <option value="4">Level 4</option>
+              <option value="5">Level 5</option>
+              <option value="6">Level 6</option>
+            </select>
+            <select class="select-field" id="filterUserStatus" onchange="filterUsers()">
+              <option value="ALL">All Status</option>
+              <option value="active">Active Only</option>
+              <option value="banned">Banned Only</option>
             </select>
           </div>
 
-          <button class="btn-action" type="submit" id="qSubBtn">
-            <span>➕ Save Question to Cloud</span>
-          </button>
-        </form>
-      </section>
-
-      <!-- Right: Project Form -->
-      <section class="panel">
-        <h2 class="panel-title">🎬 Add Visualizer Project</h2>
-        
-        <form id="projectForm">
-          <div class="form-group">
-            <label class="form-label" for="projTitle">Project Title</label>
-            <input class="input-field" type="text" id="projTitle" placeholder="e.g. Binary Search Tree" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="projTagline">Tagline</label>
-            <input class="input-field" type="text" id="projTagline" placeholder="e.g. Visualize search algorithms step by step" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="projTags">Concept Tags (comma separated)</label>
-            <input class="input-field" type="text" id="projTags" placeholder="e.g. recursion, trees, binary" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="projCode">Python Code Snippet</label>
-            <textarea class="input-field" id="projCode" placeholder="def search(root, key):..." style="height: 120px; font-family:'JetBrains Mono', monospace;" required></textarea>
-          </div>
-
-          <button class="btn-action gold" type="submit" id="projSubBtn">
-            <span>🎬 Add New Visualizer</span>
-          </button>
-        </form>
-      </section>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student Details</th>
+                <th>Lvl</th>
+                <th>Streak</th>
+                <th>Badges</th>
+                <th>Quiz Marks (L1 - L6)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-list-body">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </section>
+      </div>
     </div>
 
+  </div>
+
+  <!-- ── MODAL: EDIT MCQ ── -->
+  <div class="modal-overlay" id="edit-q-modal">
+    <div class="modal-window">
+      <button class="modal-close-btn" onclick="closeModal('edit-q-modal')">&times;</button>
+      <h3 class="panel-title">✏️ Edit Quiz Question</h3>
+      
+      <form id="editQuestionForm">
+        <input type="hidden" id="editQId">
+        <div class="form-group">
+          <label class="form-label" for="editQLevel">Target Level</label>
+          <select class="select-field" id="editQLevel" required>
+            <option value="L1">Level 1: Absolute Beginner</option>
+            <option value="L2">Level 2: Logic & Conditionals</option>
+            <option value="L3">Level 3: Strings & Lists</option>
+            <option value="L4">Level 4: Loops & Patterns</option>
+            <option value="L5">Level 5: Functions & Dictionaries</option>
+            <option value="L6">Level 6: Advanced Thinking</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editQText">Question Content</label>
+          <input class="input-field" type="text" id="editQText" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Answer Options</label>
+          <div class="options-group">
+            <input class="input-field" type="text" id="editOptA" required>
+            <input class="input-field" type="text" id="editOptB" required>
+            <input class="input-field" type="text" id="editOptC" required>
+            <input class="input-field" type="text" id="editOptD" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editQAnswer">Correct Option</label>
+          <select class="select-field" id="editQAnswer" required>
+            <option value="0">Option A</option>
+            <option value="1">Option B</option>
+            <option value="2">Option C</option>
+            <option value="3">Option D</option>
+          </select>
+        </div>
+
+        <button class="btn-action" type="submit" id="editQSubBtn">
+          <span>💾 Save Changes</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── MODAL: EDIT PROJECT ── -->
+  <div class="modal-overlay" id="edit-proj-modal">
+    <div class="modal-window">
+      <button class="modal-close-btn" onclick="closeModal('edit-proj-modal')">&times;</button>
+      <h3 class="panel-title">✏️ Edit Visualizer Project</h3>
+      
+      <form id="editProjectForm">
+        <input type="hidden" id="editProjId">
+        <div class="form-group">
+          <label class="form-label" for="editProjTitle">Project Title</label>
+          <input class="input-field" type="text" id="editProjTitle" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editProjTagline">Tagline</label>
+          <input class="input-field" type="text" id="editProjTagline" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editProjTags">Tags (comma separated)</label>
+          <input class="input-field" type="text" id="editProjTags" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editProjCode">Python Code Snippet</label>
+          <textarea class="textarea-field" id="editProjCode" style="height: 140px; font-family:'JetBrains Mono', monospace;" required></textarea>
+        </div>
+
+        <button class="btn-action gold" type="submit" id="editProjSubBtn">
+          <span>💾 Save Changes</span>
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- Footer -->
@@ -443,6 +962,21 @@
   <script src="firebase-config.js"></script>
 
   <script>
+    // System metadata maps
+    const LEVEL_MAP = {
+      "L1": "Absolute Beginner",
+      "L2": "Logic & Conditionals",
+      "L3": "Strings & Lists",
+      "L4": "Loops & Patterns",
+      "L5": "Functions & Dictionaries",
+      "L6": "Advanced Thinking"
+    };
+
+    // Keep cached arrays for search/filtering
+    let allUsersCache = [];
+    let questionsCache = [];
+    let projectsCache = [];
+
     // Security check - verify if role is admin
     async function verifyAdminAccess() {
       await window.firebaseReady;
@@ -455,6 +989,8 @@
         if (doc.exists && doc.data().role === 'admin') {
           // Grant access
           document.body.classList.add('authorized');
+          // Load default data
+          loadAnalytics();
         } else {
           // Denied - Redirect to dashboard
           console.warn("User is not admin. Redirecting...");
@@ -467,7 +1003,188 @@
       }
     }
 
-    // Submit new MCQ Question
+    // ── TAB SYSTEM ──
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      // Find the tab button clicked
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.getAttribute('onclick').includes(tabName));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const activeContent = document.getElementById(`tab-${tabName}`);
+      if (activeContent) activeContent.classList.add('active');
+
+      // Fetch dynamic content depending on selected tab
+      if (tabName === 'analytics') loadAnalytics();
+      else if (tabName === 'questions') loadQuestions();
+      else if (tabName === 'projects') loadProjects();
+      else if (tabName === 'users') loadUsers();
+    }
+
+    // Modal Control functions
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    }
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Toast utility
+    function showAdminToast(msg) {
+      const toast = document.getElementById('toast');
+      if (toast) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+      } else {
+        alert(msg);
+      }
+    }
+
+    // ── TAB 1: ANALYTICS OVERVIEW ──
+    async function loadAnalytics() {
+      await window.firebaseReady;
+      try {
+        const usersSnap = await window.db.collection('users').get();
+        const totalUsers = usersSnap.size;
+        
+        let totalBadges = 0;
+        let streakSum = 0;
+        let levelCounts = { L1: 0, L2: 0, L3: 0, L4: 0, L5: 0, L6: 0 };
+        
+        // Accumulators for scores: { level1: { sum: 0, count: 0 }, ... }
+        let scoreStats = {};
+        for(let i=1; i<=6; i++) {
+          scoreStats[`level${i}`] = { sum: 0, count: 0 };
+        }
+
+        allUsersCache = [];
+        usersSnap.forEach(doc => {
+          const data = doc.data();
+          data.uid = doc.id; // Inject ID
+          allUsersCache.push(data);
+
+          // Sum badges
+          if (data.badges && Array.isArray(data.badges)) {
+            totalBadges += data.badges.length;
+          }
+          // Sum streak
+          streakSum += (data.streak || 0);
+          
+          // Tally active levels
+          const lvlKey = `L${data.level || 1}`;
+          if (levelCounts[lvlKey] !== undefined) {
+            levelCounts[lvlKey]++;
+          }
+
+          // Scores statistics
+          if (data.scores) {
+            for(let i=1; i<=6; i++) {
+              const scoreKey = `level${i}`;
+              if (data.scores[scoreKey] !== undefined && data.scores[scoreKey] !== null) {
+                scoreStats[scoreKey].sum += data.scores[scoreKey];
+                scoreStats[scoreKey].count++;
+              }
+            }
+          }
+        });
+
+        // Set top dashboard cards values
+        document.getElementById('analytics-total-users').textContent = totalUsers;
+        document.getElementById('analytics-total-badges').textContent = totalBadges;
+        
+        // Find most popular level
+        let popLvl = 'L1';
+        let maxCount = -1;
+        Object.keys(levelCounts).forEach(k => {
+          if (levelCounts[k] > maxCount) {
+            maxCount = levelCounts[k];
+            popLvl = k;
+          }
+        });
+        document.getElementById('analytics-popular-level').textContent = `${popLvl} (${maxCount} users)`;
+        
+        const avgStreak = totalUsers > 0 ? (streakSum / totalUsers).toFixed(1) : '0.0';
+        document.getElementById('analytics-avg-streak').textContent = avgStreak;
+
+        // Render level rows in analytics table
+        const tbody = document.getElementById('analytics-levels-body');
+        tbody.innerHTML = '';
+        
+        for (let i = 1; i <= 6; i++) {
+          const key = `L${i}`;
+          const scoreKey = `level${i}`;
+          const enrolled = levelCounts[key];
+          
+          const stats = scoreStats[scoreKey];
+          const avgScore = stats.count > 0 ? `${Math.round(stats.sum / stats.count)}%` : 'No attempts';
+          
+          tbody.innerHTML += `
+            <tr>
+              <td><span class="level-badge">Level ${i}</span></td>
+              <td><strong>${LEVEL_MAP[key]}</strong></td>
+              <td>${enrolled} students active</td>
+              <td>${avgScore} (${stats.count} passes)</td>
+            </tr>
+          `;
+        }
+      } catch (err) {
+        console.error("Error loading analytics:", err);
+      }
+    }
+
+    // ── TAB 2: MCQ QUESTIONS CRUD ──
+    async function loadQuestions() {
+      await window.firebaseReady;
+      const filterLvl = document.getElementById('filterQuestionLevel').value;
+      const tbody = document.getElementById('questions-list-body');
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">⏳ Loading questions...</td></tr>`;
+
+      try {
+        let query = window.db.collection('questions');
+        if (filterLvl !== 'ALL') {
+          query = query.where('levelId', '==', filterLvl);
+        }
+        
+        const snap = await query.get();
+        questionsCache = [];
+        snap.forEach(doc => {
+          const q = doc.data();
+          q.id = doc.id;
+          questionsCache.push(q);
+        });
+
+        // Sort by Level index
+        questionsCache.sort((a,b) => a.levelId.localeCompare(b.levelId));
+
+        tbody.innerHTML = '';
+        if (questionsCache.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No questions found for this level.</td></tr>`;
+          return;
+        }
+
+        questionsCache.forEach(q => {
+          tbody.innerHTML += `
+            <tr>
+              <td><span class="level-badge">${q.levelId}</span></td>
+              <td>${escapeHTML(q.q)}</td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn-table edit" onclick="openEditQModal('${q.id}')">✏️ Edit</button>
+                  <button class="btn-table delete" onclick="deleteQuestion('${q.id}')">🗑️ Delete</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        console.error("Error loading questions:", err);
+        tbody.innerHTML = `<tr><td colspan="3" style="color:var(--coral-dk);text-align:center;">Failed to load questions.</td></tr>`;
+      }
+    }
+
+    // Save dynamic MCQ Add
     const questionForm = document.getElementById('questionForm');
     const qSubBtn = document.getElementById('qSubBtn');
 
@@ -499,6 +1216,7 @@
 
         showAdminToast("✅ Question added successfully!");
         questionForm.reset();
+        loadQuestions();
       } catch (error) {
         console.error("Error saving question:", error);
         showAdminToast("❌ Failed to add question: " + error.message);
@@ -508,7 +1226,113 @@
       }
     });
 
-    // Submit new Visualizer project
+    // Edit Question Modal actions
+    function openEditQModal(id) {
+      const q = questionsCache.find(item => item.id === id);
+      if (!q) return;
+
+      document.getElementById('editQId').value = q.id;
+      document.getElementById('editQLevel').value = q.levelId;
+      document.getElementById('editQText').value = q.q;
+      document.getElementById('editOptA').value = q.opts[0] || '';
+      document.getElementById('editOptB').value = q.opts[1] || '';
+      document.getElementById('editOptC').value = q.opts[2] || '';
+      document.getElementById('editOptD').value = q.opts[3] || '';
+      document.getElementById('editQAnswer').value = q.ans;
+
+      openModal('edit-q-modal');
+    }
+
+    const editQuestionForm = document.getElementById('editQuestionForm');
+    editQuestionForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editQId').value;
+      const levelId = document.getElementById('editQLevel').value;
+      const q = document.getElementById('editQText').value.trim();
+      const opts = [
+        document.getElementById('editOptA').value.trim(),
+        document.getElementById('editOptB').value.trim(),
+        document.getElementById('editOptC').value.trim(),
+        document.getElementById('editOptD').value.trim()
+      ];
+      const ans = parseInt(document.getElementById('editQAnswer').value);
+
+      const btn = document.getElementById('editQSubBtn');
+      btn.disabled = true;
+      
+      try {
+        await window.db.collection('questions').doc(id).update({
+          levelId,
+          q,
+          opts,
+          ans
+        });
+        showAdminToast("✅ Question updated successfully!");
+        closeModal('edit-q-modal');
+        loadQuestions();
+      } catch (err) {
+        console.error("Error editing question:", err);
+        showAdminToast("❌ Failed to update question: " + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    async function deleteQuestion(id) {
+      if (!confirm("Are you sure you want to delete this question?")) return;
+      try {
+        await window.db.collection('questions').doc(id).delete();
+        showAdminToast("✅ Question deleted!");
+        loadQuestions();
+      } catch(err) {
+        showAdminToast("❌ Deletion failed: " + err.message);
+      }
+    }
+
+
+    // ── TAB 3: VISUALIZER PROJECTS CRUD ──
+    async function loadProjects() {
+      await window.firebaseReady;
+      const tbody = document.getElementById('projects-list-body');
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">⏳ Loading projects...</td></tr>`;
+
+      try {
+        const snap = await window.db.collection('projects').orderBy('createdAt', 'desc').get();
+        projectsCache = [];
+        snap.forEach(doc => {
+          const p = doc.data();
+          p.id = doc.id;
+          projectsCache.push(p);
+        });
+
+        tbody.innerHTML = '';
+        if (projectsCache.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No project visualizers added yet.</td></tr>`;
+          return;
+        }
+
+        projectsCache.forEach(p => {
+          const tagsStr = (p.tags || []).map(t => `<span class="level-badge" style="background:rgba(78,205,196,0.08);color:var(--mint-dk);margin-right:2px;">${t}</span>`).join('');
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>${escapeHTML(p.title)}</strong><div style="font-size:0.75rem;color:var(--muted);">${escapeHTML(p.tagline)}</div></td>
+              <td>${tagsStr}</td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn-table edit" onclick="openEditProjModal('${p.id}')">✏️ Edit</button>
+                  <button class="btn-table delete" onclick="deleteProject('${p.id}')">🗑️ Delete</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        console.error("Error loading projects:", err);
+        tbody.innerHTML = `<tr><td colspan="3" style="color:var(--coral-dk);text-align:center;">Failed to load projects.</td></tr>`;
+      }
+    }
+
+    // Submit new Project Form
     const projectForm = document.getElementById('projectForm');
     const projSubBtn = document.getElementById('projSubBtn');
 
@@ -535,6 +1359,7 @@
 
         showAdminToast("✅ Visualizer project registered!");
         projectForm.reset();
+        loadProjects();
       } catch (error) {
         console.error("Error saving project:", error);
         showAdminToast("❌ Failed to register project: " + error.message);
@@ -544,15 +1369,187 @@
       }
     });
 
-    function showAdminToast(msg) {
-      const toast = document.getElementById('toast');
-      if (toast) {
-        toast.textContent = msg;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
-      } else {
-        alert(msg);
+    // Edit Visualizer Modal actions
+    function openEditProjModal(id) {
+      const p = projectsCache.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('editProjId').value = p.id;
+      document.getElementById('editProjTitle').value = p.title;
+      document.getElementById('editProjTagline').value = p.tagline;
+      document.getElementById('editProjTags').value = (p.tags || []).join(', ');
+      document.getElementById('editProjCode').value = p.code;
+
+      openModal('edit-proj-modal');
+    }
+
+    const editProjectForm = document.getElementById('editProjectForm');
+    editProjectForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editProjId').value;
+      const title = document.getElementById('editProjTitle').value.trim();
+      const tagline = document.getElementById('editProjTagline').value.trim();
+      const tags = document.getElementById('editProjTags').value.split(',').map(t => t.trim()).filter(t => t !== '');
+      const code = document.getElementById('editProjCode').value.trim();
+
+      const btn = document.getElementById('editProjSubBtn');
+      btn.disabled = true;
+
+      try {
+        await window.db.collection('projects').doc(id).update({
+          title,
+          tagline,
+          tags,
+          code
+        });
+        showAdminToast("✅ Visualizer updated!");
+        closeModal('edit-proj-modal');
+        loadProjects();
+      } catch (err) {
+        console.error("Error editing project:", err);
+        showAdminToast("❌ Failed to update project: " + err.message);
+      } finally {
+        btn.disabled = false;
       }
+    });
+
+    async function deleteProject(id) {
+      if (!confirm("Are you sure you want to delete this visualizer?")) return;
+      try {
+        await window.db.collection('projects').doc(id).delete();
+        showAdminToast("✅ Visualizer removed!");
+        loadProjects();
+      } catch(err) {
+        showAdminToast("❌ Deletion failed: " + err.message);
+      }
+    }
+
+
+    // ── TAB 4: USERS MANAGER ──
+    async function loadUsers() {
+      await window.firebaseReady;
+      const tbody = document.getElementById('users-list-body');
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">⏳ Loading database records...</td></tr>`;
+
+      try {
+        const snap = await window.db.collection('users').get();
+        allUsersCache = [];
+        snap.forEach(doc => {
+          const u = doc.data();
+          u.uid = doc.id;
+          allUsersCache.push(u);
+        });
+
+        filterUsers(); // Render with current filters
+      } catch (err) {
+        console.error("Error loading users database:", err);
+        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--coral-dk);text-align:center;">Failed to query users database.</td></tr>`;
+      }
+    }
+
+    function filterUsers() {
+      const search = document.getElementById('searchUser').value.toLowerCase().trim();
+      const filterLvl = document.getElementById('filterUserLevel').value;
+      const filterStatus = document.getElementById('filterUserStatus').value;
+      
+      const tbody = document.getElementById('users-list-body');
+      tbody.innerHTML = '';
+
+      const filtered = allUsersCache.filter(u => {
+        // Name / Email Match
+        const nameMatch = (u.name || '').toLowerCase().includes(search);
+        const emailMatch = (u.email || '').toLowerCase().includes(search);
+        if (search !== '' && !nameMatch && !emailMatch) return false;
+
+        // Level Match
+        if (filterLvl !== 'ALL' && String(u.level || 1) !== filterLvl) return false;
+
+        // Status Match
+        if (filterStatus === 'banned' && u.banned !== true) return false;
+        if (filterStatus === 'active' && u.banned === true) return false;
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No students matched search queries.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(u => {
+        const isBanned = u.banned === true;
+        const statusHtml = isBanned ? '<span class="status-badge banned">Banned</span>' : '<span class="status-badge active">Active</span>';
+        
+        // Render score markers for L1-L6
+        let marksHtml = '';
+        for (let i = 1; i <= 6; i++) {
+          const scoreKey = `level${i}`;
+          const mark = u.scores && u.scores[scoreKey] !== undefined ? `${u.scores[scoreKey]}%` : '-';
+          marksHtml += `<span class="level-badge" style="margin-right:2px; font-size:0.68rem; padding:0.15rem 0.35rem; ${mark !== '-' ? 'background:rgba(78,205,196,0.12);color:var(--mint-dk);' : 'background:rgba(0,0,0,0.03);color:#888;'}">${mark}</span>`;
+        }
+
+        const emailText = u.email || '<span style="color:var(--muted); font-style:italic;">No Email (Google Auth/Backfill Pending)</span>';
+
+        tbody.innerHTML += `
+          <tr>
+            <td>
+              <div style="font-weight:700; display:flex; align-items:center; gap:6px;">
+                ${escapeHTML(u.name)} ${statusHtml}
+              </div>
+              <div style="font-size:0.75rem; color:var(--muted);">${emailText}</div>
+            </td>
+            <td><span class="level-badge">L${u.level || 1}</span></td>
+            <td>🔥 ${u.streak || 1}</td>
+            <td>🎖️ ${(u.badges || []).length}</td>
+            <td>${marksHtml}</td>
+            <td>
+              <div style="display:flex; gap:4px;">
+                <button class="btn-table ban" onclick="toggleUserBan('${u.uid}', ${isBanned})">
+                  ${isBanned ? '🔓 Unban' : '🔒 Ban'}
+                </button>
+                <button class="btn-table delete" onclick="deleteUserDoc('${u.uid}')">🗑️ Delete</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Toggle user ban status
+    async function toggleUserBan(uid, currentBannedState) {
+      const action = currentBannedState ? "Unban" : "Ban";
+      if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+
+      try {
+        await window.db.collection('users').doc(uid).update({
+          banned: !currentBannedState
+        });
+        showAdminToast(`✅ User has been successfully ${currentBannedState ? 'unbanned' : 'banned'}!`);
+        loadUsers();
+      } catch (err) {
+        showAdminToast("❌ Operation failed: " + err.message);
+      }
+    }
+
+    // Delete entire user document
+    async function deleteUserDoc(uid) {
+      if (!confirm("⚠️ WARNING: Deleting user data is permanent. The user's streaks, scores, and badges progress will be completely erased. Proceed?")) return;
+
+      try {
+        await window.db.collection('users').doc(uid).delete();
+        showAdminToast("✅ User record deleted successfully.");
+        loadUsers();
+      } catch (err) {
+        showAdminToast("❌ Deletion failed: " + err.message);
+      }
+    }
+
+    // Escape tags to prevent simple layout breakers in lists
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
     }
 
     // Run security check on load

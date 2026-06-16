@@ -88,6 +88,7 @@ function setupAuthStateListener() {
           // Create user document if it doesn't exist
           const initialData = {
             name: user.displayName || user.email.split('@')[0],
+            email: user.email,
             level: 1,
             scores: {},
             badges: [],
@@ -100,6 +101,21 @@ function setupAuthStateListener() {
         }
 
         const userData = userDoc.data();
+        
+        // Check if account is banned
+        if (userData.banned === true) {
+          alert("Your account has been suspended by an Administrator.");
+          window.auth.signOut().then(() => {
+            window.location.href = 'login.html';
+          });
+          return;
+        }
+
+        // Backfill email in Firestore if missing
+        if (!userData.email && user.email) {
+          await userDocRef.update({ email: user.email });
+          userData.email = user.email;
+        }
         
         // Calculate streak and update last login
         await checkAndUpdateStreak(user.uid, userData);
