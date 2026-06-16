@@ -54,8 +54,8 @@ async function initializeFirebaseApp() {
   // Ensure we have at least projectId or apiKey to initialize
   if (!config.projectId || config.projectId === "") {
     console.error("Firebase Configuration is missing! Please set up Vercel environment variables or edit the LOCAL_FALLBACK in firebase-config.js.");
-    // Display a gentle toast to developer/user
-    showFirebaseToast("Firebase credentials not configured!");
+    showConfigErrorOverlay();
+    resolveReady();
     return;
   }
 
@@ -980,6 +980,37 @@ function launchFlyingEmoji(emoji) {
   el.textContent = emoji;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2500);
+}
+
+// Fullscreen configuration diagnostic overlay
+function showConfigErrorOverlay() {
+  const showOverlay = () => {
+    document.body.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #F4F7FD; font-family: 'Inter', sans-serif; color: #1E1B4B; padding: 2rem; text-align: center; box-sizing: border-box;">
+        <div style="background: white; padding: 3rem 2.2rem; border-radius: 24px; box-shadow: 0 12px 36px rgba(0,0,0,0.06); max-width: 500px; width: 100%; border: 1.5px solid rgba(108,99,255,0.15); box-sizing: border-box;">
+          <span style="font-size: 3.2rem; margin-bottom: 1rem; display: block;">⚙️</span>
+          <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.45rem; font-weight: 800; margin-bottom: 0.8rem; background: linear-gradient(135deg, #6C63FF, #FF6B6B); -webkit-background-clip: text; background-clip: text; color: transparent;">Firebase Config Missing</h2>
+          <p style="color: #5B5B7A; font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.6rem; text-align: left;">
+            EduPy has loaded, but its Firebase configuration credentials are missing. 
+            <br><br>
+            <strong>If deploying on Vercel:</strong>
+            <br>
+            Go to your Vercel Dashboard -> Project Settings -> Environment Variables, and add the required Firebase keys:
+            <code style="display:block; background:#F1F5F9; padding:0.6rem; border-radius:8px; font-family:monospace; margin-top:0.4rem; font-size:0.75rem; color:#4B44CC;">FIREBASE_API_KEY, FIREBASE_PROJECT_ID, FIREBASE_AUTH_DOMAIN...</code>
+            Then trigger a new deployment for Vercel to bind these keys.
+          </p>
+          <a href="https://vercel.com" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; background: #6C63FF; color: white; padding: 0.75rem 1.6rem; border-radius: 40px; font-weight: 700; text-decoration: none; font-size: 0.88rem; box-shadow: 0 4px 0 #4B44CC; transition: transform 0.15s;">Open Vercel Dashboard</a>
+        </div>
+      </div>
+    `;
+    document.body.style.opacity = '1';
+  };
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', showOverlay);
+  } else {
+    showOverlay();
+  }
 }
 
 // Initialize on DOMContentLoaded so dynamic elements are injected immediately
