@@ -2905,6 +2905,8 @@ print(f"Age is {age} and pi is {3.14159:.2f}")
   // ── Load initial state ─────────────────────────────────────────────────
   const urlParams = new URLSearchParams(location.search);
   const sharedCode = urlParams.get("code");
+  const sessionRunCode = sessionStorage.getItem('edupy_run_code');
+  
   if (sharedCode) {
     try {
       const dec = (s) => decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/"))));
@@ -2912,6 +2914,13 @@ print(f"Age is {age} and pi is {3.14159:.2f}")
       activeFileId = 0; nextId = 1;
       history.replaceState({}, "", location.pathname);
     } catch(e) {}
+  } else if (sessionRunCode) {
+    loadFromStorage();
+    const newId = nextId++;
+    files.push({ id: newId, name: "playground.py", content: sessionRunCode });
+    activeFileId = newId;
+    saveAllToStorage();
+    sessionStorage.removeItem('edupy_run_code');
   } else {
     loadFromStorage();
   }
