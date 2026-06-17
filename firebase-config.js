@@ -176,52 +176,65 @@ function updateNavbars(user, userData) {
       authContainer.className = 'nav-user-info';
       authContainer.style.cssText = 'display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap;';
 
-      // Greeting badge
-      const greeting = document.createElement('span');
-      greeting.className = 'nav-greeting';
-      greeting.innerHTML = `👋 Hi, <strong style="color: var(--purple, #6C63FF)">${name}</strong>`;
-      authContainer.appendChild(greeting);
+      // Create Dropdown Container
+      const dropdownWrap = document.createElement('div');
+      dropdownWrap.className = 'user-profile-dropdown';
 
-      // Dashboard Link
-      const dashBtn = document.createElement('a');
-      dashBtn.href = 'dashboard.html';
-      dashBtn.className = 'nav-btn';
-      dashBtn.innerHTML = '📊 Dashboard';
-      // If in home.html, adapt class to match playground theme
-      if (nav.className.includes('nav-actions')) {
-        dashBtn.className = 'nav-link-btn';
-        dashBtn.style.marginLeft = '4px';
-      }
-      authContainer.appendChild(dashBtn);
+      // Trigger Button
+      const triggerBtn = document.createElement('button');
+      triggerBtn.className = 'profile-trigger-btn';
+      triggerBtn.innerHTML = `<span>👋 Hi, <strong style="color: var(--purple, #6C63FF)">${name}</strong></span><span class="chevron-icon">▼</span>`;
+      dropdownWrap.appendChild(triggerBtn);
 
-      // Admin Link if role is admin
+      // Menu
+      const menu = document.createElement('div');
+      menu.className = 'profile-dropdown-menu';
+
+      // Dashboard Item
+      const dashItem = document.createElement('a');
+      dashItem.href = 'dashboard.html';
+      dashItem.className = 'profile-dropdown-item';
+      dashItem.innerHTML = '📊 Dashboard';
+      menu.appendChild(dashItem);
+
+      // Admin Item
       if (isAdmin) {
-        const adminBtn = document.createElement('a');
-        adminBtn.href = 'admin.html';
-        adminBtn.className = 'nav-btn admin-btn';
-        adminBtn.style.borderColor = 'var(--gold, #F5A623)';
-        adminBtn.style.color = 'var(--gold-dk, #C17D0A)';
-        adminBtn.style.background = 'rgba(245, 166, 35, 0.08)';
-        adminBtn.innerHTML = '🔑 Admin';
-        if (nav.className.includes('nav-actions')) {
-          adminBtn.className = 'nav-link-btn admin-btn';
-        }
-        authContainer.appendChild(adminBtn);
+        const adminItem = document.createElement('a');
+        adminItem.href = 'admin.html';
+        adminItem.className = 'profile-dropdown-item admin-item';
+        adminItem.innerHTML = '🔑 Admin Panel';
+        menu.appendChild(adminItem);
       }
 
-      // Logout Button
-      const logoutBtn = document.createElement('button');
-      logoutBtn.className = 'nav-btn logout-btn';
-      if (nav.className.includes('nav-actions')) {
-        logoutBtn.className = 'nav-link-btn logout-btn';
-      }
-      logoutBtn.innerHTML = '🚪 Logout';
-      logoutBtn.addEventListener('click', () => {
+      // Divider
+      const divider = document.createElement('div');
+      divider.className = 'profile-dropdown-divider';
+      menu.appendChild(divider);
+
+      // Logout Item
+      const logoutItem = document.createElement('button');
+      logoutItem.className = 'profile-dropdown-item logout-item';
+      logoutItem.innerHTML = '🚪 Logout';
+      logoutItem.addEventListener('click', () => {
         window.auth.signOut().then(() => {
           window.location.href = 'index.html';
         });
       });
-      authContainer.appendChild(logoutBtn);
+      menu.appendChild(logoutItem);
+
+      dropdownWrap.appendChild(menu);
+      authContainer.appendChild(dropdownWrap);
+
+      // Toggle dropdown on click
+      triggerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownWrap.classList.toggle('open');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', () => {
+        dropdownWrap.classList.remove('open');
+      });
 
       nav.appendChild(authContainer);
     });
@@ -434,17 +447,157 @@ function injectNavStyles() {
       margin-left: 0.75rem !important;
       flex-wrap: nowrap !important;
     }
-    .nav-user-info span.nav-greeting {
-      font-size: 0.82rem !important;
-      font-weight: 700 !important;
-      color: #1E1B4B !important;
+    
+    /* User Profile Dropdown styles */
+    .user-profile-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .profile-trigger-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       background: rgba(108, 99, 255, 0.08) !important;
-      padding: 0.42rem 0.85rem !important;
-      border-radius: 20px !important;
-      display: inline-flex !important;
+      border: 1px solid rgba(108, 99, 255, 0.2) !important;
+      color: #1E1B4B !important;
+      padding: 0.42rem 1rem !important;
+      border-radius: 99px !important;
+      font-family: 'Inter', sans-serif !important;
+      font-size: 0.85rem !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      height: 38px !important;
+      box-sizing: border-box !important;
+    }
+
+    .profile-trigger-btn:hover {
+      background: rgba(108, 99, 255, 0.12) !important;
+      border-color: rgba(108, 99, 255, 0.35) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .profile-trigger-btn strong {
+      color: var(--purple, #6C63FF) !important;
+    }
+
+    .profile-trigger-btn .chevron-icon {
+      font-size: 0.65rem !important;
+      transition: transform 0.2s ease !important;
+      color: var(--purple, #6C63FF) !important;
+      display: inline-block !important;
+    }
+
+    /* Open state chevron rotation */
+    .user-profile-dropdown.open .profile-trigger-btn .chevron-icon {
+      transform: rotate(180deg) !important;
+    }
+
+    .profile-dropdown-menu {
+      display: none; /* hidden by default */
+      position: absolute !important;
+      top: calc(100% + 8px) !important;
+      right: 0 !important;
+      background: white !important;
+      min-width: 180px !important;
+      border-radius: 14px !important;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08), 0 3px 10px rgba(108, 99, 255, 0.05) !important;
+      border: 1.5px solid rgba(108, 99, 255, 0.12) !important;
+      padding: 0.5rem 0 !important;
+      z-index: 1000 !important;
+      transform-origin: top right !important;
+      animation: dropdownFadeIn 0.2s ease !important;
+    }
+
+    @keyframes dropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(-4px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .user-profile-dropdown.open .profile-dropdown-menu {
+      display: block !important;
+    }
+
+    .profile-dropdown-item {
+      display: flex !important;
       align-items: center !important;
-      gap: 4px !important;
-      white-space: nowrap !important;
+      gap: 8px !important;
+      padding: 0.6rem 1.1rem !important;
+      color: #4b5563 !important;
+      text-decoration: none !important;
+      font-size: 0.85rem !important;
+      font-weight: 600 !important;
+      border: none !important;
+      background: none !important;
+      width: 100% !important;
+      text-align: left !important;
+      cursor: pointer !important;
+      box-sizing: border-box !important;
+      transition: all 0.15s ease !important;
+    }
+
+    .profile-dropdown-item:hover {
+      background: rgba(108, 99, 255, 0.06) !important;
+      color: var(--purple, #6C63FF) !important;
+    }
+
+    .profile-dropdown-item.admin-item {
+      color: var(--gold-dk, #C17D0A) !important;
+    }
+    .profile-dropdown-item.admin-item:hover {
+      background: rgba(245, 166, 35, 0.06) !important;
+    }
+
+    .profile-dropdown-divider {
+      height: 1px !important;
+      background: rgba(108, 99, 255, 0.08) !important;
+      margin: 0.4rem 0 !important;
+    }
+
+    .profile-dropdown-item.logout-item {
+      color: #DC2626 !important;
+    }
+    .profile-dropdown-item.logout-item:hover {
+      background: rgba(220, 38, 38, 0.06) !important;
+    }
+
+    /* Responsive adjustment for Mobile screens */
+    @media (max-width: 1080px) {
+      .user-profile-dropdown {
+        width: 100% !important;
+      }
+      .profile-trigger-btn {
+        width: 100% !important;
+        justify-content: space-between !important;
+        height: 42px !important;
+      }
+      .profile-dropdown-menu {
+        position: static !important;
+        display: none !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-top: 1px solid rgba(108, 99, 255, 0.08) !important;
+        background: transparent !important;
+        margin-top: 0.5rem !important;
+        padding: 0 !important;
+        animation: none !important;
+      }
+      /* On mobile, open state expands inline */
+      .user-profile-dropdown.open .profile-dropdown-menu {
+        display: block !important;
+      }
+      .profile-dropdown-item {
+        padding: 0.65rem 1.5rem !important;
+        border-radius: 8px !important;
+      }
     }
     
     header.nav, nav.navbar {
