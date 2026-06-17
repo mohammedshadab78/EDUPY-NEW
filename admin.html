@@ -729,8 +729,8 @@
         <!-- Questions List -->
         <section class="panel">
           <h2 class="panel-title">📚 Active Question List</h2>
-          <div class="filters-row">
-            <select class="select-field" id="filterQuestionLevel" onchange="loadQuestions()">
+          <div class="filters-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <select class="select-field" id="filterQuestionLevel" onchange="loadQuestions()" style="max-width: 200px; margin-bottom: 0;">
               <option value="ALL">All Levels</option>
               <option value="L1">Level 1</option>
               <option value="L2">Level 2</option>
@@ -739,6 +739,9 @@
               <option value="L5">Level 5</option>
               <option value="L6">Level 6</option>
             </select>
+            <button class="btn-action" onclick="triggerManualSeed()" style="width: auto; margin-top: 0; padding: 0.5rem 1rem; font-size: 0.85rem; background: linear-gradient(135deg, #10b981, #059669);">
+              <span>🔄 Seed Default Data</span>
+            </button>
           </div>
           <table class="data-table">
             <thead>
@@ -987,6 +990,14 @@
         try {
           const doc = await window.db.collection('users').doc(user.uid).get();
           if (doc.exists && doc.data().role === 'admin') {
+            // Seed database if empty
+            if (typeof window.seedProjectData === 'function') {
+              try {
+                await window.seedProjectData();
+              } catch (seedErr) {
+                console.error("Auto-seeding failed:", seedErr);
+              }
+            }
             // Grant access
             document.body.classList.add('authorized');
             // Load default data
@@ -1132,6 +1143,21 @@
         }
       } catch (err) {
         console.error("Error loading analytics:", err);
+      }
+    }
+
+    async function triggerManualSeed() {
+      if (confirm("This will write the default 72 MCQ Questions and 3 Visualizers into Firestore. Continue?")) {
+        try {
+          showAdminToast("⏳ Seeding database...");
+          await window.seedProjectData(true); // force seed
+          showAdminToast("✅ Database seeded successfully!");
+          loadQuestions();
+          if (typeof loadProjects === 'function') loadProjects();
+          if (typeof loadAnalytics === 'function') loadAnalytics();
+        } catch (err) {
+          showAdminToast("❌ Seeding failed: " + err.message);
+        }
       }
     }
 

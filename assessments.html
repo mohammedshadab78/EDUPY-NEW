@@ -320,121 +320,37 @@ const LEVELS = [
     id:"L1", title:"🌟 Level 1", subtitle:"Absolute Beginner",
     desc:"Basic syntax, variables, data types, print & input.",
     color:"purple", totalQ:12, perAttempt:10, passScore:7,
-    badge:{ emoji:"🌱", name:"Seedling Badge", tagline:"Mastered the Python basics!", stars:"⭐⭐⭐" },
-    questions:[
-      { q:"Which function is used to display output in Python?", opts:["show()","display()","print()","output()"], ans:2 },
-      { q:"What is the correct way to assign a string to a variable?", opts:['name = [Hello]','name = Hello','name = "Hello"','name = {Hello}'], ans:2 },
-      { q:"What does the <code class='q-code'>input()</code> function return by default?", opts:["integer","float","string","boolean"], ans:2 },
-      { q:"What will <code class='q-code'>print(2 + 3)</code> output?", opts:["2 + 3","23","5","Error"], ans:2 },
-      { q:"Which operator performs integer (floor) division in Python?", opts:["/","//","%","**"], ans:1 },
-      { q:"What is the output of <code class='q-code'>print(10 % 3)</code>?", opts:["3","1","0","10"], ans:1 },
-      { q:"Which of these is a valid Python variable name?", opts:["2name","my-var","my_var","for"], ans:2 },
-      { q:"What is the data type of <code class='q-code'>3.14</code>?", opts:["int","str","bool","float"], ans:3 },
-      { q:"What will <code class='q-code'>print(2 ** 4)</code> output?", opts:["8","6","16","24"], ans:2 },
-      { q:"How do you convert the string <code class='q-code'>\"42\"</code> to an integer?", opts:['str("42")','int("42")','float("42")','num("42")'], ans:1 },
-      { q:'What will <code class="q-code">print("Hello" + " " + "World")</code> output?', opts:["Hello World","HelloWorld",'"Hello World"',"Error"], ans:0 },
-      { q:"Which symbol starts a comment in Python?", opts:["//","/*  */","<!--  -->","#"], ans:3 },
-    ]
+    badge:{ emoji:"🌱", name:"Seedling Badge", tagline:"Mastered the Python basics!", stars:"⭐⭐⭐" }
   },
   {
     id:"L2", title:"⚡   Level 2", subtitle:"Logic & Conditionals",
     desc:"if/else, comparisons, boolean logic, operators.",
     color:"coral", totalQ:12, perAttempt:10, passScore:7,
-    badge:{ emoji:"⚡", name:"Logic Spark Badge", tagline:"Boolean brain unlocked!", stars:"⭐⭐⭐" },
-    questions:[
-      { q:"What keyword starts a conditional statement in Python?", opts:["when","check","if","condition"], ans:2 },
-      { q:'<code class="q-code">x = 7; print("odd" if x % 2 != 0 else "even")</code> — what prints?', opts:["even","odd","7","Error"], ans:1 },
-      { q:"What does <code class='q-code'>elif</code> stand for?", opts:["else if","else in loop","end if","elif is invalid"], ans:0 },
-      { q:"The <code class='q-code'>and</code> operator returns True when…", opts:["either side is True","both sides are True","neither side is True","both sides are False"], ans:1 },
-      { q:"What does <code class='q-code'>not True</code> evaluate to?", opts:["True","1","False","None"], ans:2 },
-      { q:"Which comparison operator checks equality?", opts:["=","===","==",":="], ans:2 },
-      { q:"What does <code class='q-code'>bool(0)</code> return?", opts:["True","0","False","None"], ans:2 },
-      { q:'<code class="q-code">x = 5; y = 10; print(x &lt; y and y &lt; 20)</code> — output?', opts:["False","Error","5","True"], ans:3 },
-      { q:'<code class="q-code">not (True and False)</code> evaluates to?', opts:["False","None","True","Error"], ans:2 },
-      { q:"Which statement correctly checks if a variable <code class='q-code'>x</code> is None?", opts:["x == None","x is None","x = None","x equals None"], ans:1 },
-      { q:'What will <code class="q-code">print("yes") if 3 &gt; 2 else print("no")</code> output?', opts:["no","yes","True","3"], ans:1 },
-      { q:"What does the <code class='q-code'>or</code> operator return True for?", opts:["only when both are True","when at least one is True","when both are False","never"], ans:1 },
-    ]
+    badge:{ emoji:"⚡", name:"Logic Spark Badge", tagline:"Boolean brain unlocked!", stars:"⭐⭐⭐" }
   },
   {
     id:"L3", title:"📚 Level 3", subtitle:"Strings & Lists",
     desc:"String methods, list operations, indexing, slicing.",
     color:"mint", totalQ:12, perAttempt:10, passScore:7,
-    badge:{ emoji:"📚", name:"Word Wizard Badge", tagline:"Strings and lists? Easy!", stars:"⭐⭐⭐" },
-    questions:[
-      { q:'What does <code class="q-code">"hello".upper()</code> return?', opts:["HELLO","Hello","hello","hELLO"], ans:0 },
-      { q:'What is <code class="q-code">len("Python")</code>?', opts:["5","6","7","4"], ans:1 },
-      { q:'What is <code class="q-code">"abc"[1]</code>?', opts:["a","b","c","ab"], ans:1 },
-      { q:'What does <code class="q-code">"hello world".split()</code> return?', opts:["('hello','world')","['hello world']","['hello','world']","{hello, world}"], ans:2 },
-      { q:'What does <code class="q-code">[1,2,3,4][1:3]</code> return?', opts:["[1,2,3]","[2,3,4]","[2,3]","[1,3]"], ans:2 },
-      { q:'What does <code class="q-code">"hello".replace("l","r")</code> return?', opts:["herlo","herro","hello","Error"], ans:1 },
-      { q:"How do you add an element to the <em>end</em> of a list?", opts:["list.add(x)","list.push(x)","list.append(x)","list.insert(x)"], ans:2 },
-      { q:'What does <code class="q-code">[1,2,3].pop()</code> return?', opts:["1","2","3","[1,2]"], ans:2 },
-      { q:'What will <code class="q-code">"abc"[-1]</code> return?', opts:["a","b","c","Error"], ans:2 },
-      { q:'What does <code class="q-code">"hello".startswith("he")</code> return?', opts:["False","True",'"he"',"Error"], ans:1 },
-      { q:'What does <code class="q-code">[1,2,3] + [4,5]</code> return?', opts:["[1,2,3,4,5]","Error","[1,2,3,[4,5]]","[5,7]"], ans:0 },
-      { q:'What is <code class="q-code">len([1, [2,3], 4])</code>?', opts:["4","3","5","2"], ans:1 },
-    ]
+    badge:{ emoji:"📚", name:"Word Wizard Badge", tagline:"Strings and lists? Easy!", stars:"⭐⭐⭐" }
   },
   {
     id:"L4", title:"🔄 Level 4", subtitle:"Loops & Patterns",
     desc:"for, while, range, break, continue, nested loops.",
     color:"gold", totalQ:12, perAttempt:10, passScore:7,
-    badge:{ emoji:"🔄", name:"Loop Legend Badge", tagline:"Loops bend to your will!", stars:"⭐⭐⭐" },
-    questions:[
-      { q:'What does <code class="q-code">range(5)</code> generate?', opts:["1,2,3,4,5","0,1,2,3,4","0,1,2,3,4,5","1,2,3,4"], ans:1 },
-      { q:"What keyword immediately stops a loop?", opts:["stop","exit","break","return"], ans:2 },
-      { q:"What keyword skips the rest of an iteration and goes to the next?", opts:["skip","continue","next","pass"], ans:1 },
-      { q:'What is the last value of <code class="q-code">i</code> in: <code class="q-code">for i in range(1, 5)</code>?', opts:["5","4","6","1"], ans:1 },
-      { q:'How many times does <code class="q-code">for i in range(0,10,2)</code> loop?', opts:["10","2","5","4"], ans:2 },
-      { q:'What is <code class="q-code">"*" * 4</code>?', opts:["****","* * * *","4","Error"], ans:0 },
-      { q:'What does <code class="q-code">while True:</code> with a <code class="q-code">break</code> inside do?', opts:["Runs forever","Never runs","Runs until break executes","Syntax error"], ans:2 },
-      { q:'<code class="q-code">for i in range(3): print(i)</code> — what is printed (space-separated)?', opts:["1 2 3","0 1 2","0 1 2 3","3"], ans:1 },
-      { q:"How many total iterations in: <code class='q-code'>for i in range(2): for j in range(3)</code>?", opts:["5","6","3","2"], ans:1 },
-      { q:'What does <code class="q-code">range(10, 0, -1)</code> start with?', opts:["0","10","9","1"], ans:1 },
-      { q:"Which loop is best when you don't know the number of iterations in advance?", opts:["for","while","do-while","foreach"], ans:1 },
-      { q:'<code class="q-code">s=0\nfor i in range(1,4): s+=i\nprint(s)</code> — output?', opts:["3","6","10","4"], ans:1 },
-    ]
+    badge:{ emoji:"🔄", name:"Loop Legend Badge", tagline:"Loops bend to your will!", stars:"⭐⭐⭐" }
   },
   {
     id:"L5", title:"🧩 Level 5", subtitle:"Functions & Dictionaries",
     desc:"def, return, lambda, dict operations, scope.",
     color:"blue", totalQ:12, perAttempt:10, passScore:7,
-    badge:{ emoji:"🧩", name:"Code Alchemist Badge", tagline:"Functions & dicts mastered!", stars:"⭐⭐⭐" },
-    questions:[
-      { q:"What keyword is used to define a function in Python?", opts:["function","func","def","define"], ans:2 },
-      { q:"What does <code class='q-code'>return</code> do inside a function?", opts:["Prints the value","Sends value back to the caller","Stops the program","Creates a variable"], ans:1 },
-      { q:'<code class="q-code">def f(x): return x*2\nprint(f(5))</code> — output?', opts:["5","10","25","f(5)"], ans:1 },
-      { q:'How do you access the value with key <code class="q-code">"name"</code> from <code class="q-code">d = {"name":"Alex"}</code>?', opts:["d.name","d[\"name\"]","d(name)","d->name"], ans:1 },
-      { q:'What is <code class="q-code">len({"a":1, "b":2, "c":3})</code>?', opts:["1","3","6","2"], ans:1 },
-      { q:'What does <code class="q-code">d.get("key", "default")</code> return if "key" does not exist?', opts:["None","Error",'"default"',"0"], ans:2 },
-      { q:"What is a lambda function?", opts:["A named function","An anonymous one-line function","A recursive function","A class method"], ans:1 },
-      { q:'<code class="q-code">f = lambda x: x**2\nprint(f(4))</code> — output?', opts:["2","8","16","Error"], ans:2 },
-      { q:'What does <code class="q-code">d.keys()</code> return?', opts:["Values","Key-value pairs","All keys","Length"], ans:2 },
-      { q:"What is a default parameter?", opts:["A parameter with no type hint","A parameter with a pre-set value","A global variable","A return type"], ans:1 },
-      { q:'What does <code class="q-code">d.update({"x": 10})</code> do?', opts:["Prints d","Replaces d entirely","Adds or updates key 'x'","Deletes key 'x'"], ans:2 },
-      { q:"What makes a function <em>recursive</em>?", opts:["It uses a for loop","It calls itself","It has no return statement","It uses global variables"], ans:1 },
-    ]
+    badge:{ emoji:"🧩", name:"Code Alchemist Badge", tagline:"Functions & dicts mastered!", stars:"⭐⭐⭐" }
   },
   {
     id:"L6", title:"🚀 Level 6", subtitle:"Advanced Thinking",
     desc:"Sorting, sets, comprehensions, error handling, modules.",
     color:"red", totalQ:12, perAttempt:10, passScore:7,
-    badge:{ emoji:"🚀", name:"Python Pro Badge", tagline:"You are a Python champion!", stars:"⭐⭐⭐⭐⭐" },
-    questions:[
-      { q:'What does <code class="q-code">sorted([3,1,4,1,5])</code> return?', opts:["[5,4,3,1,1]","[1,1,3,4,5]","[3,1,4,1,5]","Error"], ans:1 },
-      { q:'What is the output of <code class="q-code">list(set([1,2,2,3,3,3]))</code>?', opts:["[1,2,2,3,3,3]","[1,2,3]","{1,2,3}","Error"], ans:1 },
-      { q:'What does <code class="q-code">[x*2 for x in range(4)]</code> produce?', opts:["[0,2,4,6]","[2,4,6,8]","[1,2,3,4]","[0,1,2,3]"], ans:0 },
-      { q:"What is a <code class='q-code'>try/except</code> block used for?", opts:["Repeating code","Defining functions","Handling runtime errors","Creating loops"], ans:2 },
-      { q:'Does <code class="q-code">"racecar" == "racecar"[::-1]</code> evaluate to True?', opts:["No, False","Yes, True","Error","None"], ans:1 },
-      { q:'What does <code class="q-code">enumerate([\'a\',\'b\',\'c\'])</code> produce?', opts:["[0,1,2]","Indexed (index, value) pairs","['a','b','c']","3"], ans:1 },
-      { q:'What does <code class="q-code">zip([1,2],[3,4])</code> produce?', opts:["[1,2,3,4]","[(1,3),(2,4)]","{1:3,2:4}","Error"], ans:1 },
-      { q:'What does <code class="q-code">"hello world".count("l")</code> return?', opts:["2","3","1","4"], ans:1 },
-      { q:'<code class="q-code">import random; random.randint(1,10)</code> — what is returned?', opts:["A float 1.0–10.0","An int from 1–10 inclusive","An int from 0–9","A string"], ans:1 },
-      { q:"What is an f-string in Python?", opts:["A file-type string","A formatted string literal","A function string","A frozen string"], ans:1 },
-      { q:'What does <code class="q-code">sorted("python")</code> return?', opts:["['python']","Error","['h','n','o','p','t','y']","'hnopty'"], ans:2 },
-      { q:'What is the output of <code class="q-code">print(type([]).__name__)</code>?', opts:["array","tuple","set","list"], ans:3 },
-    ]
+    badge:{ emoji:"🚀", name:"Python Pro Badge", tagline:"You are a Python champion!", stars:"⭐⭐⭐⭐⭐" }
   }
 ];
 
@@ -453,15 +369,34 @@ let state = {
   bestScores: JSON.parse(localStorage.getItem("edupy_scores") || "{}"),
 };
 
-// Global cache for admin-added questions from Firestore
+// Global cache for questions loaded from Firestore
 let dbQuestions = [];
+let questionsLoadPromise = null;
+
+async function loadAllQuestions() {
+  await window.firebaseReady;
+  if (questionsLoadPromise) return questionsLoadPromise;
+
+  questionsLoadPromise = window.db.collection('questions').get().then(snapshot => {
+    dbQuestions = [];
+    snapshot.forEach(doc => {
+      dbQuestions.push(doc.data());
+    });
+    console.log(`Successfully loaded ${dbQuestions.length} questions from Firestore`);
+    return dbQuestions;
+  }).catch(err => {
+    console.error("Firestore load questions failed:", err);
+    questionsLoadPromise = null; // allow retry
+    throw err;
+  });
+
+  return questionsLoadPromise;
+}
+
+// Start pre-fetching questions
 if (window.firebaseReady) {
   window.firebaseReady.then(() => {
-    window.db.collection('questions').get().then(snapshot => {
-      snapshot.forEach(doc => {
-        dbQuestions.push(doc.data());
-      });
-    }).catch(err => console.error("Firestore load custom questions failed:", err));
+    loadAllQuestions().catch(e => console.error("Initial load of questions failed:", e));
   });
 }
 
@@ -574,16 +509,29 @@ function updateOverallProgress() {
 // ══════════════════════════════════════════
 //   QUIZ
 // ══════════════════════════════════════════
-function startLevel(idx) {
+async function startLevel(idx) {
   clearInterval(state.timerInterval);
   const lv = LEVELS[idx];
   state.levelIdx = idx;
 
-  // Merge static levels questions with custom questions from Firestore
-  const levelDbQ = dbQuestions.filter(q => q.levelId === lv.id);
-  const combinedQuestions = [...lv.questions, ...levelDbQ];
+  // Ensure questions are loaded
+  if (dbQuestions.length === 0) {
+    try {
+      await loadAllQuestions();
+    } catch (err) {
+      alert("Failed to load quiz questions. Please check your internet connection.");
+      return;
+    }
+  }
 
-  state.questions = shuffle(combinedQuestions).slice(0, lv.perAttempt);
+  // Filter questions for the selected level
+  const levelDbQ = dbQuestions.filter(q => q.levelId === lv.id);
+  if (levelDbQ.length === 0) {
+    alert(`No questions found in database for ${lv.title}. Please seed the database first.`);
+    return;
+  }
+
+  state.questions = shuffle(levelDbQ).slice(0, lv.perAttempt);
   state.qIdx = 0;
   state.score = 0;
   state.answered = false;

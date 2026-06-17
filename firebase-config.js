@@ -982,6 +982,271 @@ function launchFlyingEmoji(emoji) {
   setTimeout(() => el.remove(), 2500);
 }
 
+// Database Seeder for Default MCQ Questions and Visualizer Projects
+async function seedProjectData(force = false) {
+  await window.firebaseReady;
+  if (!window.db) return;
+
+  try {
+    // 1. Check Questions
+    const questionsSnap = force ? { empty: true } : await window.db.collection('questions').limit(1).get();
+    if (questionsSnap.empty) {
+      console.log("Seeding default MCQ questions to Firestore...");
+      const batch = window.db.batch();
+      
+      const defaultQuestions = [
+        // Level 1
+        { levelId:"L1", q:"Which function is used to display output in Python?", opts:["show()","display()","print()","output()"], ans:2 },
+        { levelId:"L1", q:"What is the correct way to assign a string to a variable?", opts:['name = [Hello]','name = Hello','name = "Hello"','name = {Hello}'], ans:2 },
+        { levelId:"L1", q:"What does the <code class='q-code'>input()</code> function return by default?", opts:["integer","float","string","boolean"], ans:2 },
+        { levelId:"L1", q:"What will <code class='q-code'>print(2 + 3)</code> output?", opts:["2 + 3","23","5","Error"], ans:2 },
+        { levelId:"L1", q:"Which operator performs integer (floor) division in Python?", opts:["/","//","%","**"], ans:1 },
+        { levelId:"L1", q:"What is the output of <code class='q-code'>print(10 % 3)</code>?", opts:["3","1","0","10"], ans:1 },
+        { levelId:"L1", q:"Which of these is a valid Python variable name?", opts:["2name","my-var","my_var","for"], ans:2 },
+        { levelId:"L1", q:"What is the data type of <code class='q-code'>3.14</code>?", opts:["int","str","bool","float"], ans:3 },
+        { levelId:"L1", q:"What will <code class='q-code'>print(2 ** 4)</code> output?", opts:["8","6","16","24"], ans:2 },
+        { levelId:"L1", q:"How do you convert the string <code class='q-code'>\"42\"</code> to an integer?", opts:['str("42")','int("42")','float("42")','num("42")'], ans:1 },
+        { levelId:"L1", q:'What will <code class="q-code">print("Hello" + " " + "World")</code> output?', opts:["Hello World","HelloWorld",'"Hello World"',"Error"], ans:0 },
+        { levelId:"L1", q:"Which symbol starts a comment in Python?", opts:["//","/*  */","<!--  -->","#"], ans:3 },
+
+        // Level 2
+        { levelId:"L2", q:"What keyword starts a conditional statement in Python?", opts:["when","check","if","condition"], ans:2 },
+        { levelId:"L2", q:'<code class="q-code">x = 7; print("odd" if x % 2 != 0 else "even")</code> — what prints?', opts:["even","odd","7","Error"], ans:1 },
+        { levelId:"L2", q:"What does <code class='q-code'>elif</code> stand for?", opts:["else if","else in loop","end if","elif is invalid"], ans:0 },
+        { levelId:"L2", q:"The <code class='q-code'>and</code> operator returns True when…", opts:["either side is True","both sides are True","neither side is True","both sides are False"], ans:1 },
+        { levelId:"L2", q:"What does <code class='q-code'>not True</code> evaluate to?", opts:["True","1","False","None"], ans:2 },
+        { levelId:"L2", q:"Which comparison operator checks equality?", opts:["=","===","==",":="], ans:2 },
+        { levelId:"L2", q:"What does <code class='q-code'>bool(0)</code> return?", opts:["True","0","False","None"], ans:2 },
+        { levelId:"L2", q:'<code class="q-code">x = 5; y = 10; print(x &lt; y and y &lt; 20)</code> — output?', opts:["False","Error","5","True"], ans:3 },
+        { levelId:"L2", q:'<code class="q-code">not (True and False)</code> evaluates to?', opts:["False","None","True","Error"], ans:2 },
+        { levelId:"L2", q:"Which statement correctly checks if a variable <code class='q-code'>x</code> is None?", opts:["x == None","x is None","x = None","x equals None"], ans:1 },
+        { levelId:"L2", q:'What will <code class="q-code">print("yes") if 3 &gt; 2 else print("no")</code> output?', opts:["no","yes","True","3"], ans:1 },
+        { levelId:"L2", q:"What does the <code class='q-code'>or</code> operator return True for?", opts:["only when both are True","when at least one is True","when both are False","never"], ans:1 },
+
+        // Level 3
+        { levelId:"L3", q:'What does <code class="q-code">"hello".upper()</code> return?', opts:["HELLO","Hello","hello","hELLO"], ans:0 },
+        { levelId:"L3", q:'What is <code class="q-code">len("Python")</code>?', opts:["5","6","7","4"], ans:1 },
+        { levelId:"L3", q:'What is <code class="q-code">"abc"[1]</code>?', opts:["a","b","c","ab"], ans:1 },
+        { levelId:"L3", q:'What does <code class="q-code">"hello world".split()</code> return?', opts:["('hello','world')","['hello world']","['hello','world']","{hello, world}"], ans:2 },
+        { levelId:"L3", q:'What does <code class="q-code">[1,2,3,4][1:3]</code> return?', opts:["[1,2,3]","[2,3,4]","[2,3]","[1,3]"], ans:2 },
+        { levelId:"L3", q:'What does <code class="q-code">"hello".replace("l","r")</code> return?', opts:["herlo","herro","hello","Error"], ans:1 },
+        { levelId:"L3", q:"How do you add an element to the <em>end</em> of a list?", opts:["list.add(x)","list.push(x)","list.append(x)","list.insert(x)"], ans:2 },
+        { levelId:"L3", q:'What does <code class="q-code">[1,2,3].pop()</code> return?', opts:["1","2","3","[1,2]"], ans:2 },
+        { levelId:"L3", q:'What will <code class="q-code">"abc"[-1]</code> return?', opts:["a","b","c","Error"], ans:2 },
+        { levelId:"L3", q:'What does <code class="q-code">"hello".startswith("he")</code> return?', opts:["False","True",'"he"',"Error"], ans:1 },
+        { levelId:"L3", q:'What does <code class="q-code">[1,2,3] + [4,5]</code> return?', opts:["[1,2,3,4,5]","Error","[1,2,3,[4,5]]","[5,7]"], ans:0 },
+        { levelId:"L3", q:'What is <code class="q-code">len([1, [2,3], 4])</code>?', opts:["4","3","5","2"], ans:1 },
+
+        // Level 4
+        { levelId:"L4", q:'What does <code class="q-code">range(5)</code> generate?', opts:["1,2,3,4,5","0,1,2,3,4","0,1,2,3,4,5","1,2,3,4"], ans:1 },
+        { levelId:"L4", q:"What keyword immediately stops a loop?", opts:["stop","exit","break","return"], ans:2 },
+        { levelId:"L4", q:"What keyword skips the rest of an iteration and goes to the next?", opts:["skip","continue","next","pass"], ans:1 },
+        { levelId:"L4", q:'What is the last value of <code class="q-code">i</code> in: <code class="q-code">for i in range(1, 5)</code>?', opts:["5","4","6","1"], ans:1 },
+        { levelId:"L4", q:'How many times does <code class="q-code">for i in range(0,10,2)</code> loop?', opts:["10","2","5","4"], ans:2 },
+        { levelId:"L4", q:'What is <code class="q-code">"*" * 4</code>?', opts:["****","* * * *","4","Error"], ans:0 },
+        { levelId:"L4", q:'What does <code class="q-code">while True:</code> with a <code class="q-code">break</code> inside do?', opts:["Runs forever","Never runs","Runs until break executes","Syntax error"], ans:2 },
+        { levelId:"L4", q:'<code class="q-code">for i in range(3): print(i)</code> — what is printed (space-separated)?', opts:["1 2 3","0 1 2","0 1 2 3","3"], ans:1 },
+        { levelId:"L4", q:"How many total iterations in: <code class='q-code'>for i in range(2): for j in range(3)</code>?", opts:["5","6","3","2"], ans:1 },
+        { levelId:"L4", q:'What does <code class="q-code">range(10, 0, -1)</code> start with?', opts:["0","10","9","1"], ans:1 },
+        { levelId:"L4", q:"Which loop is best when you don't know the number of iterations in advance?", opts:["for","while","do-while","foreach"], ans:1 },
+        { levelId:"L4", q:'<code class="q-code">s=0\nfor i in range(1,4): s+=i\nprint(s)</code> — output?', opts:["3","6","10","4"], ans:1 },
+
+        // Level 5
+        { levelId:"L5", q:"What keyword is used to define a function in Python?", opts:["function","func","def","define"], ans:2 },
+        { levelId:"L5", q:"What does <code class='q-code'>return</code> do inside a function?", opts:["Prints the value","Sends value back to the caller","Stops the program","Creates a variable"], ans:1 },
+        { levelId:"L5", q:'<code class="q-code">def f(x): return x*2\nprint(f(5))</code> — output?', opts:["5","10","25","f(5)"], ans:1 },
+        { levelId:"L5", q:'How do you access the value with key <code class="q-code">"name"</code> from <code class="q-code">d = {"name":"Alex"}</code>?', opts:["d.name","d[\"name\"]","d(name)","d->name"], ans:1 },
+        { levelId:"L5", q:'What is <code class="q-code">len({"a":1, "b":2, "c":3})</code>?', opts:["1","3","6","2"], ans:1 },
+        { levelId:"L5", q:'What does <code class="q-code">d.get("key", "default")</code> return if "key" does not exist?', opts:["None","Error",'"default"',"0"], ans:2 },
+        { levelId:"L5", q:"What is a lambda function?", opts:["A named function","An anonymous one-line function","A recursive function","A class method"], ans:1 },
+        { levelId:"L5", q:'<code class="q-code">f = lambda x: x**2\nprint(f(4))</code> — output?', opts:["2","8","16","Error"], ans:2 },
+        { levelId:"L5", q:'What does <code class="q-code">d.keys()</code> return?', opts:["Values","Key-value pairs","All keys","Length"], ans:2 },
+        { levelId:"L5", q:"What is a default parameter?", opts:["A parameter with no type hint","A parameter with a pre-set value","A global variable","A return type"], ans:1 },
+        { levelId:"L5", q:'What does <code class="q-code">d.update({"x": 10})</code> do?', opts:["Prints d","Replaces d entirely","Adds or updates key 'x'","Deletes key 'x'"], ans:2 },
+        { levelId:"L5", q:"What makes a function <em>recursive</em>?", opts:["It uses a for loop","It calls itself","It has no return statement","It uses global variables"], ans:1 },
+
+        // Level 6
+        { levelId:"L6", q:'What does <code class="q-code">sorted([3,1,4,1,5])</code> return?', opts:["[5,4,3,1,1]","[1,1,3,4,5]","[3,1,4,1,5]","Error"], ans:1 },
+        { levelId:"L6", q:'What is the output of <code class="q-code">list(set([1,2,2,3,3,3]))</code>?', opts:["[1,2,2,3,3,3]","[1,2,3]","{1,2,3}","Error"], ans:1 },
+        { levelId:"L6", q:'What does <code class="q-code">[x*2 for x in range(4)]</code> produce?', opts:["[0,2,4,6]","[2,4,6,8]","[1,2,3,4]","[0,1,2,3]"], ans:0 },
+        { levelId:"L6", q:"What is a <code class='q-code'>try/except</code> block used for?", opts:["Repeating code","Defining functions","Handling runtime errors","Creating loops"], ans:2 },
+        { levelId:"L6", q:'Does <code class="q-code">"racecar" == "racecar"[::-1]</code> evaluate to True?', opts:["No, False","Yes, True","Error","None"], ans:1 },
+        { levelId:"L6", q:'What does <code class="q-code">enumerate([\'a\',\'b\',\'c\'])</code> produce?', opts:["[0,1,2]","Indexed (index, value) pairs","['a','b','c']","3"], ans:1 },
+        { levelId:"L6", q:'What does <code class="q-code">zip([1,2],[3,4])</code> produce?', opts:["[1,2,3,4]","[(1,3),(2,4)]","{1:3,2:4}","Error"], ans:1 },
+        { levelId:"L6", q:'What does <code class="q-code">"hello world".count("l")</code> return?', opts:["2","3","1","4"], ans:1 },
+        { levelId:"L6", q:'<code class="q-code">import random; random.randint(1,10)</code> — what is returned?', opts:["A float 1.0–10.0","An int from 1–10 inclusive","An int from 0–9","A string"], ans:1 },
+        { levelId:"L6", q:"What is an f-string in Python?", opts:["A file-type string","A formatted string literal","A function string","A frozen string"], ans:1 },
+        { levelId:"L6", q:'What does <code class="q-code">sorted("python")</code> return?', opts:["['python']","Error","['h','n','o','p','t','y']","'hnopty'"], ans:2 },
+        { levelId:"L6", q:'What is the output of <code class="q-code">print(type([]).__name__)</code>?', opts:["array","tuple","set","list"], ans:3 }
+      ];
+
+      let idx = 0;
+      for (const q of defaultQuestions) {
+        const docId = `default_q_${q.levelId}_${idx}`;
+        const docRef = window.db.collection('questions').doc(docId);
+        batch.set(docRef, {
+          levelId: q.levelId,
+          q: q.q,
+          opts: q.opts,
+          ans: q.ans,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        idx++;
+      }
+      await batch.commit();
+      console.log("MCQ questions seeding complete!");
+    }
+
+    // 2. Check Projects
+    const projectsSnap = force ? { empty: true } : await window.db.collection('projects').limit(1).get();
+    if (projectsSnap.empty) {
+      console.log("Seeding default Projects to Firestore...");
+      const batch = window.db.batch();
+
+      const defaultProjects = [
+        {
+          id: "guess",
+          title: "Guessing Game",
+          tagline: "I'm thinking of a number 1-100! Can you get it?",
+          tags: ["random", "loops", "conditionals"],
+          code: [
+            { n:1,  html: `<span class="tk-kw">import</span> random` },
+            { n:2,  html: `` },
+            { n:3,  html: `<span class="tk-cmt"># Pick a secret number</span>` },
+            { n:4,  html: `secret = random.<span class="tk-fn">randint</span>(<span class="tk-num">1</span>, <span class="tk-num">100</span>)` },
+            { n:5,  html: `attempts = <span class="tk-num">0</span>` },
+            { n:6,  html: `` },
+            { n:7,  html: `<span class="tk-kw">print</span>(<span class="tk-str">"I'm thinking of a number 1-100!"</span>)` },
+            { n:8,  html: `` },
+            { n:9,  html: `<span class="tk-kw">while</span> <span class="tk-kw">True</span>:   <span class="tk-cmt"># keep looping until correct</span>` },
+            { n:10, html: `    guess = <span class="tk-fn">int</span>(<span class="tk-fn">input</span>(<span class="tk-str">"Your guess: "</span>))` },
+            { n:11, html: `    attempts += <span class="tk-num">1</span>` },
+            { n:12, html: `` },
+            { n:13, html: `    <span class="tk-kw">if</span> secret <span class="tk-op">&gt;</span> guess:` },
+            { n:14, html: `        <span class="tk-kw">print</span>(<span class="tk-str">"Too low! Go higher ↑"</span>)` },
+            { n:15, html: `    <span class="tk-kw">elif</span> secret <span class="tk-op">&lt;</span> guess:` },
+            { n:16, html: `        <span class="tk-kw">print</span>(<span class="tk-str">"Too high! Go lower ↓"</span>)` },
+            { n:17, html: `    <span class="tk-kw">else</span>:   <span class="tk-cmt"># must be equal!</span>` },
+            { n:18, html: `        <span class="tk-kw">print</span>(<span class="tk-str">f"You got it in {attempts} tries!"</span>)` },
+            { n:19, html: `        <span class="tk-kw">break</span>  <span class="tk-cmt"># exit the loop</span>` }
+          ],
+          steps: [
+            { lines:[1],    explain:`Line 1: We import the random module. This gives us access to Python's built-in tools for generating random numbers.`, concept:`📦 import = loading a toolbox`, uiAction:'none' },
+            { lines:[3,4],  explain:`Lines 3–4: random.randint(1,100) picks a secret number between 1 and 100. It's stored in the variable "secret".`, concept:`🎲 variable = a labelled box that holds a value`, uiAction:'setSecret' },
+            { lines:[5],    explain:`Line 5: attempts = 0. We start a counter at zero. Every time the player guesses, this number goes up by 1.`, concept:`🔢 counter variable — starts at 0`, uiAction:'none' },
+            { lines:[7],    explain:`Line 7: print() sends a message to the screen. This is how the program talks to the user!`, concept:`📢 print() = show text on screen`, uiAction:'showMsg' },
+            { lines:[9],    explain:`Line 9: while True — this starts an infinite loop! The program keeps asking for guesses until we use "break" to stop it.`, concept:`🔁 while loop = repeat until we say stop`, uiAction:'flashLoop' },
+            { lines:[10],   explain:`Line 10: input() pauses and waits for the user to type. int() converts that text into a number we can compare.`, concept:`⌨️ input() + int() = read a number from user`, uiAction:'focusInput' },
+            { lines:[11],   explain:`Line 11: attempts += 1 means "add 1 to attempts". Same as writing attempts = attempts + 1. The counter goes up!`, concept:`➕ += is shorthand for adding to a variable`, uiAction:'none' },
+            { lines:[13,14],explain:`Lines 13–14: if secret > guess — the secret is bigger, so the guess is too LOW. Python runs the print("Too low!") line.`, concept:`🔍 if statement = a decision point in the code`, uiAction:'guessLow' },
+            { lines:[15,16],explain:`Lines 15–16: elif secret < guess — the secret is smaller, so the guess is too HIGH. elif means "else if" — a second condition to check.`, concept:`🔀 elif = "else if" — another condition to try`, uiAction:'guessHigh' },
+            { lines:[17,18,19], explain:`Lines 17–19: else means none of the above — so the guess must be exactly right! We print the win message and use break to exit the loop.`, concept:`🎉 else = "in every other case" — the final branch`, uiAction:'guessWin' }
+          ]
+        },
+        {
+          id: "calc",
+          title: "Calculator App",
+          tagline: "Build a graphical calculator and execute real math string expressions.",
+          tags: ["functions", "eval", "try-except"],
+          code: [
+            { n:1,  html: `<span class="tk-cmt"># expression stores what user typed</span>` },
+            { n:2,  html: `expression = <span class="tk-str">""</span>  <span class="tk-cmt"># start empty</span>` },
+            { n:3,  html: `` },
+            { n:4,  html: `<span class="tk-kw">def</span> <span class="tk-fn">on_button_click</span>(value):` },
+            { n:5,  html: `    <span class="tk-kw">global</span> expression` },
+            { n:6,  html: `` },
+            { n:7,  html: `    <span class="tk-kw">if</span> value <span class="tk-op">==</span> <span class="tk-str">"C"</span>:   <span class="tk-cmt"># clear</span>` },
+            { n:8,  html: `        expression = <span class="tk-str">""</span>` },
+            { n:9,  html: `        display.<span class="tk-fn">set_text</span>(<span class="tk-str">"0"</span>)` },
+            { n:10, html: `` },
+            { n:11, html: `    <span class="tk-kw">elif</span> value <span class="tk-op">==</span> <span class="tk-str">"="</span>:   <span class="tk-cmt"># evaluate</span>` },
+            { n:12, html: `        <span class="tk-kw">try</span>:` },
+            { n:13, html: `            result = <span class="tk-fn">eval</span>(expression)` },
+            { n:14, html: `            display.<span class="tk-fn">set_text</span>(result)` },
+            { n:15, html: `            expression = <span class="tk-fn">str</span>(result)` },
+            { n:16, html: `        <span class="tk-kw">except</span>:` },
+            { n:17, html: `            display.<span class="tk-fn">set_text</span>(<span class="tk-str">"Error"</span>)` },
+            { n:18, html: `` },
+            { n:19, html: `    <span class="tk-kw">else</span>:   <span class="tk-cmt"># any digit or operator</span>` },
+            { n:20, html: `        expression += value` },
+            { n:21, html: `        display.<span class="tk-fn">set_text</span>(expression)` }
+          ],
+          steps: [
+            { lines:[1,2],  explain:`Lines 1–2: We create a variable called expression that starts as an empty string "". It will build up as the user taps buttons.`, concept:`📝 string variable = holds text like "3+4"`, uiAction:'calcReset' },
+            { lines:[4,5],  explain:`Lines 4–5: We define a function called on_button_click. A function is reusable code that runs whenever a button is pressed. "global" lets us modify expression from inside the function.`, concept:`🔧 def = define a reusable block of code`, uiAction:'none' },
+            { lines:[7,8,9],explain:`Lines 7–9: if value == "C" — if the user pressed Clear, reset expression to "" and show "0" on the display.`, concept:`🧹 == means "is equal to" — checking a condition`, uiAction:'calcPressC' },
+            { lines:[11,12,13],explain:`Lines 11–13: elif value == "=" — time to calculate! eval() takes our string "3+4" and computes the actual math answer: 7.`, concept:`🧮 eval() = run a string as real Python code`, uiAction:'calcPress3' },
+            { lines:[14,15],explain:`Lines 14–15: We show the result on the display and also save it back into expression (so the user can keep calculating).`, concept:`📺 updating the display = changing what the user sees`, uiAction:'calcPressPlus' },
+            { lines:[16,17],explain:`Lines 16–17: except catches errors — like if the user typed "3++" by mistake. Instead of crashing, we show "Error" politely!`, concept:`🛡️ try/except = handle mistakes gracefully`, uiAction:'none' },
+            { lines:[19,20,21],explain:`Lines 19–21: else handles all other buttons (digits, operators). expression += value adds the new character to the end of the string. The display updates instantly!`, concept:`➕ string += appends a character to a string`, uiAction:'calcPress4' },
+            { lines:[13],   explain:`Back to eval(): now expression might be "3+4". Python evaluates it and returns 7. The display updates and the user sees their answer!`, concept:`✨ eval("3+4") returns the integer 7`, uiAction:'calcEquals' }
+          ]
+        },
+        {
+          id: "todo",
+          title: "To-Do Application",
+          tagline: "Create tasks, toggle checklist status, and filter active items.",
+          tags: ["lists", "dictionaries", "loops"],
+          code: [
+            { n:1,  html: `<span class="tk-cmt"># List to hold all tasks</span>` },
+            { n:2,  html: `todos = []` },
+            { n:3,  html: `next_id = <span class="tk-num">1</span>` },
+            { n:4,  html: `` },
+            { n:5,  html: `<span class="tk-kw">def</span> <span class="tk-fn">add_task</span>(text, priority):` },
+            { n:6,  html: `    <span class="tk-kw">global</span> next_id` },
+            { n:7,  html: `    task = {` },
+            { n:8,  html: `        <span class="tk-str">"id"</span>: next_id,` },
+            { n:9,  html: `        <span class="tk-str">"text"</span>: text,` },
+            { n:10, html: `        <span class="tk-str">"done"</span>: <span class="tk-kw">False</span>,` },
+            { n:11, html: `        <span class="tk-str">"priority"</span>: priority` },
+            { n:12, html: `    }` },
+            { n:13, html: `    todos.<span class="tk-fn">append</span>(task)` },
+            { n:14, html: `    next_id += <span class="tk-num">1</span>` },
+            { n:15, html: `` },
+            { n:16, html: `<span class="tk-kw">def</span> <span class="tk-fn">toggle_done</span>(task_id):` },
+            { n:17, html: `    <span class="tk-kw">for</span> task <span class="tk-kw">in</span> todos:` },
+            { n:18, html: `        <span class="tk-kw">if</span> task[<span class="tk-str">"id"</span>] <span class="tk-op">==</span> task_id:` },
+            { n:19, html: `            task[<span class="tk-str">"done"</span>] = <span class="tk-kw">not</span> task[<span class="tk-str">"done"</span>]` },
+            { n:20, html: `` },
+            { n:21, html: `<span class="tk-kw">def</span> <span class="tk-fn">get_active</span>():` },
+            { n:22, html: `    <span class="tk-kw">return</span> [t <span class="tk-kw">for</span> t <span class="tk-kw">in</span> todos <span class="tk-kw">if</span> <span class="tk-kw">not</span> t[<span class="tk-str">"done"</span>]]` },
+            { n:23, html: `` },
+            { n:24, html: `<span class="tk-cmt"># Start: add first tasks</span>` },
+            { n:25, html: `<span class="tk-fn">add_task</span>(<span class="tk-str">"Learn Python"</span>, <span class="tk-str">"high"</span>)` },
+            { n:26, html: `<span class="tk-fn">add_task</span>(<span class="tk-str">"Build a project"</span>, <span class="tk-str">"med"</span>)` }
+          ],
+          steps: [
+            { lines:[1,2,3], explain:`Lines 1–3: todos = [] creates an empty list. This is where ALL tasks will live. next_id is a counter so each task gets a unique number.`, concept:`📋 list = an ordered collection of items`, uiAction:'todoInit' },
+            { lines:[5,6],   explain:`Lines 5–6: We define the add_task function. It takes two inputs: the text of the task and its priority level. "global" lets us update next_id.`, concept:`🔧 function parameters = values passed in when calling it`, uiAction:'none' },
+            { lines:[7,8,9,10,11,12], explain:`Lines 7–12: We create a task dictionary — an object with named fields: id, text, done (starts False), and priority. Curly braces {} create a dictionary in Python.`, concept:`🗃️ dictionary = key:value pairs, like a labelled form`, uiAction:'todoHighlight' },
+            { lines:[13,14], explain:`Lines 13–14: todos.append(task) adds the new task to the end of our list. Then next_id += 1 so the next task gets a different id number.`, concept:`➕ list.append() = add an item to the end of a list`, uiAction:'todoAdd' },
+            { lines:[16,17,18,19], explain:`Lines 16–19: toggle_done loops through every task with "for". When it finds the right id, it flips done from False → True (or back). "not" reverses a boolean.`, concept:`🔄 for loop = visit each item in a list one by one`, uiAction:'todoCheck' },
+            { lines:[21,22], explain:`Lines 21–22: get_active uses a list comprehension — a compact way to build a filtered list. It returns only tasks where done is False.`, concept:`⚡ list comprehension = filter a list in one line`, uiAction:'todoFilter' },
+            { lines:[24,25,26], explain:`Lines 24–26: Finally we call add_task twice to start with some demo tasks. The function runs, creates dictionaries, appends them to the list.`, concept:`🚀 calling a function = running the code inside it`, uiAction:'todoAddTwo' }
+          ]
+        }
+      ];
+
+      for (const p of defaultProjects) {
+        await window.db.collection('projects').doc(p.id).set({
+          title: p.title,
+          tagline: p.tagline,
+          tags: p.tags,
+          code: p.code,
+          steps: p.steps,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      console.log("Projects seeding complete!");
+    }
+  } catch (err) {
+    console.error("Database seeding failed:", err);
+  }
+}
+
+// Expose seeder globally
+window.seedProjectData = seedProjectData;
+
 // Fullscreen configuration diagnostic overlay
 function showConfigErrorOverlay() {
   const showOverlay = () => {
