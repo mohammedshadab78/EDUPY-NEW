@@ -336,8 +336,8 @@ function rebuildNavbarLinks(user) {
     {
       id: 'puzzles',
       href: 'puzzles.html',
-      label: 'Puzzles',
-      icon: `🧩`
+      label: 'Code Puzzles',
+      icon: `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="11" width="7" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg>`
     },
     {
       id: 'projects',
