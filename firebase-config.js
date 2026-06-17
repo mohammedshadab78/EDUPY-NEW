@@ -775,39 +775,159 @@ function injectNavStyles() {
       flex-wrap: nowrap !important;
     }
 
-    /* Standardised button heights & paddings */
-    header.nav .nav-btn, header.nav .nav-user-info .nav-btn {
+    /* Enhanced Nav Buttons from index.html (Globally applied) */
+    header.nav .nav-btn, nav.navbar .nav-btn, .nav-link-btn, 
+    header.nav .nav-user-info .nav-btn, nav.navbar .nav-user-info .nav-btn {
       padding: 0.5rem 1.1rem !important;
       border-radius: 999px !important;
+      font-size: 0.82rem !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      text-decoration: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 0.4rem !important;
+      transition: all 0.3s ease !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
       border: 1px solid rgba(108, 99, 255, 0.3) !important;
+      color: #6C63FF !important;
+      position: relative !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
       height: 38px !important;
+    }
+
+    /* Shimmer effect inside buttons */
+    header.nav .nav-btn::after, nav.navbar .nav-btn::after, .nav-link-btn::after {
+      content: '' !important;
+      position: absolute !important;
+      inset: 0 !important;
+      border-radius: 999px !important;
+      background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%) !important;
+      opacity: 0 !important;
+      transition: opacity 0.3s ease !important;
+      pointer-events: none !important;
+    }
+
+    header.nav .nav-btn:hover, nav.navbar .nav-btn:hover, .nav-link-btn:hover {
+      background: rgba(108, 99, 255, 0.12) !important;
+      border-color: #6C63FF !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 20px rgba(108, 99, 255, 0.15) !important;
+      color: #6C63FF !important;
+    }
+
+    header.nav .nav-btn:hover::after, nav.navbar .nav-btn:hover::after, .nav-link-btn:hover::after {
+      opacity: 1 !important;
+      animation: shimmer 0.8s ease-out forwards !important;
+    }
+
+    header.nav .nav-btn.primary, nav.navbar .nav-btn.primary,
+    header.nav .nav-btn.active, nav.navbar .nav-btn.active, .nav-link-btn.active {
+      background: rgba(108, 99, 255, 0.2) !important;
+      border-color: rgba(108, 99, 255, 0.5) !important;
+      color: #6C63FF !important;
+      box-shadow: 0 2px 10px rgba(108, 99, 255, 0.12) !important;
+    }
+
+    header.nav .nav-btn.primary:hover, nav.navbar .nav-btn.primary:hover,
+    header.nav .nav-btn.active:hover, nav.navbar .nav-btn.active:hover, .nav-link-btn.active:hover {
+      background: rgba(108, 99, 255, 0.28) !important;
+      border-color: #6C63FF !important;
+      box-shadow: 0 8px 24px rgba(108, 99, 255, 0.22) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    header.nav .nav-btn:active, nav.navbar .nav-btn:active, .nav-link-btn:active {
+      transform: translateY(1px) scale(0.97) !important;
+      transition: transform 0.08s ease !important;
+    }
+
+    header.nav .nav-btn .btn-icon, nav.navbar .nav-btn .btn-icon, .nav-link-btn .btn-icon {
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      box-sizing: border-box !important;
-      font-size: 0.82rem !important;
-      font-weight: 700 !important;
+      width: 1.2rem !important;
+      height: 1.2rem !important;
+      flex-shrink: 0 !important;
+      transition: transform 0.3s ease !important;
     }
-    header.nav .nav-user-info .logout-btn {
+
+    header.nav .nav-btn:hover .btn-icon, nav.navbar .nav-btn:hover .btn-icon, .nav-link-btn:hover .btn-icon {
+      transform: scale(1.2) rotate(-8deg) !important;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); opacity: 0; }
+      40% { opacity: 1; }
+      100% { transform: translateX(100%); opacity: 0; }
+    }
+
+    /* Standardized Brand Logo (Globally Uniform) */
+    .logo, .nav-brand {
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.65rem !important;
+      text-decoration: none !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    .logo-icon, .nav-logo, .brand-icon {
+      width: 2.4rem !important;
+      height: 2.4rem !important;
+      border-radius: 14px !important;
+      background: linear-gradient(135deg, #6C63FF, #FF6B6B) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-weight: 800 !important;
+      font-size: 1.1rem !important;
+      color: #fff !important;
+      box-shadow: 0 4px 0 #4B44CC, 0 8px 16px rgba(108, 99, 255, 0.3) !important;
+      transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+      box-sizing: border-box !important;
+    }
+    
+    .brand-icon svg {
+      width: 16px !important;
+      height: 16px !important;
+      stroke: #fff !important;
+    }
+
+    .logo:hover .logo-icon, .nav-brand:hover .nav-logo, .nav-brand:hover .brand-icon {
+      transform: translateY(-2px) scale(1.05) !important;
+      box-shadow: 0 6px 0 #4B44CC, 0 12px 22px rgba(108, 99, 255, 0.4) !important;
+    }
+
+    .logo span, .nav-title, .brand-name {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      font-size: 1.25rem !important;
+      font-weight: 800 !important;
+      color: #6C63FF !important;
+      letter-spacing: 0.02em !important;
+    }
+    
+    /* Hide page specific tagline details next to brand in header on mobile */
+    .logo span span, .nav-title span {
+      font-weight: 400 !important;
+    }
+    @media (max-width: 580px) {
+      .logo span span, .nav-title span {
+        display: none !important;
+      }
+    }
+
+    /* Red Logout button style override */
+    header.nav .nav-user-info .logout-btn, nav.navbar .nav-user-info .logout-btn {
       background: rgba(255, 107, 107, 0.12) !important;
       color: #CC4444 !important;
       border: 1px solid rgba(255, 107, 107, 0.35) !important;
     }
-
-    nav.navbar .nav-btn, nav.navbar .nav-user-info .nav-btn {
-      padding: 0.42rem 0.95rem !important;
-      border-radius: 40px !important;
-      border: none !important;
-      height: 34px !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      box-sizing: border-box !important;
-      font-size: 0.82rem !important;
-      font-weight: 600 !important;
-    }
-    nav.navbar .nav-user-info .logout-btn {
-      background: rgba(255, 107, 107, 0.12) !important;
+    header.nav .nav-user-info .logout-btn:hover, nav.navbar .nav-user-info .logout-btn:hover {
+      background: rgba(255, 107, 107, 0.22) !important;
+      border-color: #CC4444 !important;
       color: #CC4444 !important;
     }
 
