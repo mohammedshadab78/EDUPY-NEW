@@ -597,6 +597,10 @@ function injectNavStyles() {
   const styleId = 'dynamic-nav-styles';
   if (document.getElementById(styleId)) return;
 
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  const isFixedNav = currentPath === 'index.html' || currentPath === '' || currentPath === 'projects.html';
+  const positionStyle = isFixedNav ? 'fixed' : 'sticky';
+
   const styleEl = document.createElement('style');
   styleEl.id = styleId;
   styleEl.innerHTML = `
@@ -767,6 +771,15 @@ function injectNavStyles() {
       justify-content: space-between !important;
       height: 70px !important;
       padding: 0 2rem !important;
+      position: ${positionStyle} !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 1000 !important;
+      background: var(--bg-nav, rgba(240, 244, 255, 0.75)) !important;
+      backdrop-filter: blur(18px) !important;
+      -webkit-backdrop-filter: blur(18px) !important;
+      border-bottom: 1px solid rgba(108, 99, 255, 0.15) !important;
     }
     header.nav .nav-links, nav.navbar .nav-links {
       display: flex !important;
@@ -797,6 +810,7 @@ function injectNavStyles() {
       overflow: hidden !important;
       box-sizing: border-box !important;
       height: 38px !important;
+      white-space: nowrap !important;
     }
 
     /* Shimmer effect inside buttons */
@@ -929,6 +943,15 @@ function injectNavStyles() {
       background: rgba(255, 107, 107, 0.22) !important;
       border-color: #CC4444 !important;
       color: #CC4444 !important;
+    }
+
+    /* Mobile drawer offsets for home.html to match the 70px navbar */
+    .mobile-drawer {
+      top: 70px !important;
+      height: calc(100vh - 70px) !important;
+    }
+    .drawer-overlay {
+      inset: 70px 0 0 0 !important;
     }
 
     /* Uniform Media Query Breakpoint at 1080px */

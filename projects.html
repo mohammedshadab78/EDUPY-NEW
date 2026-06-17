@@ -584,21 +584,21 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 </head>
 <body>
 
-<!-- NAV -->
-<!-- ═══ NAVBAR ═══ -->
-<nav class="navbar">
-  <div class="logo">
-    <div class="logo-icon">Py</div>
-    <span>EduPy <span style="font-weight: 400;">Visualizer</span></span>
-  </div>
-  <div class="nav-links">
-    <a href="home.html" class="nav-btn">✏️ Editor</a>
-    <a href="notes.html" class="nav-btn">📘 Notes</a>
-    <a href="assessments.html" class="nav-btn">📝 Assessments</a>
-    <a href="projects.html" class="nav-btn primary">🎬 Visualizer</a>
-    <a href="index.html" class="nav-btn">🏠 Home</a>
-  </div>
-</nav>
+<!-- NAVBAR -->
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-logo">Py</div>
+    <span class="nav-title">EduPy</span>
+  </a>
+
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav class="nav-links" id="nav-links">
+    <!-- Rebuilt dynamically by rebuildNavbarLinks() -->
+  </nav>
+</header>
 
 <!-- HERO -->
 <div class="hero">

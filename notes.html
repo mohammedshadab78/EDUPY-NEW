@@ -496,18 +496,23 @@
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar">
-  <a href="index.html" class="logo">✏️ EduPy<span class="logo-dot">.</span></a>
-  <div class="nav-links">
-    <a href="home.html"        class="nav-btn">🖥️ Editor</a>
-    <a href="assessments.html" class="nav-btn">📝 Tests</a>
-    <a href="index.html"       class="nav-btn">🏠 Home</a>
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-logo">Py</div>
+    <span class="nav-title">EduPy</span>
+  </a>
+
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav class="nav-links" id="nav-links">
     <div class="lang-toggle" id="langToggle">
       <button class="lang-btn active" data-lang="en">🇬🇧 EN</button>
       <button class="lang-btn"        data-lang="hi">🇮🇳 HI</button>
     </div>
-  </div>
-</nav>
+  </nav>
+</header>
 
 <!-- SEARCH -->
 <div class="search-wrap">

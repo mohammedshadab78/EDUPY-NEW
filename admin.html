@@ -597,19 +597,20 @@
 <body>
 
   <!-- NAVBAR -->
-  <nav class="navbar">
-    <a href="index.html" class="logo">
-      <div class="logo-icon">Py</div>
-      <span>EduPy <span style="font-weight:400">Admin</span></span>
+  <header class="nav" id="nav">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo">Py</div>
+      <span class="nav-title">EduPy</span>
     </a>
-    <div class="nav-links">
-      <a href="dashboard.html" class="nav-btn">📊 Dashboard</a>
-      <a href="home.html" class="nav-btn">✏️ Editor</a>
-      <a href="notes.html" class="nav-btn">📘 Notes</a>
-      <a href="assessments.html" class="nav-btn">📝 Assessments</a>
-      <a href="index.html" class="nav-btn">🏠 Home</a>
-    </div>
-  </nav>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav-links" id="nav-links">
+      <!-- Rebuilt dynamically by rebuildNavbarLinks() -->
+    </nav>
+  </header>
 
   <!-- ADMIN CONTAINER -->
   <div class="app-container">
