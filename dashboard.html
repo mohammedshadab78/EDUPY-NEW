@@ -653,10 +653,7 @@
       const rootStyles = getComputedStyle(document.documentElement);
       const accentColor = rootStyles.getPropertyValue('--accent').trim() || '#6C63FF';
       const textColor = rootStyles.getPropertyValue('--text').trim() || '#1E1B4B';
-      const isDark = document.documentElement.classList.contains('theme-dracula') || 
-                     document.documentElement.classList.contains('theme-cyberpunk') || 
-                     document.documentElement.classList.contains('theme-glassmorphic') ||
-                     (localStorage.getItem('edupy_theme') !== 'mint' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      const isDark = true;
                      
       const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)';
 
@@ -804,12 +801,7 @@
       }
     }
 
-    // Dynamic Theme Listener
-    window.addEventListener('themechanged', () => {
-      if (window.activeUserData) {
-        initOrUpdateCharts(window.activeUserData);
-      }
-    });
+
 
     async function loadDashboardData() {
       await window.firebaseReady;

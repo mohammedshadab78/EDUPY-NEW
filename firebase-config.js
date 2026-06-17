@@ -1,12 +1,6 @@
 // firebase-config.js
 // Client-side Firebase Initialization and Database Helper Library
 
-// IIFE to load theme instantly to prevent screen flash
-(function() {
-  const savedTheme = localStorage.getItem('edupy_theme') || 'default';
-  document.documentElement.className = 'theme-' + savedTheme;
-  document.documentElement.setAttribute('data-theme', savedTheme);
-})();
 
 // Fallback configuration for local development if serverless function is not run (e.g. static server)
 const LOCAL_FALLBACK = {
@@ -156,18 +150,16 @@ function setupAuthStateListener() {
   });
 }
 
-// 3. Dynamic Navbar Injections
 function updateNavbars(user, userData) {
   // Inject CSS styles for the navbar and terminal first
   injectNavStyles();
-  injectGlobalThemeStyles();
 
   // Select all possible navbar wrappers on different pages
   const desktopNavs = document.querySelectorAll('.nav-links, .nav-actions, #navLinks, #nav-links');
   const mobileDrawers = document.querySelectorAll('.mobile-drawer, #mobileDrawer');
 
-  injectThemeSelector();
-  injectPuzzleLink();
+  // Rebuild navigation links dynamically
+  rebuildNavbarLinks(user);
 
   if (user && userData) {
     const name = userData.name || user.displayName || user.email.split('@')[0];
@@ -313,344 +305,163 @@ function updateNavbars(user, userData) {
   }
 }
 
-// 3a. Global Theme Styles Injection
-function injectGlobalThemeStyles() {
-  const styleId = 'global-theme-styles';
-  if (document.getElementById(styleId)) return;
-  const styleEl = document.createElement('style');
-  styleEl.id = styleId;
-  styleEl.innerHTML = `
-    .theme-dracula {
-      --bg: #282a36 !important;
-      --bg-nav: rgba(40,42,54,0.92) !important;
-      --bg-panel: #343746 !important;
-      --bg-panel-alt: #1d1f27 !important;
-      --bg-code: #282a36 !important;
-      --bg-tab-bar: #21222c !important;
-      --border: #44475a !important;
-      --border-light: #6272a4 !important;
-      --border-mid: #bd93f9 !important;
-      --accent: #ff79c6 !important;
-      --accent-dim: rgba(255,121,198,0.15) !important;
-      --accent-glow: rgba(255,121,198,0.3) !important;
-      --accent-dark: #e24097 !important;
-      --text: #f8f8f2 !important;
-      --text-dim: #a2a6c2 !important;
-      --c-muted: #6272a4 !important;
-      --c-subtle: #44475a !important;
-      --c-output: #8be9fd !important;
-      --card: #343746 !important;
-      --muted: #a2a6c2 !important;
-      --purple: #bd93f9 !important;
-      --purple-dk: #bd93f9 !important;
-      --purple-lt: #d6bdfa !important;
-      --coral: #ff5555 !important;
-      --mint: #50fa7b !important;
-      --gold: #f1fa8c !important;
-      --heatmap-0: rgba(255,121,198,0.06) !important;
-      --heatmap-1: rgba(255,121,198,0.25) !important;
-      --heatmap-2: rgba(255,121,198,0.5) !important;
-      --heatmap-3: rgba(255,121,198,0.75) !important;
-      --heatmap-4: #ff79c6 !important;
+// 3a. Rebuild Navigation Links dynamically to keep all HTML pages uniform
+function rebuildNavbarLinks(user) {
+  // Define our standardized global list of links
+  const links = [
+    {
+      id: 'home',
+      href: 'index.html',
+      label: 'Home',
+      icon: `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
+    },
+    {
+      id: 'editor',
+      href: 'home.html',
+      label: 'Open Editor',
+      icon: `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>`
+    },
+    {
+      id: 'notes',
+      href: 'notes.html',
+      label: 'Notes',
+      icon: `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`
+    },
+    {
+      id: 'assessments',
+      href: 'assessments.html',
+      label: 'Assessments',
+      icon: `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
+    },
+    {
+      id: 'puzzles',
+      href: 'puzzles.html',
+      label: 'Puzzles',
+      icon: `🧩`
+    },
+    {
+      id: 'projects',
+      href: 'projects.html',
+      label: 'Visualizer',
+      icon: `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
     }
-    
-    .theme-cyberpunk {
-      --bg: #0c0714 !important;
-      --bg-nav: rgba(12,7,20,0.92) !important;
-      --bg-panel: #1b122c !important;
-      --bg-panel-alt: #150d22 !important;
-      --bg-code: #0c0714 !important;
-      --bg-tab-bar: #140c22 !important;
-      --border: #ff007f !important;
-      --border-light: #00f0ff !important;
-      --border-mid: #9d4edd !important;
-      --accent: #00f0ff !important;
-      --accent-dim: rgba(0,240,255,0.12) !important;
-      --accent-glow: rgba(0,240,255,0.28) !important;
-      --accent-dark: #00a2b3 !important;
-      --text: #f8f9fa !important;
-      --text-dim: #b39ddb !important;
-      --c-muted: #9d4edd !important;
-      --c-subtle: #3b1c5c !important;
-      --c-output: #39ff14 !important;
-      --card: #1b122c !important;
-      --muted: #b39ddb !important;
-      --purple: #9d4edd !important;
-      --purple-dk: #7b2cbf !important;
-      --purple-lt: #c77dff !important;
-      --coral: #ff007f !important;
-      --mint: #00f0ff !important;
-      --gold: #ffff00 !important;
-      --heatmap-0: rgba(0,240,255,0.06) !important;
-      --heatmap-1: rgba(0,240,255,0.25) !important;
-      --heatmap-2: rgba(0,240,255,0.5) !important;
-      --heatmap-3: rgba(0,240,255,0.75) !important;
-      --heatmap-4: #00f0ff !important;
-    }
-    
-    .theme-mint {
-      --bg: #f2faf6 !important;
-      --bg-nav: rgba(242,250,246,0.92) !important;
-      --bg-panel: #ffffff !important;
-      --bg-panel-alt: #e4f3eb !important;
-      --bg-code: #f8fcfb !important;
-      --bg-tab-bar: #dbeee3 !important;
-      --border: #cce6d9 !important;
-      --border-light: #b2dac4 !important;
-      --border-mid: #2d8a6b !important;
-      --accent: #2d8a6b !important;
-      --accent-dim: rgba(45,138,107,0.12) !important;
-      --accent-glow: rgba(45,138,107,0.28) !important;
-      --accent-dark: #1f604a !important;
-      --text: #1e293b !important;
-      --text-dim: #64748b !important;
-      --c-muted: #64748b !important;
-      --c-subtle: #cbd5e1 !important;
-      --c-output: #0f766e !important;
-      --card: #ffffff !important;
-      --muted: #475569 !important;
-      --purple: #2d8a6b !important;
-      --purple-dk: #1f604a !important;
-      --purple-lt: #52b788 !important;
-      --coral: #ef4444 !important;
-      --mint: #2d8a6b !important;
-      --gold: #f59e0b !important;
-      --heatmap-0: rgba(45,138,107,0.06) !important;
-      --heatmap-1: rgba(45,138,107,0.25) !important;
-      --heatmap-2: rgba(45,138,107,0.5) !important;
-      --heatmap-3: rgba(45,138,107,0.75) !important;
-      --heatmap-4: #2d8a6b !important;
-    }
-    
-    .theme-glassmorphic {
-      --bg: radial-gradient(ellipse at top, #1e293b, #0f172a) !important;
-      --bg-nav: rgba(15, 23, 42, 0.45) !important;
-      --bg-panel: rgba(255, 255, 255, 0.05) !important;
-      --bg-panel-alt: rgba(255, 255, 255, 0.02) !important;
-      --bg-code: rgba(0, 0, 0, 0.2) !important;
-      --bg-tab-bar: rgba(255, 255, 255, 0.03) !important;
-      --border: rgba(255, 255, 255, 0.08) !important;
-      --border-light: rgba(255, 255, 255, 0.15) !important;
-      --border-mid: rgba(255, 255, 255, 0.25) !important;
-      --accent: #60a5fa !important;
-      --accent-dim: rgba(96, 165, 250, 0.15) !important;
-      --accent-glow: rgba(96, 165, 250, 0.3) !important;
-      --accent-dark: #2563eb !important;
-      --text: #f1f5f9 !important;
-      --text-dim: #94a3b8 !important;
-      --c-muted: #64748b !important;
-      --c-subtle: #475569 !important;
-      --c-output: #34d399 !important;
-      --card: rgba(255, 255, 255, 0.04) !important;
-      --muted: #94a3b8 !important;
-      --purple: #a78bfa !important;
-      --purple-dk: #7c3aed !important;
-      --purple-lt: #c084fc !important;
-      --coral: #f87171 !important;
-      --mint: #34d399 !important;
-      --gold: #fbbf24 !important;
-      --heatmap-0: rgba(96, 165, 250, 0.06) !important;
-      --heatmap-1: rgba(96, 165, 250, 0.25) !important;
-      --heatmap-2: rgba(96, 165, 250, 0.5) !important;
-      --heatmap-3: rgba(96, 165, 250, 0.75) !important;
-      --heatmap-4: #60a5fa !important;
-    }
-    
-    .theme-glassmorphic .panel,
-    .theme-glassmorphic .navbar,
-    .theme-glassmorphic .topnav,
-    .theme-glassmorphic .stat-card,
-    .theme-glassmorphic .module-card,
-    .theme-glassmorphic .dashboard-header,
-    .theme-glassmorphic .level-card,
-    .theme-glassmorphic .overall-progress,
-    .theme-glassmorphic .about-main,
-    .theme-glassmorphic .about-side-card {
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
-      background: rgba(255, 255, 255, 0.05) !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-    
-    .theme-dracula body, .theme-cyberpunk body, .theme-glassmorphic body {
-      background: var(--bg) !important;
-      color: var(--text) !important;
-    }
-    
-    .theme-dropdown-item:hover {
-      background: rgba(108, 99, 255, 0.08) !important;
-      color: var(--accent) !important;
-    }
-    
-    @media (max-width: 580px) {
-      .theme-trigger-btn .theme-text {
-        display: none !important;
-      }
-    }
-  `;
-  document.head.appendChild(styleEl);
-}
-
-// 3b. Theme Selection Widget Injection
-function injectThemeSelector() {
-  const nav = document.querySelector('.navbar, .topnav, #nav, .nav');
-  if (!nav || nav.querySelector('.theme-selector-wrap')) return;
-
-  const wrap = document.createElement('div');
-  wrap.className = 'theme-selector-wrap';
-  wrap.style.cssText = 'position: relative; display: inline-block; margin-left: auto; margin-right: 0.5rem; z-index: 105;';
-
-  const trigger = document.createElement('button');
-  trigger.className = 'theme-trigger-btn';
-  trigger.innerHTML = '🎨 <span class="theme-text" style="font-weight: 700; font-size: 0.82rem;">Theme</span>';
-  trigger.style.cssText = `
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(108, 99, 255, 0.08) !important;
-    border: 1px solid rgba(108, 99, 255, 0.2) !important;
-    color: var(--text, #1E1B4B) !important;
-    padding: 0.42rem 0.8rem !important;
-    border-radius: 99px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-size: 0.85rem !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    height: 34px !important;
-    box-sizing: border-box !important;
-  `;
-  
-  const menu = document.createElement('div');
-  menu.className = 'theme-dropdown-menu';
-  menu.style.cssText = `
-    display: none;
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    background: var(--card, white);
-    min-width: 190px;
-    border-radius: 14px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08), 0 3px 10px rgba(108, 99, 255, 0.05);
-    border: 1.5px solid rgba(108, 99, 255, 0.12);
-    padding: 0.5rem 0;
-    z-index: 1000;
-  `;
-  
-  const themes = [
-    { id: 'default', name: '🌌 Sleek Dark (Default)' },
-    { id: 'dracula', name: '🩸 Dracula Mode' },
-    { id: 'cyberpunk', name: '⚡ Cyberpunk Neon' },
-    { id: 'mint', name: '🍃 Light Mint' },
-    { id: 'glassmorphic', name: '❄️ Glassmorphic' }
   ];
-  
-  themes.forEach(t => {
-    const item = document.createElement('button');
-    item.className = 'theme-dropdown-item';
-    item.style.cssText = `
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0.6rem 1.1rem;
-      color: var(--text, #4b5563);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 600;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      cursor: pointer;
-      box-sizing: border-box;
-      transition: all 0.15s ease;
-    `;
-    item.textContent = t.name;
-    item.addEventListener('click', () => {
-      setGlobalTheme(t.id);
-      menu.style.display = 'none';
+
+  if (user) {
+    links.push({
+      id: 'dashboard',
+      href: 'dashboard.html',
+      label: 'Dashboard',
+      icon: `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`
     });
-    menu.appendChild(item);
-  });
-  
-  wrap.appendChild(trigger);
-  wrap.appendChild(menu);
-  
-  trigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const open = menu.style.display === 'block';
-    // Close other dropdowns
-    document.querySelectorAll('.theme-dropdown-menu').forEach(m => m.style.display = 'none');
-    menu.style.display = open ? 'none' : 'block';
-  });
-  
-  document.addEventListener('click', () => {
-    menu.style.display = 'none';
-  });
-  
-  // Find where to insert in navbar
-  const userIndicator = nav.querySelector('.nav-user-info, .profile-trigger-btn');
-  if (userIndicator) {
-    nav.insertBefore(wrap, userIndicator);
-  } else {
-    const navLinks = nav.querySelector('.nav-links, .nav-actions, #nav-links');
-    if (navLinks) {
-      navLinks.insertBefore(wrap, navLinks.firstChild);
-    } else {
-      nav.appendChild(wrap);
-    }
   }
-}
 
-// 3c. Dynamic Puzzle Link Injection
-function injectPuzzleLink() {
-  const navLinksContainers = document.querySelectorAll('.nav-links, .nav-actions, #navLinks, #nav-links');
-  navLinksContainers.forEach(container => {
-    if (container.querySelector('a[href*="puzzles.html"]')) return;
-    const puzzleLink = document.createElement('a');
-    puzzleLink.href = 'puzzles.html';
-    puzzleLink.className = 'nav-btn';
-    if (window.location.pathname.endsWith('puzzles.html')) {
-      puzzleLink.className += ' active';
-    }
-    puzzleLink.innerHTML = '🧩 Puzzles';
-    
-    const homeLink = container.querySelector('a[href*="index.html"]');
-    if (homeLink) {
-      container.insertBefore(puzzleLink, homeLink);
-    } else {
-      container.appendChild(puzzleLink);
-    }
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  const isHomeHtml = currentPath === 'home.html';
+  const isIndexHtml = currentPath === 'index.html' || currentPath === '';
+
+  // 1. Rebuild Desktop/Topnav containers
+  const desktopContainers = document.querySelectorAll('.nav-links, .nav-actions, #navLinks, #nav-links');
+  desktopContainers.forEach(container => {
+    // Preserve language selector wrap, theme wrap, or nav user info if they are in the container
+    const langToggle = container.querySelector('.lang-toggle');
+    const themeSelectorWrap = container.querySelector('.theme-selector-wrap');
+    const navUserInfo = container.querySelector('.nav-user-info');
+
+    // Clear it
+    container.innerHTML = '';
+
+    // Rebuild links
+    links.forEach(lnk => {
+      const a = document.createElement('a');
+      a.href = lnk.href;
+      
+      // Determine classes
+      if (isHomeHtml) {
+        a.className = 'nav-link-btn';
+      } else {
+        a.className = 'nav-btn';
+        if (lnk.id === 'editor' && isIndexHtml) {
+          a.classList.add('primary'); // Match index.html main CTA style
+        }
+      }
+
+      // Is it active?
+      const isActive = currentPath === lnk.href || 
+                       (lnk.href === 'index.html' && isIndexHtml);
+      
+      if (isActive) {
+        a.classList.add('active');
+      }
+
+      // Create Icon
+      const iconSpan = document.createElement('span');
+      iconSpan.className = 'btn-icon';
+      if (lnk.icon.startsWith('<svg')) {
+        iconSpan.innerHTML = lnk.icon;
+      } else {
+        iconSpan.textContent = lnk.icon;
+      }
+
+      a.appendChild(iconSpan);
+      a.appendChild(document.createTextNode(' ' + lnk.label));
+      container.appendChild(a);
+    });
+
+    // Restore preserved elements
+    if (langToggle) container.appendChild(langToggle);
+    if (themeSelectorWrap) container.appendChild(themeSelectorWrap);
+    if (navUserInfo) container.appendChild(navUserInfo);
   });
 
+  // 2. Rebuild Mobile Drawer (if it exists)
   const mobileDrawers = document.querySelectorAll('.mobile-drawer, #mobileDrawer');
   mobileDrawers.forEach(drawer => {
-    if (drawer.querySelector('a[href*="puzzles.html"]')) return;
-    const puzzleLink = document.createElement('a');
-    puzzleLink.href = 'puzzles.html';
-    puzzleLink.className = 'drawer-link';
-    if (window.location.pathname.endsWith('puzzles.html')) {
-      puzzleLink.style.color = 'var(--purple)';
-    }
-    puzzleLink.innerHTML = '🧩 Drag Puzzles';
-    
+    // Preserve run button, dividers, and user info
+    const drawerRunBtn = drawer.querySelector('.drawer-run-btn, #drawerRunBtn');
     const divider = drawer.querySelector('.drawer-divider');
-    if (divider) {
-      drawer.insertBefore(puzzleLink, divider);
-    } else {
-      drawer.appendChild(puzzleLink);
-    }
+    const drawerUserInfo = drawer.querySelector('.drawer-user-info');
+
+    // Clear the drawer
+    drawer.innerHTML = '';
+
+    // Rebuild links for mobile drawer
+    links.forEach(lnk => {
+      const a = document.createElement('a');
+      a.href = lnk.href;
+      a.className = 'drawer-link';
+
+      const isActive = currentPath === lnk.href || 
+                       (lnk.href === 'index.html' && isIndexHtml);
+      if (isActive) {
+        a.style.color = 'var(--accent)'; // Highlight on mobile drawer
+      }
+
+      const iconSpan = document.createElement('span');
+      iconSpan.style.marginRight = '8px';
+      if (lnk.icon.startsWith('<svg')) {
+        iconSpan.innerHTML = lnk.icon;
+        const svg = iconSpan.querySelector('svg');
+        if (svg) {
+          svg.setAttribute('width', '16');
+          svg.setAttribute('height', '16');
+        }
+      } else {
+        iconSpan.textContent = lnk.icon;
+      }
+
+      a.appendChild(iconSpan);
+      a.appendChild(document.createTextNode(' ' + lnk.label));
+      drawer.appendChild(a);
+    });
+
+    // Restore preserved
+    if (divider) drawer.appendChild(divider);
+    if (drawerRunBtn) drawer.appendChild(drawerRunBtn);
+    if (drawerUserInfo) drawer.appendChild(drawerUserInfo);
   });
 }
 
-// 3d. Global Theme Setter
-function setGlobalTheme(themeName) {
-  localStorage.setItem('edupy_theme', themeName);
-  document.documentElement.className = 'theme-' + themeName;
-  document.documentElement.setAttribute('data-theme', themeName);
-  
-  // Custom event for charts redraw if they are listening
-  window.dispatchEvent(new CustomEvent('themechanged', { detail: { theme: themeName } }));
-}
 
 // 4. Streak Calculation Logic
 async function checkAndUpdateStreak(uid, userData) {
@@ -1100,42 +911,78 @@ function setupResponsiveNav() {
   }
 
   let hamburger = header.querySelector('.hamburger');
-  const navContainer = header.querySelector('.nav-links, .nav-actions, #navLinks, #nav-links');
   
-  if (!hamburger && navContainer) {
-    hamburger = document.createElement('button');
-    hamburger.className = 'hamburger';
-    hamburger.setAttribute('aria-label', 'Toggle Menu');
-    hamburger.innerHTML = '<span></span><span></span><span></span>';
-    header.appendChild(hamburger);
-    
-    hamburger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      navContainer.classList.toggle('open');
-      hamburger.classList.toggle('active');
-    });
-  } else if (hamburger && navContainer) {
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('active');
-      navContainer.classList.toggle('open');
-    });
+  // Clone hamburger to strip static/clashing listeners
+  if (hamburger) {
+    const newHamburger = hamburger.cloneNode(true);
+    hamburger.parentNode.replaceChild(newHamburger, hamburger);
+    hamburger = newHamburger;
   }
 
-  if (navContainer) {
-    document.addEventListener('click', (e) => {
-      if (!header.contains(e.target)) {
-        navContainer.classList.remove('open');
-        if (hamburger) hamburger.classList.remove('active');
-      }
-    });
+  const navContainer = header.querySelector('.nav-links, .nav-actions, #navLinks, #nav-links');
+  const isPlayground = window.location.pathname.endsWith('home.html');
 
-    navContainer.querySelectorAll('a').forEach(a => {
+  if (isPlayground) {
+    const drawer = document.getElementById('mobileDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    
+    if (hamburger && drawer) {
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = drawer.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('open', isOpen);
+        hamburger.classList.toggle('open', isOpen); // home.html style uses 'open' class
+      });
+      
+      if (overlay) {
+        overlay.addEventListener('click', () => {
+          drawer.classList.remove('open');
+          overlay.classList.remove('open');
+          hamburger.classList.remove('open');
+        });
+      }
+    }
+  } else {
+    // Standard pages using dropdown
+    if (!hamburger && navContainer) {
+      hamburger = document.createElement('button');
+      hamburger.className = 'hamburger';
+      hamburger.setAttribute('aria-label', 'Toggle Menu');
+      hamburger.innerHTML = '<span></span><span></span><span></span>';
+      header.appendChild(hamburger);
+    }
+    
+    if (hamburger && navContainer) {
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = navContainer.classList.toggle('open');
+        hamburger.classList.toggle('active', isOpen);
+      });
+      
+      document.addEventListener('click', (e) => {
+        if (!header.contains(e.target)) {
+          navContainer.classList.remove('open');
+          hamburger.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  // Close menus on link click
+  const menus = document.querySelectorAll('.nav-links, .nav-actions, #navLinks, #nav-links, .mobile-drawer, #mobileDrawer');
+  menus.forEach(menu => {
+    menu.querySelectorAll('a').forEach(a => {
       a.addEventListener('click', () => {
-        navContainer.classList.remove('open');
-        if (hamburger) hamburger.classList.remove('active');
+        menu.classList.remove('open');
+        if (hamburger) {
+          hamburger.classList.remove('active');
+          hamburger.classList.remove('open');
+        }
+        const overlay = document.getElementById('drawerOverlay');
+        if (overlay) overlay.classList.remove('open');
       });
     });
-  }
+  });
 }
 
 // 9. Easter egg clicks listener
