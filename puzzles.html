@@ -587,8 +587,8 @@
   </footer>
 
   <script>
-    // Puzzles dataset
-    const PUZZLES = [
+    // Fallback hardcoded puzzles dataset
+    const HARDCODED_PUZZLES_FALLBACK = [
       {
         id: "puzzle1",
         name: "Level 1: Variables & Print",
@@ -663,6 +663,8 @@
       }
     ];
 
+    let PUZZLES = []; // Dynamically fetched from Firestore
+
     let activePuzzleIndex = 0;
     let solvedPuzzlesList = []; // Solved states from Firebase
     let workspaceBlocks = []; // Elements currently in the solution area { id, text, indent }
@@ -670,6 +672,23 @@
     // Init page
     document.addEventListener("DOMContentLoaded", async () => {
       await window.firebaseReady;
+
+      // Fetch puzzles from Firestore
+      try {
+        const snap = await window.db.collection('puzzles').orderBy('id').get();
+        if (!snap.empty) {
+          PUZZLES = [];
+          snap.forEach(doc => {
+            PUZZLES.push(doc.data());
+          });
+        } else {
+          console.log("No puzzles in Firestore, falling back to local dataset.");
+          PUZZLES = [...HARDCODED_PUZZLES_FALLBACK];
+        }
+      } catch (err) {
+        console.error("Firestore puzzles loading error, falling back:", err);
+        PUZZLES = [...HARDCODED_PUZZLES_FALLBACK];
+      }
       
       // Load solved puzzles if user is authenticated
       window.auth.onAuthStateChanged((user) => {
@@ -686,7 +705,9 @@
         }
       });
       
-      loadPuzzle(0);
+      if (PUZZLES.length > 0) {
+        loadPuzzle(0);
+      }
     });
 
     // Render level buttons

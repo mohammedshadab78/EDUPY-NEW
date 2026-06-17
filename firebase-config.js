@@ -1732,6 +1732,98 @@ async function seedProjectData(force = false) {
       }
       console.log("Projects seeding complete!");
     }
+
+    // 3. Check Puzzles
+    const puzzlesSnap = force ? { empty: true } : await window.db.collection('puzzles').limit(1).get();
+    if (puzzlesSnap.empty) {
+      console.log("Seeding default code puzzles to Firestore...");
+      const defaultPuzzles = [
+        {
+          id: "puzzle1",
+          name: "Level 1: Variables & Print",
+          description: "Set the variable 'name' to 'Shadab', create a hello message using string concatenation, and print it.",
+          hint: "Define name first, concatenate it to build the greeting, then output greeting via print()!",
+          correct: [
+            { text: "name = \"Shadab\"", indent: 0 },
+            { text: "greeting = \"Hello, \" + name", indent: 0 },
+            { text: "print(greeting)", indent: 0 }
+          ]
+        },
+        {
+          id: "puzzle2",
+          name: "Level 2: Pass/Fail Condition",
+          description: "Check if the score is 50 or above. If yes, print 'Pass', otherwise print 'Fail'.",
+          hint: "Python scopes are controlled by colons (:) and indentation. Print blocks inside if and else must have 1 indent level (margin-left: 24px)!",
+          correct: [
+            { text: "score = 75", indent: 0 },
+            { text: "if score >= 50:", indent: 0 },
+            { text: "print(\"Pass\")", indent: 1 },
+            { text: "else:", indent: 0 },
+            { text: "print(\"Fail\")", indent: 1 }
+          ]
+        },
+        {
+          id: "puzzle3",
+          name: "Level 3: List Manipulation",
+          description: "Create a list of numbers, append 40 to it, and print the length of the list.",
+          hint: "Start with numbers list, call nums.append(40) to add, then store len(nums) and print it.",
+          correct: [
+            { text: "nums = [10, 20, 30]", indent: 0 },
+            { text: "nums.append(40)", indent: 0 },
+            { text: "length = len(nums)", indent: 0 },
+            { text: "print(length)", indent: 0 }
+          ]
+        },
+        {
+          id: "puzzle4",
+          name: "Level 4: Range Sum Loop",
+          description: "Create a variable 'total' set to 0. Write a loop to sum numbers from 1 up to 5.",
+          hint: "The range(1, 6) function returns numbers 1 to 5. Increment total inside the loop (indented by 1 level), then print total outside the loop.",
+          correct: [
+            { text: "total = 0", indent: 0 },
+            { text: "for i in range(1, 6):", indent: 0 },
+            { text: "total += i", indent: 1 },
+            { text: "print(total)", indent: 0 }
+          ]
+        },
+        {
+          id: "puzzle5",
+          name: "Level 5: Custom Function",
+          description: "Define a function square(x) that returns the square of x, and print square(4) output.",
+          hint: "Use def square(x): to start. The calculations and return statements must be indented inside the function. Finally print(square(4)) at indent level 0.",
+          correct: [
+            { text: "def square(x):", indent: 0 },
+            { text: "result = x * x", indent: 1 },
+            { text: "return result", indent: 1 },
+            { text: "print(square(4))", indent: 0 }
+          ]
+        },
+        {
+          id: "puzzle6",
+          name: "Level 6: Exception Handling",
+          description: "Handle zero division. Inside try block, divide 10 by 0. In except block, catch ZeroDivisionError and print 'Cannot divide by zero'.",
+          hint: "Both the division assignment and the error print statement must be indented under their respective try/except parent code blocks.",
+          correct: [
+            { text: "try:", indent: 0 },
+            { text: "result = 10 / 0", indent: 1 },
+            { text: "except ZeroDivisionError:", indent: 0 },
+            { text: "print(\"Cannot divide by zero\")", indent: 1 }
+          ]
+        }
+      ];
+
+      for (const puz of defaultPuzzles) {
+        await window.db.collection('puzzles').doc(puz.id).set({
+          id: puz.id,
+          name: puz.name,
+          description: puz.description,
+          hint: puz.hint,
+          correct: puz.correct,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      console.log("Puzzles seeding complete!");
+    }
   } catch (err) {
     console.error("Database seeding failed:", err);
   }

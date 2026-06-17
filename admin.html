@@ -625,6 +625,7 @@
       <button class="tab-btn active" onclick="switchTab('analytics')">📊 Analytics Overview</button>
       <button class="tab-btn" onclick="switchTab('questions')">📝 MCQ Manager</button>
       <button class="tab-btn" onclick="switchTab('projects')">🎬 Projects Manager</button>
+      <button class="tab-btn" onclick="switchTab('puzzles')">🧩 Puzzle Manager</button>
       <button class="tab-btn" onclick="switchTab('users')">👥 Users Manager</button>
     </div>
 
@@ -862,6 +863,64 @@
       </div>
     </div>
 
+    <!-- ── TAB CONTENT: CODE PUZZLES ── -->
+    <div id="tab-puzzles" class="tab-content">
+      <div class="admin-grid">
+        <!-- Add Puzzle Form -->
+        <section class="panel">
+          <h2 class="panel-title">🧩 Add Code Puzzle</h2>
+          
+          <form id="puzzleForm">
+            <div class="form-group">
+              <label class="form-label" for="puzId">Puzzle ID</label>
+              <input class="input-field" type="text" id="puzId" placeholder="e.g. puzzle7" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="puzName">Level / Name</label>
+              <input class="input-field" type="text" id="puzName" placeholder="e.g. Level 7: While Loops" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="puzDesc">Description</label>
+              <textarea class="textarea-field" id="puzDesc" placeholder="e.g. Write a loop that prints numbers..." style="height: 80px;" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="puzHint">Hint</label>
+              <input class="input-field" type="text" id="puzHint" placeholder="e.g. Remember to increment the counter!" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="puzCode">Puzzle Solution Code (indent with 4 spaces)</label>
+              <textarea class="textarea-field" id="puzCode" placeholder="total = 0&#10;for i in range(5):&#10;    total += i" style="height: 120px; font-family:'JetBrains Mono', monospace;" required></textarea>
+            </div>
+
+            <button class="btn-action gold" type="submit" id="puzSubBtn">
+              <span>🧩 Add New Puzzle</span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Puzzles list -->
+        <section class="panel">
+          <h2 class="panel-title">📂 Registered Puzzles</h2>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Level Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="puzzles-list-body">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+
   </div>
 
   <!-- ── MODAL: EDIT MCQ ── -->
@@ -951,6 +1010,46 @@
     </div>
   </div>
 
+  <!-- ── MODAL: EDIT PUZZLE ── -->
+  <div class="modal-overlay" id="edit-puz-modal">
+    <div class="modal-window">
+      <button class="modal-close-btn" onclick="closeModal('edit-puz-modal')">&times;</button>
+      <h3 class="panel-title">✏️ Edit Code Puzzle</h3>
+      
+      <form id="editPuzzleForm">
+        <input type="hidden" id="editPuzDocId">
+        <div class="form-group">
+          <label class="form-label" for="editPuzId">Puzzle ID</label>
+          <input class="input-field" type="text" id="editPuzId" required readonly style="opacity: 0.7; background: #e0e7ff;">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editPuzName">Level / Name</label>
+          <input class="input-field" type="text" id="editPuzName" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editPuzDesc">Description</label>
+          <textarea class="textarea-field" id="editPuzDesc" style="height: 80px;" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editPuzHint">Hint</label>
+          <input class="input-field" type="text" id="editPuzHint" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editPuzCode">Solution Code (indent with 4 spaces)</label>
+          <textarea class="textarea-field" id="editPuzCode" style="height: 140px; font-family:'JetBrains Mono', monospace;" required></textarea>
+        </div>
+
+        <button class="btn-action gold" type="submit" id="editPuzSubBtn">
+          <span>💾 Save Changes</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="footer">
     <span>Made with 💜 by Mohammed Shadab · EduPy Admin</span>
@@ -985,6 +1084,7 @@
     let allUsersCache = [];
     let questionsCache = [];
     let projectsCache = [];
+    let puzzlesCache = [];
 
     // Security check - verify if role is admin
     async function verifyAdminAccess() {
@@ -1037,6 +1137,7 @@
       if (tabName === 'analytics') loadAnalytics();
       else if (tabName === 'questions') loadQuestions();
       else if (tabName === 'projects') loadProjects();
+      else if (tabName === 'puzzles') loadPuzzles();
       else if (tabName === 'users') loadUsers();
     }
 
@@ -1153,13 +1254,14 @@
     }
 
     async function triggerManualSeed() {
-      if (confirm("This will write the default 72 MCQ Questions and 3 Visualizers into Firestore. Continue?")) {
+      if (confirm("This will write the default 72 MCQ Questions, 6 Code Puzzles, and 3 Visualizers into Firestore. Continue?")) {
         try {
           showAdminToast("⏳ Seeding database...");
           await window.seedProjectData(true); // force seed
           showAdminToast("✅ Database seeded successfully!");
           loadQuestions();
           if (typeof loadProjects === 'function') loadProjects();
+          if (typeof loadPuzzles === 'function') loadPuzzles();
           if (typeof loadAnalytics === 'function') loadAnalytics();
         } catch (err) {
           showAdminToast("❌ Seeding failed: " + err.message);
@@ -1452,6 +1554,176 @@
         await window.db.collection('projects').doc(id).delete();
         showAdminToast("✅ Visualizer removed!");
         loadProjects();
+      } catch(err) {
+        showAdminToast("❌ Deletion failed: " + err.message);
+      }
+    }
+
+    // ── TAB: CODE PUZZLES CRUD ──
+    async function loadPuzzles() {
+      await window.firebaseReady;
+      const tbody = document.getElementById('puzzles-list-body');
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">⏳ Loading puzzles...</td></tr>`;
+
+      try {
+        const snap = await window.db.collection('puzzles').orderBy('id').get();
+        puzzlesCache = [];
+        snap.forEach(doc => {
+          const p = doc.data();
+          p.docId = doc.id;
+          puzzlesCache.push(p);
+        });
+
+        tbody.innerHTML = '';
+        if (puzzlesCache.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No puzzles found in database. Click Trigger Manual Seed or add one above.</td></tr>`;
+          return;
+        }
+
+        puzzlesCache.forEach(p => {
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>${escapeHTML(p.name)}</strong><div style="font-size:0.72rem;color:var(--muted);">${escapeHTML(p.id)}</div></td>
+              <td><div style="max-height: 48px; overflow: hidden; text-overflow: ellipsis; font-size: 0.85rem;">${escapeHTML(p.description)}</div></td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn-table edit" onclick="openEditPuzModal('${p.docId}')">✏️ Edit</button>
+                  <button class="btn-table delete" onclick="deletePuzzle('${p.docId}')">🗑️ Delete</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        console.error("Error loading puzzles:", err);
+        tbody.innerHTML = `<tr><td colspan="3" style="color:var(--coral-dk);text-align:center;">Failed to load puzzles.</td></tr>`;
+      }
+    }
+
+    // Submit new Puzzle Form
+    const puzzleForm = document.getElementById('puzzleForm');
+    const puzSubBtn = document.getElementById('puzSubBtn');
+
+    if (puzzleForm) {
+      puzzleForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const id = document.getElementById('puzId').value.trim();
+        const name = document.getElementById('puzName').value.trim();
+        const description = document.getElementById('puzDesc').value.trim();
+        const hint = document.getElementById('puzHint').value.trim();
+        const codeValue = document.getElementById('puzCode').value;
+
+        // Parse indentation & text for correct array
+        const correct = codeValue.split('\n')
+          .map(line => {
+            const leadingSpaces = line.search(/\S/);
+            if (leadingSpaces === -1) return null; // empty line
+            const indent = Math.floor(leadingSpaces / 4);
+            const text = line.trim();
+            return { text, indent };
+          })
+          .filter(item => item !== null);
+
+        puzSubBtn.disabled = true;
+        const origText = puzSubBtn.innerHTML;
+        puzSubBtn.innerHTML = '⏳ Saving puzzle...';
+
+        try {
+          await window.db.collection('puzzles').add({
+            id,
+            name,
+            description,
+            hint,
+            correct,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          showAdminToast("✅ Code puzzle added successfully!");
+          puzzleForm.reset();
+          loadPuzzles();
+        } catch (error) {
+          console.error("Error saving puzzle:", error);
+          showAdminToast("❌ Failed to add puzzle: " + error.message);
+        } finally {
+          puzSubBtn.disabled = false;
+          puzSubBtn.innerHTML = origText;
+        }
+      });
+    }
+
+    // Edit Puzzle Modal actions
+    function openEditPuzModal(docId) {
+      const p = puzzlesCache.find(item => item.docId === docId);
+      if (!p) return;
+
+      document.getElementById('editPuzDocId').value = p.docId;
+      document.getElementById('editPuzId').value = p.id;
+      document.getElementById('editPuzName').value = p.name;
+      document.getElementById('editPuzDesc').value = p.description;
+      document.getElementById('editPuzHint').value = p.hint;
+
+      // Reconstruct code with 4 spaces indent
+      const codeString = (p.correct || []).map(line => {
+        const spaces = " ".repeat(line.indent * 4);
+        return `${spaces}${line.text}`;
+      }).join('\n');
+      document.getElementById('editPuzCode').value = codeString;
+
+      openModal('edit-puz-modal');
+    }
+
+    const editPuzzleForm = document.getElementById('editPuzzleForm');
+    if (editPuzzleForm) {
+      editPuzzleForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const docId = document.getElementById('editPuzDocId').value;
+        const id = document.getElementById('editPuzId').value.trim();
+        const name = document.getElementById('editPuzName').value.trim();
+        const description = document.getElementById('editPuzDesc').value.trim();
+        const hint = document.getElementById('editPuzHint').value.trim();
+        const codeValue = document.getElementById('editPuzCode').value;
+
+        // Parse indentation & text for correct array
+        const correct = codeValue.split('\n')
+          .map(line => {
+            const leadingSpaces = line.search(/\S/);
+            if (leadingSpaces === -1) return null; // empty line
+            const indent = Math.floor(leadingSpaces / 4);
+            const text = line.trim();
+            return { text, indent };
+          })
+          .filter(item => item !== null);
+
+        const btn = document.getElementById('editPuzSubBtn');
+        btn.disabled = true;
+
+        try {
+          await window.db.collection('puzzles').doc(docId).update({
+            id,
+            name,
+            description,
+            hint,
+            correct
+          });
+          showAdminToast("✅ Code puzzle updated!");
+          closeModal('edit-puz-modal');
+          loadPuzzles();
+        } catch (err) {
+          console.error("Error editing puzzle:", err);
+          showAdminToast("❌ Failed to update puzzle: " + err.message);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    }
+
+    async function deletePuzzle(docId) {
+      if (!confirm("Are you sure you want to delete this code puzzle?")) return;
+      try {
+        await window.db.collection('puzzles').doc(docId).delete();
+        showAdminToast("✅ Code puzzle removed!");
+        loadPuzzles();
       } catch(err) {
         showAdminToast("❌ Deletion failed: " + err.message);
       }
