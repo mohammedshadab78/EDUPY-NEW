@@ -1778,12 +1778,14 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Firebase SDK script is missing! Please include Firebase Compat CDN scripts before firebase-config.js.");
     return;
   }
+
+  // Instantly style the navbar and populate it with default guest links (0ms load time!)
+  injectNavStyles();
+  rebuildNavbarLinks(null);
+  setupResponsiveNav();
+  setupEasterEggLogoClicks();
+
+  // Fetch Firebase credentials and initialize Auth listener in the background
   initializeFirebaseApp();
-  
-  // Setup responsive nav and easter egg click listener after a small timeout
-  setTimeout(() => {
-    setupResponsiveNav();
-    setupEasterEggLogoClicks();
-  }, 120);
 });
 
