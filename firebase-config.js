@@ -32,7 +32,8 @@ const PUBLIC_PAGES = [
 // Determine if the current page is public
 function isCurrentPagePublic() {
   const path = window.location.pathname;
-  return PUBLIC_PAGES.some(p => path === p || path.endsWith(p));
+  const isCertificateView = (path.endsWith('/certificate.html') || path.endsWith('/certificate')) && new URLSearchParams(window.location.search).has('certId');
+  return isCertificateView || PUBLIC_PAGES.some(p => path === p || path.endsWith(p));
 }
 
 // 1. Fetch config and initialize Firebase

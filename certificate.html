@@ -114,6 +114,40 @@
     .btn-download:hover { background: rgba(108,99,255,.08); border-color: var(--purple); transform: translateY(-2px); }
     .btn-share { border: none; background: #25D366; color: #fff; box-shadow: 0 5px 0 #1a9e4d; }
     .btn-share:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #1a9e4d; }
+    .btn-linkedin { border: none; background: #0077b5; color: #fff; box-shadow: 0 5px 0 #005987; }
+    .btn-linkedin:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #005987; }
+    .btn-copy { border: none; background: #4a5568; color: #fff; box-shadow: 0 5px 0 #2d3748; }
+    .btn-copy:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #2d3748; }
+
+    /* ── VERIFICATION BANNER ── */
+    .verification-banner {
+      background: rgba(78, 205, 196, 0.1);
+      border: 2px solid var(--mint);
+      border-radius: 14px;
+      padding: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      color: var(--mint-dk);
+      animation: fadeIn 0.4s ease;
+    }
+    .verification-error {
+      background: rgba(255, 107, 107, 0.1);
+      border: 2px solid var(--coral);
+      border-radius: 14px;
+      padding: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      color: var(--coral-dk);
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     @media (max-width: 400px) {
       .action-row { flex-direction: column; }
       .btn-generate, .btn-download, .btn-share { width: 100%; min-width: unset; }
@@ -277,15 +311,18 @@
 
 <div class="container">
 
+  <!-- Verification Status Container (visible on public verification view) -->
+  <div id="verificationContainer"></div>
+
   <!-- Header -->
-  <div class="page-header">
-    <div class="header-chip">🏆 Certificate Generator</div>
-    <h1 class="page-title">Your EduPy Certificate</h1>
-    <p class="page-sub">Complete levels, earn badges, download your official Python certificate.</p>
+  <div class="page-header" id="pageHeader">
+    <div class="header-chip" id="headerChip">🏆 Certificate Generator</div>
+    <h1 class="page-title" id="pageTitle">Your EduPy Certificate</h1>
+    <p class="page-sub" id="pageSub">Complete levels, earn badges, download your official Python certificate.</p>
   </div>
 
   <!-- Setup Card -->
-  <div class="setup-card">
+  <div class="setup-card" id="setupCard">
     <div class="setup-title">🎓 Generate Your Certificate</div>
 
     <div class="input-wrap">
@@ -310,15 +347,17 @@
     </div>
 
     <div class="action-row">
-      <button class="btn-generate" onclick="generateCert()">✨ Generate</button>
+      <button class="btn-generate" id="btnGenerate" onclick="generateCert()">✨ Generate</button>
       <button class="btn-download" id="btnDownload" onclick="downloadPDF()" style="display:none">⬇️ Download PDF</button>
+      <button class="btn-linkedin" id="btnLinkedin" onclick="shareLinkedIn()" style="display:none">💼 LinkedIn</button>
       <button class="btn-share" id="btnShare" onclick="shareWhatsApp()" style="display:none">💬 WhatsApp</button>
+      <button class="btn-copy" id="btnCopy" onclick="copyLink()" style="display:none">🔗 Copy Link</button>
     </div>
   </div>
 
   <!-- Certificate Preview (scaled) -->
   <div class="cert-wrapper" id="certWrapper">
-    <div class="cert-section-label">👁️ Certificate Preview</div>
+    <div class="cert-section-label" id="certSectionLabel">👁️ Certificate Preview</div>
     <div class="cert-scaler-outer" id="certScalerOuter">
       <div class="cert-scaler-inner" id="certScalerInner">
 
@@ -374,6 +413,7 @@
               </div>
               <div class="cert-date-block">
                 <div class="cert-date" id="certDate">—</div>
+                <div class="cert-email" id="certEmail" style="font-size: 0.65rem; color: var(--muted); font-weight: 700; margin-top: 2px;">—</div>
                 <div class="cert-id" id="certId">—</div>
               </div>
             </div>
@@ -382,6 +422,10 @@
 
       </div><!-- /.cert-scaler-inner -->
     </div><!-- /.cert-scaler-outer -->
+    <!-- Verification Action Row (visible on public verification view) -->
+    <div class="action-row" id="verificationActions" style="display:none; margin-top: 1.5rem; justify-content: center; max-width: 320px; margin-left: auto; margin-right: auto;">
+      <button class="btn-download" id="btnVerifyDownload" onclick="downloadPDF()">⬇️ Download Verified PDF</button>
+    </div>
   </div><!-- /.cert-wrapper -->
 
 </div><!-- /.container -->
@@ -408,6 +452,8 @@ const LEVEL_META = [
   { id:"L5", badge:{ emoji:"🧩", name:"Code Alchemist Badge", stars:"⭐⭐⭐" } },
   { id:"L6", badge:{ emoji:"🐍", name:"Python Master Badge",  stars:"⭐⭐⭐⭐⭐" } },
 ];
+
+let currentCertId = null;
 
 // ═══════════════════════════════════════════
 //  LOAD PROGRESS
@@ -441,6 +487,7 @@ renderBadgeChips();
 if (window.firebaseReady) {
   window.firebaseReady.then(() => {
     window.auth.onAuthStateChanged(async (user) => {
+      if (new URLSearchParams(window.location.search).has('certId')) return;
       if (user) {
         try {
           const doc = await window.db.collection('users').doc(user.uid).get();
@@ -499,13 +546,17 @@ if (window.firebaseReady) {
 function scaleCert() {
   const outer = document.getElementById('certScalerOuter');
   const inner = document.getElementById('certScalerInner');
+  if (!outer || !inner) return;
   const availW = outer.parentElement.clientWidth - 2; // 2px breathing room
   const certW  = 900;
   const scale  = Math.min(1, availW / certW);
   inner.style.transform = `scale(${scale})`;
   // Set outer height to match scaled certificate height
-  const certH = document.getElementById('certificate').offsetHeight;
-  outer.style.height = (certH * scale) + 'px';
+  const certEl = document.getElementById('certificate');
+  if (certEl) {
+    const certH = certEl.offsetHeight;
+    outer.style.height = (certH * scale) + 'px';
+  }
 }
 
 window.addEventListener('resize', scaleCert);
@@ -513,7 +564,7 @@ window.addEventListener('resize', scaleCert);
 // ═══════════════════════════════════════════
 //  GENERATE
 // ═══════════════════════════════════════════
-function generateCert() {
+async function generateCert() {
   const nameInput = document.getElementById('studentName').value.trim();
   if (!nameInput) {
     const inp = document.getElementById('studentName');
@@ -523,20 +574,48 @@ function generateCert() {
     return;
   }
 
-  document.getElementById('certName').textContent = nameInput;
+  // Enforce score threshold check (>= 70%)
+  const scores = Object.values(bestScores);
+  const bestScorePct = scores.length ? Math.max(...scores.map(s => Math.round((s/10)*100))) : 0;
+  
+  if (bestScorePct < 70) {
+    const warningBox = document.getElementById('warningBox');
+    const warningText = warningBox.querySelector('.warning-text');
+    warningText.innerHTML = `
+      <strong>Certificate Generation Locked!</strong><br>
+      You must score at least <strong>70% (7/10)</strong> on at least one assessment to generate a certificate.
+      Your current best score is <strong>${bestScorePct}%</strong>.<br>
+      <a href="assessments.html" class="warning-link">Go complete assessments first →</a>
+    `;
+    warningBox.classList.add('show');
+    warningBox.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+
+  if (!window.auth || !window.auth.currentUser) {
+    alert("You must be logged in to generate and save your certificate.");
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const btnGen = document.getElementById('btnGenerate');
+  const origText = btnGen.innerHTML;
+  btnGen.innerHTML = '⏳ Saving to Firestore...';
+  btnGen.disabled = true;
 
   const now = new Date();
-  document.getElementById('certDate').textContent = 'Issued: ' + now.toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
-
   const certId = 'EDUPY-' + Math.random().toString(36).substr(2,8).toUpperCase();
-  document.getElementById('certId').textContent = 'Cert ID: ' + certId;
+  currentCertId = certId;
 
+  // Set local UI elements
+  document.getElementById('certName').textContent = nameInput;
+  document.getElementById('certEmail').textContent = window.auth.currentUser.email;
+  document.getElementById('certEmail').style.display = 'block';
+  document.getElementById('certDate').textContent = 'Issued: ' + now.toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+  document.getElementById('certId').textContent = 'Cert ID: ' + certId;
   document.getElementById('certBadgeCount').textContent = earnedCount;
   document.getElementById('certQCount').textContent = earnedCount * 10;
-
-  const scores = Object.values(bestScores);
-  document.getElementById('certScore').textContent = scores.length
-    ? Math.max(...scores.map(s => Math.round((s/10)*100))) + '%' : '—';
+  document.getElementById('certScore').textContent = bestScorePct + '%';
 
   const descMap = {
     0: `for their effort in exploring EduPy and beginning their Python journey.`,
@@ -547,8 +626,8 @@ function generateCert() {
     5: `for earning 5 out of 6 badges, demonstrating comprehensive Python knowledge and dedication.`,
     6: `for earning ALL 6 badges in EduPy — an outstanding achievement and a true Python champion! 🏆`,
   };
-  document.getElementById('certDesc').textContent =
-    `This certificate is awarded to ${nameInput} ` + (descMap[earnedCount] || descMap[0]);
+  const certDescText = `This certificate is awarded to ${nameInput} ` + (descMap[earnedCount] || descMap[0]);
+  document.getElementById('certDesc').textContent = certDescText;
 
   const grid = document.getElementById('certBadgesGrid');
   grid.innerHTML = earnedCount === 0
@@ -560,27 +639,72 @@ function generateCert() {
           <div class="cert-badge-stars">${lv.badge.stars}</div>
         </div>`).join('');
 
-  const wrapper = document.getElementById('certWrapper');
-  wrapper.classList.add('visible');
+  // Prepare metadata to save to Firestore
+  const badgesToSave = earnedList.map(lv => ({
+    emoji: lv.badge.emoji,
+    name: lv.badge.name,
+    stars: lv.badge.stars
+  }));
 
-  // Wait for DOM paint then scale
-  requestAnimationFrame(() => {
-    scaleCert();
-    wrapper.scrollIntoView({ behavior:'smooth', block:'start' });
-  });
+  try {
+    await window.db.collection('certificates').doc(certId).set({
+      certId: certId,
+      uid: window.auth.currentUser.uid,
+      email: window.auth.currentUser.email,
+      studentName: nameInput,
+      earnedCount: earnedCount,
+      bestScore: bestScorePct,
+      desc: certDescText,
+      badges: badgesToSave,
+      date: 'Issued: ' + now.toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
 
-  document.getElementById('btnDownload').style.display = 'inline-flex';
-  document.getElementById('btnShare').style.display = 'inline-flex';
+    // Update browser URL query string without reloading page
+    window.history.pushState(null, '', '?certId=' + certId);
+    
+    // Display preview
+    const wrapper = document.getElementById('certWrapper');
+    wrapper.classList.add('visible');
+
+    // Wait for DOM paint then scale
+    requestAnimationFrame(() => {
+      scaleCert();
+      wrapper.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+
+    // Show generator share controls
+    document.getElementById('btnDownload').style.display = 'inline-flex';
+    document.getElementById('btnLinkedin').style.display = 'inline-flex';
+    document.getElementById('btnShare').style.display = 'inline-flex';
+    document.getElementById('btnCopy').style.display = 'inline-flex';
+
+    if (typeof showFirebaseToast === 'function') {
+      showFirebaseToast("✨ Certificate generated and verified successfully!");
+    }
+
+  } catch (err) {
+    console.error("Error saving certificate to Firestore:", err);
+    alert("Failed to save verified certificate. Please check your internet connection.");
+  } finally {
+    btnGen.innerHTML = origText;
+    btnGen.disabled = false;
+  }
 }
 
 // ═══════════════════════════════════════════
 //  DOWNLOAD PDF
 // ═══════════════════════════════════════════
 async function downloadPDF() {
-  const btn = document.getElementById('btnDownload');
-  const orig = btn.innerHTML;
-  btn.innerHTML = '⏳ Please wait…';
-  btn.disabled = true;
+  const btn = document.getElementById('btnVerifyDownload') && document.getElementById('btnVerifyDownload').offsetWidth > 0
+    ? document.getElementById('btnVerifyDownload')
+    : document.getElementById('btnDownload');
+  
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = '⏳ Please wait…';
+    btn.disabled = true;
+  }
 
   try {
     // Temporarily reset scale so html2canvas captures full 900px
@@ -610,33 +734,208 @@ async function downloadPDF() {
     const finalH = canvas.height * ratio;
     pdf.addImage(imgData, 'PNG', (pdfW-finalW)/2, (pdfH-finalH)/2, finalW, finalH);
 
-    const name = document.getElementById('studentName').value.trim().replace(/\s+/g,'_') || 'EduPy';
+    const nameInputEl = document.getElementById('studentName');
+    const studentName = (nameInputEl && nameInputEl.value.trim() ? nameInputEl.value.trim() : document.getElementById('certName').textContent.trim());
+    const name = studentName.replace(/\s+/g,'_') || 'EduPy';
     pdf.save(`${name}_EduPy_Certificate.pdf`);
   } catch(e) {
     alert('Could not generate PDF. Please try again.');
     console.error(e);
   }
 
-  btn.innerHTML = orig;
-  btn.disabled = false;
+  if (btn) {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+  }
 }
 
 // ═══════════════════════════════════════════
 //  SHARE ON WHATSAPP
 // ═══════════════════════════════════════════
 function shareWhatsApp() {
-  const name = document.getElementById('studentName').value.trim() || 'I';
   const badgeNames = earnedList.map(lv => lv.badge.emoji + ' ' + lv.badge.name).join('\n');
+  const verificationUrl = currentCertId ? (window.location.origin + window.location.pathname + '?certId=' + currentCertId) : '';
   let msg;
   if (earnedCount === 0) {
     msg = `🐍 I just started learning Python on *EduPy* — a free browser-based platform!\nNo installation needed. Try it! 🚀`;
   } else if (earnedCount === 6) {
-    msg = `🏆 I completed ALL 6 levels on *EduPy* and earned every badge!\n\n🎖️ My badges:\n${badgeNames}\n\n🐍 I am now a *Python Champion*! Try EduPy — free & works in your browser. 🚀`;
+    msg = `🏆 I completed ALL 6 levels on *EduPy* and earned every badge!\n\n🎖️ My badges:\n${badgeNames}\n\n🐍 I am now a *Python Champion*! ${verificationUrl ? 'Verify my certificate here: ' + verificationUrl : 'Try EduPy — free & works in your browser. 🚀'}`;
   } else {
-    msg = `🎓 I earned ${earnedCount} badge${earnedCount > 1 ? 's' : ''} on *EduPy* — a free Python learning platform!\n\n🎖️ My badges:\n${badgeNames}\n\n🐍 Try it yourself — no installation needed! 🚀`;
+    msg = `🎓 I earned ${earnedCount} badge${earnedCount > 1 ? 's' : ''} on *EduPy* — a free Python learning platform!\n\n🎖️ My badges:\n${badgeNames}\n\n🐍 Try it yourself! ${verificationUrl ? 'Verify my certificate here: ' + verificationUrl : '🚀'}`;
   }
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
+
+// ═══════════════════════════════════════════
+//  SHARE ON LINKEDIN
+// ═══════════════════════════════════════════
+function shareLinkedIn() {
+  if (!currentCertId) return;
+  const verificationUrl = window.location.origin + window.location.pathname + '?certId=' + currentCertId;
+  const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verificationUrl)}`;
+  window.open(shareUrl, '_blank');
+}
+
+// ═══════════════════════════════════════════
+//  COPY VERIFICATION LINK
+// ═══════════════════════════════════════════
+function copyLink() {
+  if (!currentCertId) return;
+  const verificationUrl = window.location.origin + window.location.pathname + '?certId=' + currentCertId;
+  navigator.clipboard.writeText(verificationUrl).then(() => {
+    if (typeof showFirebaseToast === 'function') {
+      showFirebaseToast("🔗 Verification link copied to clipboard!");
+    } else {
+      alert("Verification link copied: " + verificationUrl);
+    }
+  }).catch(err => {
+    console.error("Failed to copy link:", err);
+    alert("Verification URL: " + verificationUrl);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  PUBLIC VERIFICATION VIEW LOGIC
+// ═══════════════════════════════════════════
+async function checkVerificationMode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlCertId = urlParams.get('certId');
+  if (urlCertId) {
+    currentCertId = urlCertId;
+    
+    // Hide generator UI elements
+    const setupCard = document.getElementById('setupCard');
+    if (setupCard) setupCard.style.display = 'none';
+    
+    // Update headers to verification mode
+    const headerChip = document.getElementById('headerChip');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSub = document.getElementById('pageSub');
+    if (headerChip) headerChip.textContent = '🛡️ Certificate Verification';
+    if (pageTitle) pageTitle.textContent = 'Verified Achievement';
+    if (pageSub) pageSub.textContent = 'EduPy verified certificate details and credentials.';
+
+    // Show loading indicator
+    const container = document.getElementById('verificationContainer');
+    if (container) {
+      container.innerHTML = `
+        <div class="verification-banner" id="loadingBanner" style="background: rgba(108,99,255,0.05); border: 2px dashed var(--purple); color: var(--purple); justify-content: center;">
+          <span style="font-size:1.5rem; animation: spin 1.5s linear infinite; display: inline-block; margin-right: 8px;">⏳</span>
+          <div>
+            <strong>Verifying Certificate Credentials...</strong>
+            <span style="font-size:0.85rem; display:block; opacity:0.8;">Checking database for Cert ID: ${urlCertId}</span>
+          </div>
+        </div>
+        <style>
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        </style>
+      `;
+    }
+
+    try {
+      if (window.firebaseReady) {
+        await window.firebaseReady;
+      }
+
+      const doc = await window.db.collection('certificates').doc(urlCertId).get();
+      
+      if (doc.exists) {
+        const data = doc.data();
+        
+        // Show success verification banner
+        if (container) {
+          container.innerHTML = `
+            <div class="verification-banner">
+              <span style="font-size:2.3rem; margin-right: 8px;">🛡️</span>
+              <div>
+                <strong style="font-size:1.15rem; display:block; margin-bottom: 2px;">Officially Verified Achievement</strong>
+                <span style="font-size:0.88rem;">This certificate is a verified record of Python Programming proficiency issued by EduPy to <strong>${data.studentName}</strong> (${data.email || 'No email registered'}).</span>
+              </div>
+            </div>
+          `;
+        }
+
+        // Fill preview elements
+        document.getElementById('certName').textContent = data.studentName;
+        document.getElementById('certEmail').textContent = data.email || '';
+        document.getElementById('certEmail').style.display = data.email ? 'block' : 'none';
+        
+        let dateStr = data.date || '';
+        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+          dateStr = 'Issued: ' + data.createdAt.toDate().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+        }
+        document.getElementById('certDate').textContent = dateStr;
+        document.getElementById('certId').textContent = 'Cert ID: ' + data.certId;
+        document.getElementById('certBadgeCount').textContent = data.earnedCount || 0;
+        document.getElementById('certQCount').textContent = (data.earnedCount || 0) * 10;
+        document.getElementById('certScore').textContent = data.bestScore ? (data.bestScore + '%') : '—';
+        document.getElementById('certDesc').textContent = data.desc || '';
+
+        // Badges grid
+        const grid = document.getElementById('certBadgesGrid');
+        if (Array.isArray(data.badges) && data.badges.length > 0) {
+          grid.innerHTML = data.badges.map(b => `
+            <div class="cert-badge-item">
+              <div class="cert-badge-emoji">${b.emoji}</div>
+              <div class="cert-badge-name">${b.name}</div>
+              <div class="cert-badge-stars">${b.stars}</div>
+            </div>
+          `).join('');
+        } else {
+          grid.innerHTML = `<div style="font-size:.78rem;color:var(--muted);font-style:italic;padding:10px 0;">No badges recorded</div>`;
+        }
+
+        // Show certificate preview wrapper
+        const wrapper = document.getElementById('certWrapper');
+        if (wrapper) wrapper.classList.add('visible');
+        
+        const sectionLabel = document.getElementById('certSectionLabel');
+        if (sectionLabel) sectionLabel.textContent = '👁️ Verified Certificate Record';
+
+        // Show action buttons for verification view
+        const verifyActions = document.getElementById('verificationActions');
+        if (verifyActions) verifyActions.style.display = 'flex';
+
+        // Scale certificate
+        requestAnimationFrame(() => {
+          scaleCert();
+        });
+
+      } else {
+        // Document doesn't exist
+        if (container) {
+          container.innerHTML = `
+            <div class="verification-error">
+              <span style="font-size:2.3rem; margin-right: 8px;">❌</span>
+              <div>
+                <strong style="font-size:1.15rem; display:block; margin-bottom: 2px;">Verification Failed</strong>
+                <span style="font-size:0.88rem;">The certificate ID <strong>${urlCertId}</strong> could not be found. Please check the URL for typos or contact the recipient.</span>
+              </div>
+            </div>
+          `;
+        }
+      }
+    } catch (e) {
+      console.error("Database query failed during public verification:", e);
+      if (container) {
+        container.innerHTML = `
+          <div class="verification-error">
+            <span style="font-size:2.3rem; margin-right: 8px;">⚠️</span>
+            <div>
+              <strong style="font-size:1.15rem; display:block; margin-bottom: 2px;">Verification Error</strong>
+              <span style="font-size:0.88rem;">An error occurred while contacting the database. Please try reloading the page.</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+  }
+}
+
+// Register DOMContentLoaded handler to boot verification mode check
+document.addEventListener('DOMContentLoaded', () => {
+  checkVerificationMode();
+});
 </script>
 </body>
 </html>
