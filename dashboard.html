@@ -479,6 +479,193 @@
         grid-template-columns: 1fr !important;
       }
     }
+
+    /* ── ROADMAP SKILL TREE ── */
+    .roadmap-panel {
+      padding: 1.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+    .roadmap-svg-container {
+      width: 100%;
+      overflow-x: auto;
+      background: #0c1628; /* Dark space theme */
+      border-radius: var(--r-lg);
+      padding: 20px 10px;
+      border: 1px solid var(--border);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .roadmap-svg-container svg {
+      display: block;
+      min-width: 760px; /* Scrolls horizontally on mobile */
+      margin: 0 auto;
+    }
+    
+    .node-bg {
+      fill: #151b2d;
+      stroke: #2a3f62;
+      stroke-width: 4;
+      transition: all 0.3s var(--ease);
+      cursor: pointer;
+    }
+    .node-inner {
+      fill: #0c1628;
+      transition: all 0.3s var(--ease);
+      cursor: pointer;
+    }
+    .node-emoji {
+      font-size: 20px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      cursor: pointer;
+      user-select: none;
+    }
+    .node-lock {
+      fill: #ff6b6b;
+      stroke: none;
+      pointer-events: none;
+    }
+    
+    .roadmap-node.passed .node-bg {
+      stroke: var(--gold);
+      filter: drop-shadow(0 0 8px var(--gold));
+    }
+    .roadmap-node.passed .node-inner {
+      fill: rgba(245, 166, 35, 0.1);
+    }
+    
+    .roadmap-node.active .node-bg {
+      stroke: var(--mint);
+      filter: drop-shadow(0 0 12px var(--mint));
+      animation: nodePulse 2s infinite alternate var(--ease);
+    }
+    .roadmap-node.active .node-inner {
+      fill: rgba(78, 205, 196, 0.15);
+    }
+    
+    .roadmap-node.locked {
+      opacity: 0.65;
+    }
+    .roadmap-node.locked .node-bg {
+      stroke: #2a3f62;
+    }
+    
+    .roadmap-node:hover .node-bg {
+      transform: scale(1.1);
+      stroke-width: 5;
+    }
+    
+    @keyframes nodePulse {
+      0% {
+        filter: drop-shadow(0 0 6px var(--mint));
+      }
+      100% {
+        filter: drop-shadow(0 0 16px var(--mint));
+      }
+    }
+    
+    .roadmap-path-bg {
+      stroke: #1a2744;
+      stroke-width: 8;
+      stroke-linecap: round;
+      fill: none;
+    }
+    .roadmap-path-passed {
+      stroke: var(--gold);
+      stroke-width: 6;
+      stroke-linecap: round;
+      fill: none;
+      filter: drop-shadow(0 0 4px var(--gold));
+    }
+    .roadmap-path-active {
+      stroke: var(--mint);
+      stroke-width: 6;
+      stroke-linecap: round;
+      fill: none;
+      stroke-dasharray: 10 5;
+      animation: dashMove 1.2s infinite linear;
+      filter: drop-shadow(0 0 5px var(--mint));
+    }
+    
+    @keyframes dashMove {
+      to {
+        stroke-dashoffset: -15;
+      }
+    }
+    
+    .roadmap-preview-card {
+      position: absolute;
+      background: #0c1628;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 14px;
+      width: 260px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      display: none;
+      z-index: 1000;
+      color: var(--text);
+      animation: popIn 0.25s var(--ease);
+    }
+    .roadmap-preview-card h3 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--purple-lt);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .roadmap-preview-card p {
+      font-size: 11.5px;
+      color: #8da4c0;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .roadmap-preview-card .preview-btn {
+      width: 100%;
+      background: var(--purple);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      display: block;
+      text-decoration: none;
+    }
+    .roadmap-preview-card .preview-btn:hover {
+      background: var(--purple-dk);
+    }
+    .roadmap-preview-card .preview-status {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .roadmap-preview-card .preview-status.locked {
+      background: rgba(255, 107, 107, 0.15);
+      color: var(--coral);
+    }
+    .roadmap-preview-card .preview-status.active {
+      background: rgba(78, 205, 196, 0.15);
+      color: var(--mint);
+    }
+    .roadmap-preview-card .preview-status.passed {
+      background: rgba(245, 166, 35, 0.15);
+      color: var(--gold);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -538,6 +725,25 @@
         <div class="stat-details">
           <span class="stat-val" id="levelVal">Level 1</span>
           <span class="stat-lbl">Active Level</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROADMAP SKILL TREE PANEL -->
+    <div class="panel roadmap-panel">
+      <h2 class="section-title">🗺️ Python Learning Roadmap & Skill Tree</h2>
+      <p style="font-size: 0.82rem; color: var(--muted); margin: -0.4rem 0 1.2rem 1.4rem;">
+        Complete levels to light up the path! Click any node to see details and start practicing.
+      </p>
+      <div class="roadmap-svg-container" id="roadmapContainer">
+        <!-- SVG injected dynamically -->
+        
+        <!-- Preview floating card -->
+        <div class="roadmap-preview-card" id="roadmapPreviewCard">
+          <h3>Level Name</h3>
+          <span class="preview-status active">Active</span>
+          <p class="preview-desc">Level details...</p>
+          <a href="#" class="preview-btn">Start Practice</a>
         </div>
       </div>
     </div>
@@ -819,10 +1025,11 @@
           const data = doc.data();
           window.activeUserData = data; // Save for redraws
           
-          // Render charts & heatmap
+          // Render charts, heatmap & roadmap
           setTimeout(() => {
             initOrUpdateCharts(data);
             renderStudyHeatmap(data);
+            renderRoadmap(data);
           }, 50);
           
           // 1. Update basic header greeting
@@ -890,6 +1097,169 @@
         });
       });
     }
+
+    // ── ROADMAP RENDERING & PREVIEW ──
+    function renderRoadmap(data) {
+      const container = document.getElementById("roadmapContainer");
+      if (!container) return;
+      
+      const previewCard = document.getElementById("roadmapPreviewCard");
+      const activeLevel = data.level || 1;
+      const badgesEarned = data.badges || [];
+      
+      // Node coordinates in wavy path
+      const nodes = [
+        { x: 80, y: 100, index: 0, levelNum: 1 },
+        { x: 200, y: 60, index: 1, levelNum: 2 },
+        { x: 320, y: 140, index: 2, levelNum: 3 },
+        { x: 440, y: 60, index: 3, levelNum: 4 },
+        { x: 560, y: 140, index: 4, levelNum: 5 },
+        { x: 680, y: 100, index: 5, levelNum: 6 }
+      ];
+      
+      // Build lines between nodes
+      let pathsHtml = "";
+      for (let i = 0; i < nodes.length - 1; i++) {
+        const start = nodes[i];
+        const end = nodes[i+1];
+        
+        const isStartUnlocked = start.levelNum <= activeLevel;
+        const isEndUnlocked = end.levelNum <= activeLevel;
+        const isStartPassed = badgesEarned.includes(ALL_BADGES[start.index].name);
+        
+        let pathClass = "roadmap-path-bg";
+        
+        if (isStartPassed) {
+          pathClass = "roadmap-path-passed";
+        } else if (isStartUnlocked && isEndUnlocked) {
+          pathClass = "roadmap-path-active";
+        }
+        
+        const cp1x = start.x + (end.x - start.x) / 2;
+        const cp1y = start.y;
+        const cp2x = start.x + (end.x - start.x) / 2;
+        const cp2y = end.y;
+        
+        pathsHtml += `<path d="M \${start.x} \${start.y} C \${cp1x} \${cp1y}, \${cp2x} \${cp2y}, \${end.x} \${end.y}" class="\${pathClass}" />`;
+      }
+      
+      // Build nodes Html
+      let nodesHtml = "";
+      nodes.forEach((node, i) => {
+        const badgeAssoc = ALL_BADGES[i].name;
+        const isPassed = badgesEarned.includes(badgeAssoc);
+        const isCurrent = node.levelNum === activeLevel;
+        const isLocked = node.levelNum > activeLevel;
+        
+        let statusClass = "locked";
+        if (isPassed) statusClass = "passed";
+        else if (isCurrent) statusClass = "active";
+        
+        let emoji = ALL_BADGES[i].emoji;
+        let lockOverlay = "";
+        
+        if (isLocked) {
+          lockOverlay = `<circle cx="16" cy="-16" r="10" class="node-lock" /><text x="16" y="-12" font-size="10" text-anchor="middle" dominant-baseline="middle" style="fill:white;font-weight:900;">🔒</text>`;
+        } else if (isPassed) {
+          lockOverlay = `<circle cx="16" cy="-16" r="10" style="fill:var(--gold)" /><text x="16" y="-12" font-size="10" text-anchor="middle" dominant-baseline="middle" style="fill:white;font-weight:900;">✓</text>`;
+        }
+        
+        nodesHtml += `
+          <g class="roadmap-node \${statusClass}" transform="translate(\${node.x}, \${node.y})" onclick="showRoadmapPreview(\${i}, event)">
+            <circle r="28" class="node-bg" />
+            <circle r="24" class="node-inner" />
+            <text y="6" class="node-emoji">\${emoji}</text>
+            \${lockOverlay}
+          </g>
+        `;
+      });
+      
+      const svgHtml = `
+        <svg viewBox="0 0 760 200" width="100%" height="200" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main Path Background -->
+          <path d="M 80 100 C 140 100, 140 60, 200 60 C 260 60, 260 140, 320 140 C 380 140, 380 60, 440 60 C 500 60, 500 140, 560 140 C 620 140, 620 100, 680 100" class="roadmap-path-bg" style="stroke-dasharray: 10 5;" />
+          
+          <!-- Colored Path overlays -->
+          \${pathsHtml}
+          
+          <!-- Nodes -->
+          \${nodesHtml}
+        </svg>
+      `;
+      
+      container.innerHTML = svgHtml;
+      container.appendChild(previewCard);
+    }
+
+    window.showRoadmapPreview = function(index, event) {
+      event.stopPropagation();
+      const card = document.getElementById("roadmapPreviewCard");
+      if (!card) return;
+      
+      const lvl = DASHBOARD_LEVELS[index];
+      const badgeAssoc = ALL_BADGES[index].name;
+      const scores = (window.activeUserData && window.activeUserData.scores) || {};
+      const badgesEarned = (window.activeUserData && window.activeUserData.badges) || [];
+      const activeLevel = (window.activeUserData && window.activeUserData.level) || 1;
+      
+      const scoreKey = `level\${index + 1}`;
+      const percentage = scores[scoreKey] !== undefined ? scores[scoreKey] : null;
+      const isPassed = badgesEarned.includes(badgeAssoc);
+      const isCurrent = (index + 1) === activeLevel;
+      const isLocked = (index + 1) > activeLevel;
+      
+      let statusText = "Locked 🔒";
+      let statusClass = "locked";
+      if (isPassed) {
+        statusText = `Passed ✓ (\${percentage}%)`;
+        statusClass = "passed";
+      } else if (isCurrent) {
+        statusText = "Active Level 🚀";
+        statusClass = "active";
+      } else if (percentage !== null) {
+        statusText = `Attempted (\${percentage}%)`;
+        statusClass = "active";
+      }
+      
+      card.querySelector("h3").textContent = lvl.name;
+      card.querySelector(".preview-desc").textContent = lvl.sub;
+      const statusBadge = card.querySelector(".preview-status");
+      statusBadge.className = `preview-status \${statusClass}`;
+      statusBadge.textContent = statusText;
+      
+      const actionBtn = card.querySelector(".preview-btn");
+      if (isLocked) {
+        actionBtn.style.display = "none";
+      } else {
+        actionBtn.style.display = "block";
+        actionBtn.href = `assessments.html?level=\${index + 1}`;
+        actionBtn.textContent = isPassed ? "Practice Again" : "Take Assessment";
+      }
+      
+      // Calculate layout coordinates
+      const rect = event.currentTarget.getBoundingClientRect();
+      const containerRect = document.getElementById("roadmapContainer").getBoundingClientRect();
+      
+      // Align card relative to roadmap viewport
+      let leftVal = rect.left - containerRect.left + rect.width / 2 - 130;
+      let topVal = rect.top - containerRect.top - 150;
+      
+      // Boundary checks
+      if (leftVal < 10) leftVal = 10;
+      if (leftVal + 260 > containerRect.width) leftVal = containerRect.width - 270;
+      
+      card.style.left = leftVal + "px";
+      card.style.top = topVal + "px";
+      card.style.display = "block";
+    };
+
+    // Close preview card on outside clicks
+    document.addEventListener("click", (e) => {
+      const card = document.getElementById("roadmapPreviewCard");
+      if (card && !e.target.closest(".roadmap-node") && !e.target.closest(".roadmap-preview-card")) {
+        card.style.display = "none";
+      }
+    });
 
     // Initialize fetching data
     document.addEventListener("DOMContentLoaded", () => {
