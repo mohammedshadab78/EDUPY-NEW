@@ -487,43 +487,103 @@
       .hero h1 { font-size: 1.7rem; }
     }
     /* ══════════ STUDY MATERIALS ══════════ */
-    .materials-card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid rgba(108, 99, 255, 0.12);
-      box-shadow: 0 8px 30px rgba(108, 99, 255, 0.04);
-      display: none;
-      animation: fadeIn 0.4s ease;
-    }
-    .materials-card.show {
-      display: block;
-    }
-    .materials-header {
+    .materials-toggle-btn {
+      width: 100%;
+      background: var(--paper, white);
+      border: 1.5px solid rgba(124, 92, 191, 0.12);
+      border-radius: 18px;
+      padding: 1rem 1.4rem;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.2rem;
-      border-bottom: 2px solid rgba(108, 99, 255, 0.06);
-      padding-bottom: 0.6rem;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: var(--shadow-note, 0 8px 24px rgba(80, 60, 140, 0.04));
+      outline: none;
+      user-select: none;
+      margin-bottom: 0.5rem;
     }
-    .materials-title {
-      font-size: 1.4rem;
+    .materials-toggle-btn:hover {
+      border-color: var(--purple-acc);
+      background: rgba(124, 92, 191, 0.04);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(124, 92, 191, 0.1);
+    }
+    .materials-toggle-btn:active {
+      transform: translateY(1px);
+    }
+    .materials-toggle-btn .btn-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .materials-toggle-btn .btn-emoji {
+      font-size: 1.3rem;
+    }
+    .materials-toggle-btn .btn-title {
+      font-family: var(--font-hand);
+      font-size: 1.15rem;
       font-weight: 800;
       color: var(--ink);
-      font-family: var(--font-hand);
+    }
+    .materials-toggle-btn .btn-right {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.8rem;
+    }
+    .materials-toggle-btn .toggle-arrow {
+      font-size: 0.8rem;
+      color: var(--muted);
+      transition: transform 0.3s ease;
+      font-weight: 900;
+    }
+    .materials-toggle-btn.expanded .toggle-arrow {
+      transform: rotate(180deg);
+      color: var(--purple-acc);
     }
     .materials-badge {
-      background: rgba(108, 99, 255, 0.12);
+      background: rgba(124, 92, 191, 0.12);
       color: var(--purple-acc);
       padding: 0.2rem 0.6rem;
       border-radius: 12px;
       font-size: 0.78rem;
       font-weight: 700;
+    }
+    .materials-card {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease, margin 0.3s ease, border-color 0.3s ease;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 0 1.5rem;
+      margin-bottom: 0;
+      border: 1px solid transparent;
+      box-shadow: 0 8px 30px rgba(108, 99, 255, 0.04);
+    }
+    .materials-card.expanded {
+      max-height: 2500px; /* high enough to cover list */
+      padding: 1.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-color: rgba(124, 92, 191, 0.15);
+    }
+    @media (max-width: 520px) {
+      .materials-toggle-btn {
+        padding: 0.8rem 1.1rem;
+        border-radius: 16px;
+      }
+      .materials-toggle-btn .btn-title {
+        font-size: 1rem;
+      }
+      .materials-toggle-btn .btn-emoji {
+        font-size: 1.1rem;
+      }
+      .materials-toggle-btn .btn-right {
+        gap: 0.5rem;
+      }
+      .materials-card {
+        border-radius: 16px;
+      }
     }
     .materials-grid {
       display: grid;
@@ -706,11 +766,17 @@
   <!-- NOTES FEED -->
   <div class="notes-feed" id="notesFeed">
     <!-- Study Materials Sub-Section -->
-    <div class="materials-card" id="materialsCard">
-      <div class="materials-header">
-        <div class="materials-title">📚 Study Materials & PDFs</div>
+    <button class="materials-toggle-btn" id="materialsToggleBtn" style="display: none;">
+      <span class="btn-left">
+        <span class="btn-emoji">📚</span>
+        <span class="btn-title">Study Materials & PDFs</span>
+      </span>
+      <span class="btn-right">
         <span class="materials-badge" id="materialsBadgeCount">0 Files</span>
-      </div>
+        <span class="toggle-arrow">▼</span>
+      </span>
+    </button>
+    <div class="materials-card" id="materialsCard">
       <div class="materials-grid" id="materialsGrid">
         <!-- Loaded dynamically -->
       </div>
@@ -1630,12 +1696,16 @@ function render(filter = "") {
   const feed = document.getElementById("notesFeed");
   const toc  = document.getElementById("tocList");
   
-  // Preserve Study Materials card if it exists in the feed
+  // Preserve Study Materials elements if they exist in the feed
+  const materialsToggleBtn = document.getElementById("materialsToggleBtn");
   const materialsCard = document.getElementById("materialsCard");
   
   feed.innerHTML = "";
   toc.innerHTML  = "";
 
+  if (materialsToggleBtn) {
+    feed.appendChild(materialsToggleBtn);
+  }
   if (materialsCard) {
     feed.appendChild(materialsCard);
   }
@@ -1769,6 +1839,15 @@ function syncNotesToFirestore() {
 //  EVENTS (delegated)
 // ════════════════════════════════════════════════
 document.getElementById("notesFeed").addEventListener("click", e => {
+  // Toggle Study Materials panel
+  const toggleBtn = e.target.closest("#materialsToggleBtn");
+  if (toggleBtn) {
+    const card = document.getElementById("materialsCard");
+    const isExpanded = toggleBtn.classList.toggle("expanded");
+    card.classList.toggle("expanded", isExpanded);
+    return;
+  }
+
   // Run Playground btn
   if (e.target.classList.contains("run-playground-btn")) {
     const pre = e.target.parentNode.querySelector("pre");
@@ -1942,16 +2021,18 @@ if (window.firebaseReady) {
 
 // Load study materials from Firestore
 async function loadStudyMaterials() {
+  const btn = document.getElementById("materialsToggleBtn");
   const card = document.getElementById("materialsCard");
   const grid = document.getElementById("materialsGrid");
   const badge = document.getElementById("materialsBadgeCount");
 
-  if (!grid || !card) return;
+  if (!grid || !card || !btn) return;
 
   try {
     const snap = await window.db.collection("study_materials").orderBy("uploadedAt", "desc").get();
     if (snap.empty) {
-      card.classList.remove("show"); // Hide section if there are no materials
+      btn.style.display = "none";
+      card.classList.remove("expanded");
       return;
     }
 
@@ -1998,7 +2079,7 @@ async function loadStudyMaterials() {
     });
 
     badge.textContent = `${count} ${count === 1 ? 'File' : 'Files'}`;
-    card.classList.add("show"); // Show the card since we have materials!
+    btn.style.display = "flex"; // Show the toggle button since we have materials!
   } catch (error) {
     console.error("Failed to load study materials:", error);
   }
