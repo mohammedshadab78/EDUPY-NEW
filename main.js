@@ -39,6 +39,7 @@ function tokenize(input) {
   // We'll handle this in per-character scanning instead
   const lines = src.split("\n");
   const indentStack = [0];
+  let nestingDepth = 0;
 
   // First pass: merge triple-quoted strings across lines
   const mergedLines = [];
@@ -113,22 +114,26 @@ function tokenize(input) {
 
     // Empty or comment-only lines
     if (line.trim() === "" || line.trim().startsWith("#")) {
-      tokens.push({ type: "NEWLINE" });
+      if (nestingDepth === 0) {
+        tokens.push({ type: "NEWLINE" });
+      }
       continue;
     }
 
     // Handle INDENT / DEDENT
-    const prevIndent = indentStack[indentStack.length - 1];
-    if (indent > prevIndent) {
-      indentStack.push(indent);
-      tokens.push({ type: "INDENT" });
-    } else if (indent < prevIndent) {
-      while (indent < indentStack[indentStack.length - 1]) {
-        indentStack.pop();
-        tokens.push({ type: "DEDENT" });
-      }
-      if (indent !== indentStack[indentStack.length - 1]) {
-        throw new Error("IndentationError: inconsistent indentation on line " + (lineNo + 1));
+    if (nestingDepth === 0) {
+      const prevIndent = indentStack[indentStack.length - 1];
+      if (indent > prevIndent) {
+        indentStack.push(indent);
+        tokens.push({ type: "INDENT" });
+      } else if (indent < prevIndent) {
+        while (indent < indentStack[indentStack.length - 1]) {
+          indentStack.pop();
+          tokens.push({ type: "DEDENT" });
+        }
+        if (indent !== indentStack[indentStack.length - 1]) {
+          throw new Error("IndentationError: inconsistent indentation on line " + (lineNo + 1));
+        }
       }
     }
 
@@ -286,17 +291,17 @@ function tokenize(input) {
 
       // Single-char tokens
       switch (ch) {
-        case "{": tokens.push({ type: "LBRACE" }); j++; continue;
-        case "}": tokens.push({ type: "RBRACE" }); j++; continue;
+        case "{": tokens.push({ type: "LBRACE" }); nestingDepth++; j++; continue;
+        case "}": tokens.push({ type: "RBRACE" }); nestingDepth = Math.max(0, nestingDepth - 1); j++; continue;
         case "+": tokens.push({ type: "PLUS" }); j++; continue;
         case "-": tokens.push({ type: "MINUS" }); j++; continue;
         case "*": tokens.push({ type: "STAR" }); j++; continue;
         case "/": tokens.push({ type: "SLASH" }); j++; continue;
         case "%": tokens.push({ type: "PERCENT" }); j++; continue;
-        case "(": tokens.push({ type: "LPAREN" }); j++; continue;
-        case ")": tokens.push({ type: "RPAREN" }); j++; continue;
-        case "[": tokens.push({ type: "LBRACKET" }); j++; continue;
-        case "]": tokens.push({ type: "RBRACKET" }); j++; continue;
+        case "(": tokens.push({ type: "LPAREN" }); nestingDepth++; j++; continue;
+        case ")": tokens.push({ type: "RPAREN" }); nestingDepth = Math.max(0, nestingDepth - 1); j++; continue;
+        case "[": tokens.push({ type: "LBRACKET" }); nestingDepth++; j++; continue;
+        case "]": tokens.push({ type: "RBRACKET" }); nestingDepth = Math.max(0, nestingDepth - 1); j++; continue;
         case "=": tokens.push({ type: "EQUAL" }); j++; continue;
         case "<": tokens.push({ type: "LT", value: "<" }); j++; continue;
         case ">": tokens.push({ type: "GT", value: ">" }); j++; continue;
@@ -314,7 +319,9 @@ function tokenize(input) {
       throw new Error("SyntaxError: unexpected character '" + ch + "' on line " + (lineNo + 1));
     }
 
-    tokens.push({ type: "NEWLINE" });
+    if (nestingDepth === 0) {
+      tokens.push({ type: "NEWLINE" });
+    }
   }
 
   while (indentStack.length > 1) {
@@ -396,6 +403,7 @@ function createParser(tokens) {
         case "assert": return parseAssertStatement();
         case "raise": return parseRaiseStatement();
         case "del": return parseDelStatement();
+        case "with": return parseWithStatement();
         case "lambda": return parseExpressionStatement(); // lambda as expression-statement
       }
     }
@@ -588,6 +596,19 @@ function createParser(tokens) {
     expectKeyword("del", "Expected 'del'");
     const target = parseExpression();
     return { type: "DelStatement", target };
+  }
+
+  function parseWithStatement() {
+    expectKeyword("with", "Expected 'with'");
+    const value = parseExpression();
+    let varName = null;
+    if (matchKeyword("as")) {
+      varName = expect("IDENT", "Expected variable name after 'as'").value;
+    }
+    expect("COLON", "Expected ':' after with statement");
+    expect("NEWLINE", "Expected newline after with statement");
+    const body = parseIndentedBlock();
+    return { type: "WithStatement", value, varName, body };
   }
 
   function parseIfStatement() {
@@ -1093,6 +1114,25 @@ function createParser(tokens) {
           keyNode = parseExpression();
           expect("COLON", "Expected ':' in dict");
           const valNode = parseExpression();
+
+          // Check for dict comprehension: { k: v for x in y }
+          skipNewlines();
+          if (peek().type === "KEYWORD" && peek().value === "for") {
+            advance(); // consume 'for'
+            const iterVars = [expect("IDENT", "Expected loop variable").value];
+            while (match("COMMA") && check("IDENT")) iterVars.push(advance().value);
+            expectKeyword("in", "Expected 'in' in dict comprehension");
+            const iterExpr = parseExpression();
+            let filterExpr = null;
+            if (peek().type === "KEYWORD" && peek().value === "if") {
+              advance();
+              filterExpr = parseExpression();
+            }
+            skipNewlines();
+            expect("RBRACE", "Expected '}' after dict comprehension");
+            return { type: "DictComprehension", key: keyNode, value: valNode, iterVars, iterable: iterExpr, filter: filterExpr };
+          }
+
           entries.push({ key: keyNode, value: valNode });
         } while (match("COMMA") && !check("RBRACE"));
         skipNewlines();
@@ -1104,7 +1144,27 @@ function createParser(tokens) {
         do {
           skipNewlines();
           if (check("RBRACE")) break;
-          elements.push(parseExpression());
+          const elemExpr = parseExpression();
+
+          // Check for set comprehension: { x for x in y }
+          skipNewlines();
+          if (peek().type === "KEYWORD" && peek().value === "for") {
+            advance(); // consume 'for'
+            const iterVars = [expect("IDENT", "Expected loop variable").value];
+            while (match("COMMA") && check("IDENT")) iterVars.push(advance().value);
+            expectKeyword("in", "Expected 'in' in set comprehension");
+            const iterExpr = parseExpression();
+            let filterExpr = null;
+            if (peek().type === "KEYWORD" && peek().value === "if") {
+              advance();
+              filterExpr = parseExpression();
+            }
+            skipNewlines();
+            expect("RBRACE", "Expected '}' after set comprehension");
+            return { type: "SetComprehension", expression: elemExpr, iterVars, iterable: iterExpr, filter: filterExpr };
+          }
+
+          elements.push(elemExpr);
         } while (match("COMMA") && !check("RBRACE"));
         skipNewlines();
         expect("RBRACE", "Expected '}'");
@@ -1297,52 +1357,50 @@ function createInterpreter(outputFn) {
     modf: (x) => { const i=Math.trunc(x); return mkTuple([x-i, i]); },
     frexp: (x) => { if(x===0) return mkTuple([0,0]); const e=Math.floor(Math.log2(Math.abs(x)))+1; return mkTuple([x/Math.pow(2,e),e]); },
     copysign: (x, y) => Math.sign(y)*Math.abs(x),
-  };
-
-  const randomModule = {
+  };  const randomModule = {
     _seed: Date.now(),
     _rng: null,
     _getRng() {
-      if (!this._rng) {
-        let s = (this._seed | 0) >>> 0;
-        this._rng = () => { s=(s*1664525+1013904223)>>>0; return s/4294967296; };
+      if (!randomModule._rng) {
+        let s = (randomModule._seed | 0) >>> 0;
+        randomModule._rng = () => { s=(s*1664525+1013904223)>>>0; return s/4294967296; };
       }
-      return this._rng;
+      return randomModule._rng;
     },
-    seed(s) { this._seed = typeof s==="number"?s:0; this._rng=null; },
-    random() { return this._getRng()(); },
-    randint(a, b) { a=Math.floor(a); b=Math.floor(b); return Math.floor(this._getRng()()*( b-a+1))+a; },
-    uniform(a, b) { return a + this._getRng()()*(b-a); },
+    seed(s) { randomModule._seed = typeof s==="number"?s:0; randomModule._rng=null; },
+    random() { return randomModule._getRng()(); },
+    randint(a, b) { a=Math.floor(a); b=Math.floor(b); return Math.floor(randomModule._getRng()()*( b-a+1))+a; },
+    uniform(a, b) { return a + randomModule._getRng()()(b-a); },
     choice(arr) {
       if (!Array.isArray(arr)||arr.length===0) throw new Error("IndexError: cannot choose from empty sequence");
-      return arr[Math.floor(this._getRng()()*arr.length)];
+      return arr[Math.floor(randomModule._getRng()()*arr.length)];
     },
     choices(population, k=1) {
-      const r=this._getRng();
+      const r=randomModule._getRng();
       return Array.from({length:k},()=>population[Math.floor(r()*population.length)]);
     },
     sample(population, k) {
       if (k>population.length) throw new Error("ValueError: sample larger than population");
       const pool=[...population]; const res=[];
-      const r=this._getRng();
+      const r=randomModule._getRng();
       for(let i=0;i<k;i++){const j=Math.floor(r()*(pool.length-i)); res.push(pool[j]); pool[j]=pool[pool.length-1-i];}
       return res;
     },
     shuffle(arr) {
-      const r=this._getRng();
+      const r=randomModule._getRng();
       for(let i=arr.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
       return null;
     },
     gauss(mu=0, sigma=1) {
-      const r=this._getRng();
+      const r=randomModule._getRng();
       const u=1-r(), v=r();
       return mu+sigma*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
     },
-    normalvariate(mu=0, sigma=1) { return this.gauss(mu, sigma); },
+    normalvariate(mu=0, sigma=1) { return randomModule.gauss(mu, sigma); },
     randrange(start, stop, step=1) {
       if(stop===undefined){stop=start;start=0;}
       const n=Math.ceil((stop-start)/step);
-      return start+step*Math.floor(this._getRng()()*n);
+      return start+step*Math.floor(randomModule._getRng()()*n);
     },
   };
 
@@ -2522,6 +2580,39 @@ function createInterpreter(outputFn) {
         return null;
       }
 
+      case "WithStatement": {
+        const mgr = evaluate(node.value);
+        if (!mgr || typeof mgr !== "object") {
+          throw new Error("TypeError: with statement context manager must be an object");
+        }
+        let enterFn = getAttr(mgr, "__enter__");
+        let exitFn = getAttr(mgr, "__exit__");
+        if (!enterFn || !exitFn) {
+          if (mgr.__enter__ && mgr.__exit__) {
+            enterFn = mgr.__enter__;
+            exitFn = mgr.__exit__;
+          } else {
+            throw new Error("TypeError: context manager lacks __enter__ or __exit__");
+          }
+        }
+        
+        const enterVal = typeof enterFn === "function" ? enterFn.call(mgr) : callFn(enterFn, []);
+        if (node.varName) {
+          assignVariable(node.varName, enterVal);
+        }
+        
+        try {
+          evaluate(node.body);
+        } finally {
+          if (typeof exitFn === "function") {
+            exitFn.call(mgr, null, null, null);
+          } else {
+            callFn(exitFn, [null, null, null]);
+          }
+        }
+        return null;
+      }
+
       case "ImportStatement": {
         for (const name of node.names) {
           if (modules[name]) defineVariable(name, modules[name]);
@@ -2589,6 +2680,41 @@ function createInterpreter(outputFn) {
           result.push(evaluate(node.expression));
         }
         return result;
+      }
+
+      case "SetComprehension": {
+        const result = [];
+        const iterVal = evaluate(node.iterable);
+        const iterArr = asArray(iterVal);
+        for (const item of iterArr) {
+          if (node.iterVars.length === 1) {
+            assignVariable(node.iterVars[0], item);
+          } else {
+            const vals = asArray(item);
+            for (let i = 0; i < node.iterVars.length; i++) assignVariable(node.iterVars[i], vals[i]||null);
+          }
+          if (node.filter && !truthy(evaluate(node.filter))) continue;
+          result.push(evaluate(node.expression));
+        }
+        return mkSet([...new Set(result.map(v => JSON.stringify(v)))].map(v => JSON.parse(v)));
+      }
+
+      case "DictComprehension": {
+        const obj = {};
+        const iterVal = evaluate(node.iterable);
+        const iterArr = asArray(iterVal);
+        for (const item of iterArr) {
+          if (node.iterVars.length === 1) {
+            assignVariable(node.iterVars[0], item);
+          } else {
+            const vals = asArray(item);
+            for (let i = 0; i < node.iterVars.length; i++) assignVariable(node.iterVars[i], vals[i]||null);
+          }
+          if (node.filter && !truthy(evaluate(node.filter))) continue;
+          const k = String(evaluate(node.key));
+          obj[k] = evaluate(node.value);
+        }
+        return obj;
       }
 
       case "Identifier":
