@@ -1629,8 +1629,16 @@ let collapsed  = JSON.parse(localStorage.getItem("edupy_collapsed") || "[]");
 function render(filter = "") {
   const feed = document.getElementById("notesFeed");
   const toc  = document.getElementById("tocList");
+  
+  // Preserve Study Materials card if it exists in the feed
+  const materialsCard = document.getElementById("materialsCard");
+  
   feed.innerHTML = "";
   toc.innerHTML  = "";
+
+  if (materialsCard) {
+    feed.appendChild(materialsCard);
+  }
 
   const q = filter.toLowerCase().trim();
   const visible = modules.filter(m => {
@@ -1640,7 +1648,10 @@ function render(filter = "") {
   });
 
   if (!visible.length) {
-    feed.innerHTML = `<div class="no-results"><span class="emoji">🔍</span>No topics match "<strong>${filter}</strong>". Try "loops", "OOP", or "functions".</div>`;
+    const noResults = document.createElement("div");
+    noResults.className = "no-results";
+    noResults.innerHTML = `<span class="emoji">🔍</span>No topics match "<strong>${filter}</strong>". Try "loops", "OOP", or "functions".`;
+    feed.appendChild(noResults);
     return;
   }
 
