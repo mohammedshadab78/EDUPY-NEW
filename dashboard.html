@@ -1227,7 +1227,13 @@
           }).join('');
 
         }, (error) => {
-       function renderRoadmap(data) {
+          console.error("Dashboard snap listener error:", error);
+        });
+      });
+    }
+
+    // ── ROADMAP RENDERING & PREVIEW ──
+    function renderRoadmap(data) {
       const container = document.getElementById("roadmapContainer");
       if (!container) return;
       
