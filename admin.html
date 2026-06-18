@@ -2051,7 +2051,7 @@
         formData.append('file', file);
         formData.append('upload_preset', 'edupy_notes');
 
-        xhr.open('POST', 'https://api.cloudinary.com/v1_1/daqyuqlox/raw/upload', true);
+        xhr.open('POST', 'https://api.cloudinary.com/v1_1/daqyuqlox/auto/upload', true);
 
         xhr.upload.addEventListener('progress', (e) => {
           if (e.lengthComputable) {
