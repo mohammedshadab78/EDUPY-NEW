@@ -627,6 +627,7 @@
       <button class="tab-btn" onclick="switchTab('projects')">🎬 Projects Manager</button>
       <button class="tab-btn" onclick="switchTab('puzzles')">🧩 Puzzle Manager</button>
       <button class="tab-btn" onclick="switchTab('users')">👥 Users Manager</button>
+      <button class="tab-btn" onclick="switchTab('materials')">📂 Study Materials</button>
     </div>
 
     <!-- ── TAB CONTENT: ANALYTICS ── -->
@@ -921,6 +922,77 @@
       </div>
     </div>
 
+    <!-- ── TAB CONTENT: STUDY MATERIALS ── -->
+    <div id="tab-materials" class="tab-content">
+      <div class="admin-grid">
+        <!-- Add Material Form -->
+        <section class="panel">
+          <h2 class="panel-title">📂 Add Study Material</h2>
+          
+          <form id="materialForm">
+            <div class="form-group">
+              <label class="form-label" for="matTitle">Material Title</label>
+              <input class="input-field" type="text" id="matTitle" placeholder="e.g. Loops Reference Cheat Sheet" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="matCategory">Category</label>
+              <select class="select-field" id="matCategory" required>
+                <option value="Basics">Python Basics</option>
+                <option value="Loops">Loops & Iteration</option>
+                <option value="Lists & Dicts">Lists & Dictionaries</option>
+                <option value="OOPs">Object-Oriented Programming (OOPs)</option>
+                <option value="Data Structures">Data Structures</option>
+                <option value="Interview Prep">Interview Preparation</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="matDesc">Short Description</label>
+              <textarea class="textarea-field" id="matDesc" placeholder="e.g. Quick reference guide for for/while loops, break, and continue statements." style="height: 80px;" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="matFile">Select Notes File (PDF, ZIP, DOCX, PNG, JPG)</label>
+              <input class="input-field" type="file" id="matFile" accept=".pdf,.zip,.docx,.png,.jpg,.jpeg" required style="padding: 10px 0; border: none; background: transparent;">
+            </div>
+
+            <!-- Upload progress indicator -->
+            <div class="form-group" id="uploadProgressContainer" style="display: none;">
+              <label class="form-label">Uploading File: <span id="uploadProgressPercent">0%</span></label>
+              <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
+                <div id="uploadProgressBar" style="width: 0%; height: 100%; background: var(--purple); transition: width 0.1s;"></div>
+              </div>
+            </div>
+
+            <button class="btn-action" type="submit" id="matSubBtn">
+              <span>📂 Upload Material</span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Materials List -->
+        <section class="panel">
+          <h2 class="panel-title">📚 Registered Materials</h2>
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Size</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="materials-list-body">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+
   </div>
 
   <!-- ── MODAL: EDIT MCQ ── -->
@@ -1085,6 +1157,7 @@
     let questionsCache = [];
     let projectsCache = [];
     let puzzlesCache = [];
+    let materialsCache = [];
 
     // Security check - verify if role is admin
     async function verifyAdminAccess() {
@@ -1139,6 +1212,7 @@
       else if (tabName === 'projects') loadProjects();
       else if (tabName === 'puzzles') loadPuzzles();
       else if (tabName === 'users') loadUsers();
+      else if (tabName === 'materials') loadMaterials();
     }
 
     // Modal Control functions
@@ -1845,6 +1919,177 @@
         showAdminToast("✅ User record deleted successfully.");
         loadUsers();
       } catch (err) {
+        showAdminToast("❌ Deletion failed: " + err.message);
+      }
+    }
+
+    // ── TAB: STUDY MATERIALS CRUD ──
+    async function loadMaterials() {
+      await window.firebaseReady;
+      const tbody = document.getElementById('materials-list-body');
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">⏳ Loading materials...</td></tr>`;
+
+      try {
+        const snap = await window.db.collection('study_materials').orderBy('uploadedAt', 'desc').get();
+        materialsCache = [];
+        snap.forEach(doc => {
+          const m = doc.data();
+          m.docId = doc.id;
+          materialsCache.push(m);
+        });
+
+        tbody.innerHTML = '';
+        if (materialsCache.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No study materials found. Upload one above.</td></tr>`;
+          return;
+        }
+
+        materialsCache.forEach(m => {
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>${escapeHTML(m.title)}</strong><div style="font-size:0.72rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(m.description)}</div></td>
+              <td><span class="level-badge" style="background:rgba(108,99,255,0.08);color:var(--purple);">${escapeHTML(m.category)}</span></td>
+              <td>${escapeHTML(m.fileSize)}</td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <a href="${m.fileUrl}" target="_blank" class="btn-table edit" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">👁️ View</a>
+                  <button class="btn-table delete" onclick="deleteMaterial('${m.docId}')">🗑️ Delete</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        console.error("Error loading materials:", err);
+        tbody.innerHTML = `<tr><td colspan="4" style="color:var(--coral-dk);text-align:center;">Failed to load materials.</td></tr>`;
+      }
+    }
+
+    const materialForm = document.getElementById('materialForm');
+    const matSubBtn = document.getElementById('matSubBtn');
+
+    if (materialForm) {
+      materialForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const title = document.getElementById('matTitle').value.trim();
+        const category = document.getElementById('matCategory').value;
+        const description = document.getElementById('matDesc').value.trim();
+        const fileInput = document.getElementById('matFile');
+        
+        if (!fileInput.files || fileInput.files.length === 0) {
+          showAdminToast("⚠️ Please select a file to upload.");
+          return;
+        }
+
+        const file = fileInput.files[0];
+        
+        // Show progress bar
+        const progressContainer = document.getElementById('uploadProgressContainer');
+        const progressPercent = document.getElementById('uploadProgressPercent');
+        const progressBar = document.getElementById('uploadProgressBar');
+        
+        progressContainer.style.display = 'block';
+        progressBar.style.width = '0%';
+        progressPercent.textContent = '0%';
+
+        matSubBtn.disabled = true;
+        const origText = matSubBtn.innerHTML;
+        matSubBtn.innerHTML = '⏳ Uploading to Cloudinary...';
+
+        try {
+          // 1. Upload file to Cloudinary
+          const uploadRes = await uploadToCloudinary(file, (percent) => {
+            progressBar.style.width = `${percent}%`;
+            progressPercent.textContent = `${percent}%`;
+          });
+
+          const fileUrl = uploadRes.secure_url;
+          const bytes = uploadRes.bytes || 0;
+          
+          // Formatted file size
+          let fileSize = "0 KB";
+          if (bytes > 1024 * 1024) {
+            fileSize = (bytes / (1024 * 1024)).toFixed(1) + " MB";
+          } else if (bytes > 1024) {
+            fileSize = (bytes / 1024).toFixed(1) + " KB";
+          } else {
+            fileSize = bytes + " Bytes";
+          }
+
+          matSubBtn.innerHTML = '⏳ Saving to Firestore...';
+
+          // 2. Write to Firestore
+          await window.db.collection('study_materials').add({
+            title,
+            category,
+            description,
+            fileUrl,
+            fileSize,
+            publicId: uploadRes.public_id || '',
+            uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          showAdminToast("✅ Study material uploaded successfully!");
+          materialForm.reset();
+          progressContainer.style.display = 'none';
+          loadMaterials();
+        } catch (error) {
+          console.error("Upload failed:", error);
+          showAdminToast("❌ Upload failed: " + error.message);
+        } finally {
+          matSubBtn.disabled = false;
+          matSubBtn.innerHTML = origText;
+        }
+      });
+    }
+
+    function uploadToCloudinary(file, onProgress) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'edupy_notes');
+
+        xhr.open('POST', 'https://api.cloudinary.com/v1_1/daqyuqlox/raw/upload', true);
+
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            onProgress(percent);
+          }
+        });
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            try {
+              const response = JSON.parse(xhr.responseText);
+              resolve(response);
+            } catch (err) {
+              reject(new Error("Invalid server response"));
+            }
+          } else {
+            try {
+              const err = JSON.parse(xhr.responseText || '{}');
+              reject(new Error(err.error?.message || 'Upload failed'));
+            } catch(e) {
+              reject(new Error('Upload failed with status ' + xhr.status));
+            }
+          }
+        };
+
+        xhr.onerror = () => reject(new Error('Network error during upload'));
+        xhr.send(formData);
+      });
+    }
+
+    async function deleteMaterial(docId) {
+      if (!confirm("Are you sure you want to delete this study material?")) return;
+      try {
+        await window.db.collection('study_materials').doc(docId).delete();
+        showAdminToast("✅ Study material removed!");
+        loadMaterials();
+      } catch(err) {
         showAdminToast("❌ Deletion failed: " + err.message);
       }
     }
