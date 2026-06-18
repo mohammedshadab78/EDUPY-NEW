@@ -952,10 +952,12 @@ function renderProjectCardHTML(projId, p, index) {
 
       <div class="controls-bar" id="ctrl-${projId}">
         <!-- Main Mode Toggle Segment -->
+        ${(projId === 'guess' || projId === 'calc') ? `
         <div class="mode-segment" style="margin-right: 0.5rem;">
           <button class="segment-btn active" id="tab-viz-${projId}" onclick="switchProjectViewMode('${projId}', 'viz')">🎬 Flow Tracer</button>
           <button class="segment-btn" id="tab-guided-${projId}" onclick="switchProjectViewMode('${projId}', 'guided')">💻 Guided Builder</button>
         </div>
+        ` : ''}
 
         <!-- Visualizer Controls (Only visible in 'viz' view mode) -->
         <div class="viz-controls-only" id="viz-ctrls-${projId}" style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; flex:1;">
@@ -1864,8 +1866,8 @@ function switchProjectViewMode(projId, mode) {
     paneEditor.style.display = 'flex';
     paneInst.style.display = 'block';
 
-    tabViz.classList.remove('active');
-    tabGuided.classList.add('active');
+    if (tabViz) tabViz.classList.remove('active');
+    if (tabGuided) tabGuided.classList.add('active');
 
     initGuidedEditor(projId);
   } else {
@@ -1875,8 +1877,8 @@ function switchProjectViewMode(projId, mode) {
     paneEditor.style.display = 'none';
     paneInst.style.display = 'none';
 
-    tabViz.classList.add('active');
-    tabGuided.classList.remove('active');
+    if (tabViz) tabViz.classList.add('active');
+    if (tabGuided) tabGuided.classList.remove('active');
 
     // Reset visualizer to manual
     resetViz(projId);
